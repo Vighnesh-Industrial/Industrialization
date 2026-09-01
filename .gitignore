@@ -1,0 +1,4 @@
+# exported analyses are committed deliberately, not automatically
+*.tmp
+.DS_Store
+node_modules/

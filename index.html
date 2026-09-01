@@ -1,0 +1,1462 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Assembly &amp; Cost Workbench</title>
+<style>
+/* ============================================================
+   DESIGN TOKENS
+   ============================================================ */
+:root{
+  --ground:#f2f4f4; --surface:#fff; --surface-2:#e9edee; --surface-3:#dfe5e6;
+  --ink:#161b1e; --ink-2:#3d4a50; --steel:#6d7c84;
+  --rule:#d3dadc; --rule-strong:#b3bfc3;
+  --accent:#0f5b6b; --accent-ink:#fff; --accent-soft:#e0eef1;
+  --ok:#2f6b46; --ok-soft:#e2efe7;
+  --warn:#8a5a12; --warn-soft:#f5ecd9;
+  --risk:#993122; --risk-soft:#f6e5e1;
+  --shadow:0 1px 0 rgba(22,27,30,.04), 0 8px 24px -18px rgba(22,27,30,.45);
+  --f-ui:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#101416; --surface:#171d20; --surface-2:#1e262a; --surface-3:#263034;
+    --ink:#e7ecec; --ink-2:#b3c0c4; --steel:#8a9aa0;
+    --rule:#2a3439; --rule-strong:#3a464c;
+    --accent:#6fc4d6; --accent-ink:#0b1214; --accent-soft:#15343c;
+    --ok:#7fc79b; --ok-soft:#17301f;
+    --warn:#d9ad61; --warn-soft:#33280f;
+    --risk:#e08d7c; --risk-soft:#3a1f1a;
+    --shadow:0 1px 0 rgba(0,0,0,.3), 0 10px 28px -20px rgba(0,0,0,.9);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#101416; --surface:#171d20; --surface-2:#1e262a; --surface-3:#263034;
+  --ink:#e7ecec; --ink-2:#b3c0c4; --steel:#8a9aa0;
+  --rule:#2a3439; --rule-strong:#3a464c;
+  --accent:#6fc4d6; --accent-ink:#0b1214; --accent-soft:#15343c;
+  --ok:#7fc79b; --ok-soft:#17301f;
+  --warn:#d9ad61; --warn-soft:#33280f;
+  --risk:#e08d7c; --risk-soft:#3a1f1a;
+  --shadow:0 1px 0 rgba(0,0,0,.3), 0 10px 28px -20px rgba(0,0,0,.9);
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--ground);color:var(--ink);font-family:var(--f-ui);font-size:14px;line-height:1.55;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{margin:0;font-weight:600;letter-spacing:-.01em}
+p{margin:0 0 .8em}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* ---- app frame ---- */
+.topbar{position:sticky;top:0;z-index:30;background:var(--surface);border-bottom:1px solid var(--rule-strong)}
+.topbar-in{max-width:1400px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.brand{display:flex;align-items:baseline;gap:12px;margin-right:auto}
+.brand h1{font-size:16px}
+.brand .ver{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--steel)}
+nav.tabs{display:flex;gap:2px;flex-wrap:wrap}
+nav.tabs button{
+  font-family:var(--f-ui);font-size:13px;font-weight:500;color:var(--ink-2);
+  background:transparent;border:1px solid transparent;border-radius:2px;padding:6px 12px;cursor:pointer}
+nav.tabs button:hover{background:var(--surface-2)}
+nav.tabs button[aria-current="page"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.topact{display:flex;gap:8px}
+
+main{max-width:1400px;margin:0 auto;padding:22px 20px 80px}
+
+/* ---- generic bits ---- */
+.eyebrow{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--steel);margin:0 0 8px}
+.card{background:var(--surface);border:1px solid var(--rule);box-shadow:var(--shadow);padding:18px 20px;margin-bottom:18px}
+.card > h2{font-size:16px;margin-bottom:2px}
+.card > .sub{color:var(--steel);font-size:13px;margin:0 0 14px}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media(max-width:900px){.g3,.g4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){.g2,.g3,.g4{grid-template-columns:1fr}}
+
+button.btn{
+  font-family:var(--f-ui);font-size:13px;font-weight:500;padding:7px 13px;border-radius:2px;cursor:pointer;
+  background:var(--surface);color:var(--ink);border:1px solid var(--rule-strong)}
+button.btn:hover{background:var(--surface-2)}
+button.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+button.btn.danger{color:var(--risk);border-color:var(--rule-strong)}
+button.btn.sm{font-size:12px;padding:4px 9px}
+
+label.f{display:block}
+label.f > span.lab{display:block;font-family:var(--f-mono);font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--steel);margin-bottom:4px}
+label.f > span.hint{display:block;font-size:11.5px;color:var(--steel);margin-top:3px;line-height:1.4}
+input[type=text],input[type=number],select,textarea{
+  width:100%;font-family:var(--f-mono);font-size:13px;color:var(--ink);background:var(--surface);
+  border:1px solid var(--rule-strong);border-radius:2px;padding:6px 8px}
+textarea{font-family:var(--f-ui);min-height:60px;resize:vertical}
+input:disabled{background:var(--surface-2);color:var(--steel)}
+label.ck{display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--ink-2);padding:3px 0;cursor:pointer}
+label.ck input{margin:3px 0 0;accent-color:var(--accent);flex:0 0 auto}
+
+.tablewrap{overflow-x:auto;border:1px solid var(--rule);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th{font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--steel);
+   text-align:left;font-weight:500;padding:9px 12px;background:var(--surface-2);border-bottom:1px solid var(--rule-strong);white-space:nowrap}
+td{padding:8px 12px;border-bottom:1px solid var(--rule);color:var(--ink-2);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+td.n,th.n{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+td.over{color:var(--risk)}
+tbody tr.sel td{background:var(--accent-soft)}
+tbody tr.clickable{cursor:pointer}
+tbody tr.clickable:hover td{background:var(--surface-2)}
+table input,table select{padding:4px 6px;font-size:12px}
+
+.chip{display:inline-block;font-family:var(--f-mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:2px;white-space:nowrap}
+.chip.ok{background:var(--ok-soft);color:var(--ok)}
+.chip.warn{background:var(--warn-soft);color:var(--warn)}
+.chip.risk{background:var(--risk-soft);color:var(--risk)}
+.chip.neutral{background:var(--surface-2);color:var(--steel)}
+.chip.acc{background:var(--accent-soft);color:var(--accent)}
+
+/* ---- KPI tiles ---- */
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule)}
+@media(max-width:1000px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.kpis{grid-template-columns:1fr}}
+.kpi{background:var(--surface);padding:14px 16px}
+.kpi .k{font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--steel);margin-bottom:6px}
+.kpi .v{font-family:var(--f-mono);font-size:24px;font-variant-numeric:tabular-nums;line-height:1.1;color:var(--ink)}
+.kpi .v small{font-size:13px;color:var(--steel);margin-left:3px}
+.kpi .m{font-size:11.5px;color:var(--steel);margin-top:5px;line-height:1.35}
+.meter{height:4px;background:var(--surface-3);margin-top:9px;position:relative;overflow:hidden}
+.meter i{position:absolute;inset:0 auto 0 0;background:var(--accent)}
+.meter i.ok{background:var(--ok)} .meter i.warn{background:var(--warn)} .meter i.risk{background:var(--risk)}
+
+/* ---- parts layout ---- */
+.split{display:grid;grid-template-columns:minmax(280px,380px) 1fr;gap:18px;align-items:start}
+@media(max-width:980px){.split{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:1px solid var(--rule);box-shadow:var(--shadow)}
+.panel > header{padding:12px 16px;border-bottom:1px solid var(--rule);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.panel > header h2{font-size:14px;margin-right:auto}
+.panel > .body{padding:16px}
+fieldset{border:none;border-top:1px solid var(--rule);margin:0 0 4px;padding:16px 0 4px}
+fieldset:first-of-type{border-top:none;padding-top:0}
+legend{font-family:var(--f-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);padding:0;margin-bottom:10px}
+.livebar{display:flex;gap:18px;flex-wrap:wrap;background:var(--surface-2);border:1px solid var(--rule);padding:10px 14px;margin-bottom:14px}
+.livebar div{font-family:var(--f-mono);font-size:12px;font-variant-numeric:tabular-nums}
+.livebar b{display:block;font-family:var(--f-mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--steel);font-weight:500}
+
+ul.flags{list-style:none;margin:0;padding:0}
+ul.flags li{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--rule);font-size:13px;color:var(--ink-2)}
+ul.flags li:last-child{border-bottom:none}
+ul.flags li b{color:var(--ink);font-weight:600}
+
+.note{font-size:12.5px;color:var(--steel);line-height:1.5}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.right{text-align:right}
+.rowact{display:flex;gap:6px;flex-wrap:wrap}
+.empty{padding:30px;text-align:center;color:var(--steel);font-size:13px}
+details.calc{margin-top:10px;border-top:1px dashed var(--rule-strong);padding-top:10px}
+details.calc summary{cursor:pointer;font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+details.calc table{margin-top:10px;font-size:12px}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--ink);color:var(--ground);
+  font-family:var(--f-mono);font-size:12px;padding:9px 16px;border-radius:2px;z-index:100;box-shadow:var(--shadow)}
+@media print{
+  .topbar,.topact,.noprint{display:none!important}
+  body{background:#fff}
+  .card,.panel{box-shadow:none;break-inside:avoid}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-in">
+    <div class="brand">
+      <h1>Assembly &amp; Cost Workbench</h1>
+      <span class="ver">DFA + should-cost · v1.0</span>
+    </div>
+    <nav class="tabs" id="tabs"></nav>
+    <div class="topact">
+      <button class="btn sm" id="btnExport">Export</button>
+      <button class="btn sm" id="btnImport">Import</button>
+      <input type="file" id="fileImport" accept=".json" hidden>
+      <input type="file" id="fileCsv" accept=".csv,.txt" hidden>
+    </div>
+  </div>
+</div>
+
+<main id="app"></main>
+
+<script>
+"use strict";
+/* ============================================================
+   1. DEFAULT LIBRARY DATA
+   Every number below is a STARTING POINT, not vendor data.
+   Calibrate against your own shop, machines and quotes.
+   ============================================================ */
+
+const CUR = "₹"; // INR
+
+const DEFAULT_LIB = {
+  rates: {
+    labourPerHour: 250,        // direct operator, INR/hr
+    engineerPerHour: 900,      // for setup/programming
+    assemblyLabourPerHour: 220,// assembly line operator
+    overheadPct: 18,           // factory overhead on conversion cost (vendor basis)
+    scrapPct: 3,               // scrap / rework allowance
+    marginPct: 12,             // supplier margin (vendor basis)
+    packFreightPct: 2,         // packaging + inbound freight
+    idealAssemblySec: 3.0      // theoretical time for an ideal part (efficiency denominator)
+  },
+
+  materials: [
+    // machining stock
+    {id:"al6061", name:"Aluminium 6061-T6", density:2.70, pricePerKg:420,  scrapPerKg:130, mrr:22000, vc:250, fpr:0.15, group:"machining"},
+    {id:"ms1018", name:"Mild steel 1018",   density:7.87, pricePerKg:75,   scrapPerKg:28,  mrr:9000,  vc:90,  fpr:0.12, group:"machining"},
+    {id:"ss304",  name:"Stainless 304",     density:8.00, pricePerKg:280,  scrapPerKg:95,  mrr:4500,  vc:60,  fpr:0.09, group:"machining"},
+    {id:"brass",  name:"Brass C36000",      density:8.50, pricePerKg:620,  scrapPerKg:330, mrr:26000, vc:200, fpr:0.15, group:"machining"},
+    {id:"delrin", name:"Acetal / Delrin",   density:1.41, pricePerKg:520,  scrapPerKg:0,   mrr:35000, vc:300, fpr:0.20, group:"machining"},
+    // FDM filament
+    {id:"pla",    name:"PLA filament",      density:1.24, pricePerKg:1100, group:"fdm"},
+    {id:"petg",   name:"PETG filament",     density:1.27, pricePerKg:1400, group:"fdm"},
+    {id:"abs",    name:"ABS filament",      density:1.04, pricePerKg:1300, group:"fdm"},
+    {id:"pa12cf", name:"PA12-CF filament",  density:1.10, pricePerKg:5200, group:"fdm"},
+    // powder
+    {id:"pa12",   name:"PA12 powder (SLS)", density:1.01, bulkDensity:0.45, pricePerKg:3800, group:"powder"},
+    {id:"pa11",   name:"PA11 powder",       density:1.03, bulkDensity:0.46, pricePerKg:5600, group:"powder"},
+    {id:"pa12gb", name:"PA12-GB powder",    density:1.30, bulkDensity:0.60, pricePerKg:4200, group:"powder"}
+  ],
+
+  machines: [
+    {id:"vmc",   name:"3-axis VMC (small)",  group:"machining", ratePerHour:900,  maxRpm:8000,  toolChangeSec:8,  rapidSec:2},
+    {id:"drill", name:"Drill press / tapper",group:"machining", ratePerHour:350,  maxRpm:3000,  toolChangeSec:25, rapidSec:3},
+    {id:"lathe", name:"CNC lathe (small)",   group:"machining", ratePerHour:750,  maxRpm:4000,  toolChangeSec:5,  rapidSec:2},
+    {id:"fdm1",  name:"FDM 300×300×300", group:"fdm", ratePerHour:120,
+      printSpeed:60, flowEff:0.85, layerOverheadSec:1.2, warmupMin:6, plateSetupMin:8},
+    {id:"fdmInd",name:"FDM industrial (heated chamber)", group:"fdm", ratePerHour:420,
+      printSpeed:80, flowEff:0.9, layerOverheadSec:1.0, warmupMin:20, plateSetupMin:12},
+    {id:"sls1",  name:"SLS 340×340×600", group:"powder", ratePerHour:950,
+      buildX:340, buildY:340, buildZ:600, layerHeight:0.10, layerTimeSec:38, warmupMin:120, cooldownMin:600},
+    {id:"mjf1",  name:"MJF 380×284×380", group:"powder", ratePerHour:1150,
+      buildX:380, buildY:284, buildZ:380, layerHeight:0.08, layerTimeSec:9, warmupMin:45, cooldownMin:180}
+  ],
+
+  /* ---- DFA method tables -------------------------------------------------
+     Structure follows the published Lucas/Hull approach (functional A/B
+     analysis + handling index + fitting index) combined with a Boothroyd-
+     shaped time model. All values are ours to calibrate: run a stopwatch on
+     your own line and overwrite them. Nothing here is transcribed from any
+     vendor's proprietary tables.                                            */
+  dfa: {
+    // --- Lucas-style handling index -------------------------------------
+    hSize: {                         // base index by size / weight class
+      normal:      {label:"Normal, one hand, easy to grasp (6–250 mm)", idx:1.0, sec:1.5},
+      small:       {label:"Small (2–6 mm), fiddly but no tool",         idx:1.5, sec:2.5},
+      verySmall:   {label:"Very small (<2 mm), tweezers or magnifier",       idx:1.8, sec:4.0},
+      large:       {label:"Large / awkward, two hands",                      idx:1.5, sec:3.0},
+      heavy:       {label:"Heavy (>5 kg) or needs mechanical aid",           idx:2.5, sec:9.0}
+    },
+    hSym: {                          // orientation effort
+      symmetric:   {label:"Fully symmetric – no orienting needed", idx:0.0, sec:0.0},
+      oneWay:      {label:"Symmetric about one axis only",              idx:0.2, sec:0.6},
+      twoWay:      {label:"Must be oriented end-to-end and rotationally",idx:0.4, sec:1.2},
+      nonObvious:  {label:"Orientation feature hard to see",             idx:0.6, sec:2.0}
+    },
+    hFlags: {                        // additive handling difficulties
+      nests:        {label:"Nests or tangles in bulk",        idx:0.7, sec:2.0},
+      flexible:     {label:"Flexible / floppy",               idx:0.6, sec:1.5},
+      delicate:     {label:"Delicate, damages easily",        idx:0.4, sec:1.0},
+      sticky:       {label:"Sticky, oily or magnetic",        idx:0.5, sec:1.0},
+      sharp:        {label:"Sharp edges / needs gloves",      idx:0.3, sec:0.6},
+      slippery:     {label:"Slippery",                        idx:0.3, sec:0.6},
+      twoHands:     {label:"Needs two hands to hold",         idx:0.4, sec:1.5},
+      toolNeeded:   {label:"Grasping tool required",          idx:0.5, sec:2.5},
+      magnification:{label:"Optical magnification required",  idx:0.6, sec:3.0}
+    },
+    // --- Lucas-style fitting index --------------------------------------
+    fBase:  {label:"Base: part placed, self-locating, from above", idx:1.0, sec:1.5},
+    fDir: {
+      topDown:     {label:"Inserted from above",   idx:0.0, sec:0.0},
+      side:        {label:"Inserted from the side",idx:0.3, sec:1.0},
+      underneath:  {label:"Inserted from below",   idx:0.7, sec:2.5}
+    },
+    fFlags: {
+      notSelfLocating:{label:"No self-location – needs alignment", idx:0.4, sec:1.5},
+      holdDown:       {label:"Must be held down while fixed",           idx:0.3, sec:2.0},
+      resistance:     {label:"Resistance to insertion",                 idx:0.3, sec:1.5},
+      obstructed:     {label:"Obstructed access",                       idx:0.5, sec:2.5},
+      restrictedVision:{label:"Restricted vision",                      idx:0.4, sec:2.0},
+      reorient:       {label:"Assembly must be re-oriented first",      idx:0.4, sec:4.0},
+      adjust:         {label:"Adjustment / alignment step",             idx:0.5, sec:8.0},
+      testStep:       {label:"In-process test or measurement",          idx:0.4, sec:12.0}
+    },
+    fFix: {
+      none:     {label:"None – held by earlier part",   idx:0.0, sec:0.0},
+      snap:     {label:"Snap fit / integral feature",        idx:0.1, sec:1.0},
+      clip:     {label:"Separate clip or circlip",           idx:0.4, sec:3.0},
+      screw:    {label:"Screw / bolt (power tool)",          idx:0.6, sec:6.0},
+      screwHand:{label:"Screw, hand-driven",                 idx:0.7, sec:9.0},
+      rivet:    {label:"Rivet",                              idx:0.5, sec:5.0},
+      weld:     {label:"Weld / braze",                       idx:0.8, sec:14.0},
+      adhesive: {label:"Adhesive",                           idx:0.7, sec:8.0},
+      solder:   {label:"Solder",                             idx:0.8, sec:11.0},
+      press:    {label:"Press fit",                          idx:0.5, sec:4.0}
+    },
+    targets:{handling:1.5, fitting:1.5, designEff:60}
+  },
+
+  /* ---- cost model coefficients ---- */
+  cost: {
+    tolerance: {
+      coarse: {label:"General tolerance (±0.2 mm)", mult:1.00},
+      medium: {label:"±0.05 mm",                    mult:1.20},
+      fine:   {label:"±0.02 mm",                    mult:1.45},
+      precision:{label:"±0.01 mm or tighter",       mult:1.80}
+    },
+    finish: {
+      asMachined:{label:"As machined (Ra 3.2)", mult:1.00},
+      good:      {label:"Ra 1.6",               mult:1.15},
+      fine:      {label:"Ra 0.8",               mult:1.35},
+      ground:    {label:"Ra 0.4 or better",     mult:1.70}
+    },
+    machining:{
+      approachMm:2.0,          // drill approach + breakthrough allowance
+      peckFactor:1.15,         // deep-hole pecking uplift
+      loadUnloadSec:25,
+      inspectionSec:20,
+      finishRateMm2PerMin:9000,// finishing pass surface rate
+      operatorAttendPct:60     // % of cycle the operator is tied to the machine
+    },
+    fdm:{
+      extrusionWidthFactor:1.125, // width = nozzle dia x this
+      wastePct:4,
+      failurePct:6,
+      postProcessMin:6
+    },
+    powder:{
+      packingDensityPct:9,     // % of build volume occupied by parts (typical 8-12)
+      recyclePct:70,           // fraction of cake powder reused
+      depowderMinPerPart:2.5,
+      postProcessMinPerPart:3
+    }
+  }
+};
+
+/* ============================================================
+   2. SAMPLE PROJECT (so the tool is not empty on first open)
+   ============================================================ */
+function samplePart(over){
+  return Object.assign({
+    id: uid(), name:"New part", partNo:"", qty:1, notes:"",
+    dfa:{
+      moveRelative:false, differentMaterial:false, separateForService:false, reason:"",
+      size:"normal", sym:"oneWay", hFlags:{},
+      dir:"topDown", fFlags:{}, fix:"none", fixCount:1
+    },
+    cost:{
+      process:"machining", basis:"inherit", purchasedPrice:0,
+      machining:{ materialId:"al6061", machineId:"vmc", stockForm:"block",
+        L:60,W:40,H:20, D:0, partVolume:28000, surfaceArea:0,
+        holes:[{count:4, dia:5, depth:20}], setups:1, toolChanges:3,
+        setupMin:35, batchSize:50, tolerance:"coarse", finish:"asMachined", scrapCredit:true },
+      fdm:{ materialId:"petg", machineId:"fdm1", bx:60,by:40,bz:20, partVolume:28000,
+        layerHeight:0.2, nozzle:0.4, infillPct:25, walls:3, supportPct:12,
+        partsPerPlate:4, surfaceArea:0 },
+      powder:{ materialId:"pa12", machineId:"mjf1", bx:60,by:40,bz:20, partVolume:28000,
+        partsPerBuild:0, packingOverride:0 }
+    }
+  }, over||{});
+}
+
+function sampleProject(){
+  const p = (n,o)=>{const x=samplePart(o); x.name=n; return x;};
+  const parts = [
+    p("Base plate", {qty:1, dfa:{moveRelative:false,differentMaterial:false,separateForService:true,reason:"Mounting interface – must be separate to attach to the frame.",
+        size:"normal",sym:"oneWay",hFlags:{},dir:"topDown",fFlags:{},fix:"none",fixCount:1}}),
+    p("Pivot arm", {qty:1, dfa:{moveRelative:true,differentMaterial:false,separateForService:false,reason:"Rotates relative to the base.",
+        size:"normal",sym:"twoWay",hFlags:{},dir:"topDown",fFlags:{notSelfLocating:true},fix:"none",fixCount:1}}),
+    p("Bronze bush", {qty:2, dfa:{moveRelative:false,differentMaterial:true,separateForService:true,reason:"Bearing material must differ from the arm.",
+        size:"small",sym:"oneWay",hFlags:{slippery:true},dir:"topDown",fFlags:{resistance:true},fix:"press",fixCount:1}}),
+    p("Cover", {qty:1, dfa:{moveRelative:false,differentMaterial:false,separateForService:false,reason:"Candidate for consolidation into the base.",
+        size:"large",sym:"oneWay",hFlags:{},dir:"topDown",fFlags:{holdDown:true},fix:"screw",fixCount:4}}),
+    p("M4 cap screw", {qty:4, dfa:{moveRelative:false,differentMaterial:false,separateForService:false,reason:"Separate fastener – pure assembly cost.",
+        size:"small",sym:"oneWay",hFlags:{nests:true},dir:"topDown",fFlags:{},fix:"screw",fixCount:1}})
+  ];
+  parts[2].cost.process="machining"; parts[2].cost.machining.materialId="brass";
+  parts[3].cost.process="fdm";
+  parts[4].cost.process="purchased"; parts[4].cost.purchasedPrice=4.5;
+  return {
+    schema:1,
+    meta:{name:"Sample – pivot bracket assembly", rev:"A", analyst:"", date:new Date().toISOString().slice(0,10),
+          annualVolume:5000, notes:"Delete this sample once you start your own analysis (Data tab → Reset)."},
+    settings:{basis:"vendor"},
+    lib: JSON.parse(JSON.stringify(DEFAULT_LIB)),
+    parts
+  };
+}
+
+/* ============================================================
+   3. STATE + PERSISTENCE
+   ============================================================ */
+const LSKEY = "assembly-cost-workbench-v1";
+let S = null;
+let ui = { tab:"setup", selPart:null, libTab:"rates" };
+
+function uid(){ return "p"+Math.random().toString(36).slice(2,9); }
+
+function load(){
+  try{
+    const raw = localStorage.getItem(LSKEY);
+    if(raw){ const o = JSON.parse(raw); if(o && o.parts){ return migrate(o); } }
+  }catch(e){ /* storage blocked or corrupt - fall through to sample */ }
+  return sampleProject();
+}
+function save(){
+  try{ localStorage.setItem(LSKEY, JSON.stringify(S)); }catch(e){ /* non-fatal */ }
+}
+function migrate(o){
+  // fill in any library keys added after the file was saved
+  o.lib = deepDefault(o.lib||{}, DEFAULT_LIB);
+  o.settings = o.settings||{basis:"vendor"};
+  o.parts.forEach(pt=>{ const base = samplePart(); pt.dfa=deepDefault(pt.dfa||{},base.dfa); pt.cost=deepDefault(pt.cost||{},base.cost); });
+  return o;
+}
+function deepDefault(target, defaults){
+  if(Array.isArray(defaults)) return (target && target.length!==undefined) ? target : JSON.parse(JSON.stringify(defaults));
+  if(typeof defaults!=="object"||defaults===null) return target===undefined?defaults:target;
+  const out = (typeof target==="object"&&target!==null)?target:{};
+  for(const k in defaults) out[k] = deepDefault(out[k], defaults[k]);
+  return out;
+}
+
+/* ============================================================
+   4. DFA ENGINE
+   ============================================================ */
+function dfaPart(pt){
+  const T = S.lib.dfa, d = pt.dfa;
+  const size = T.hSize[d.size]||T.hSize.normal;
+  const sym  = T.hSym[d.sym]||T.hSym.oneWay;
+
+  let hIdx = size.idx + sym.idx, hSec = size.sec + sym.sec;
+  const hUsed = [];
+  for(const k in T.hFlags){ if(d.hFlags && d.hFlags[k]){ hIdx += T.hFlags[k].idx; hSec += T.hFlags[k].sec; hUsed.push(T.hFlags[k].label); } }
+
+  const dir = T.fDir[d.dir]||T.fDir.topDown;
+  let fIdx = T.fBase.idx + dir.idx, fSec = T.fBase.sec + dir.sec;
+  const fUsed = [];
+  for(const k in T.fFlags){ if(d.fFlags && d.fFlags[k]){ fIdx += T.fFlags[k].idx; fSec += T.fFlags[k].sec; fUsed.push(T.fFlags[k].label); } }
+
+  const fix = T.fFix[d.fix]||T.fFix.none;
+  const nFix = Math.max(1, num(d.fixCount,1));
+  fIdx += fix.idx;
+  fSec += fix.sec * (d.fix==="none" ? 0 : nFix);
+  if(d.fix!=="none") fUsed.push(nFix+"× "+fix.label);
+
+  const essential = !!(d.moveRelative || d.differentMaterial || d.separateForService);
+  const qty = Math.max(0, num(pt.qty,1));
+
+  return {
+    essential, qty,
+    handlingIndex:r2(hIdx), fittingIndex:r2(fIdx), partIndex:r2(hIdx+fIdx),
+    handlingSec:r2(hSec), fittingSec:r2(fSec), unitSec:r2(hSec+fSec),
+    totalSec:r2((hSec+fSec)*qty),
+    hUsed, fUsed,
+    overHandling: hIdx > T.targets.handling,
+    overFitting:  fIdx > T.targets.fitting
+  };
+}
+
+function dfaProduct(){
+  const rows = S.parts.map(pt=>({pt, r:dfaPart(pt)}));
+  let nTotal=0, nEss=0, totalSec=0, sumH=0, sumF=0;
+  rows.forEach(({r})=>{
+    nTotal += r.qty;
+    if(r.essential) nEss += r.qty;
+    totalSec += r.totalSec;
+    sumH += r.handlingIndex * r.qty;
+    sumF += r.fittingIndex * r.qty;
+  });
+  const ideal = num(S.lib.rates.idealAssemblySec, 3);
+  const designEff = nTotal ? (nEss/nTotal)*100 : 0;
+  const efficiency = totalSec>0 ? (nEss*ideal/totalSec)*100 : 0;
+  const denom = nEss || 1;
+  const labourCost = (totalSec/3600) * num(S.lib.rates.assemblyLabourPerHour,0);
+  return {
+    rows, nTotal, nEss, nRedundant:nTotal-nEss,
+    totalSec:r2(totalSec), totalMin:r2(totalSec/60),
+    designEff:r1(designEff), efficiency:r1(efficiency),
+    feedingRatio:r2(sumH/denom), fittingRatio:r2(sumF/denom),
+    labourCost
+  };
+}
+
+/* ============================================================
+   5. COST ENGINE
+   ============================================================ */
+function mat(id){ return S.lib.materials.find(m=>m.id===id) || S.lib.materials[0]; }
+function mach(id){ return S.lib.machines.find(m=>m.id===id) || S.lib.machines[0]; }
+function num(v,d){ const n = typeof v==="number"?v:parseFloat(v); return isFinite(n)?n:(d||0); }
+function r1(n){ return Math.round(n*10)/10 } function r2(n){ return Math.round(n*100)/100 }
+
+function bboxArea(x,y,z){ return 2*(x*y + y*z + x*z); }
+
+/* ---- 5a. CNC machining / drilling ---- */
+function costMachining(pt){
+  const c = pt.cost.machining, m = mat(c.materialId), k = mach(c.machineId), K = S.lib.cost.machining;
+  const stockVol = c.stockForm==="bar"
+      ? Math.PI/4*Math.pow(num(c.D),2)*num(c.L)
+      : num(c.L)*num(c.W)*num(c.H);
+  const partVol = Math.min(num(c.partVolume), stockVol||num(c.partVolume));
+  const removedVol = Math.max(0, stockVol - partVol);
+
+  const stockMassKg = stockVol/1e6 * m.density / 1000 * 1000; // mm3 -> cm3 -> g -> kg
+  const stockKg = stockVol/1000 * m.density / 1000;
+  const removedKg = removedVol/1000 * m.density / 1000;
+
+  // roughing by material removal rate
+  const roughMin = num(m.mrr,10000)>0 ? removedVol/num(m.mrr,10000) : 0;
+
+  // drilling, hole group by hole group
+  let drillMin = 0, holeCount = 0;
+  (c.holes||[]).forEach(h=>{
+    const n = Math.max(0,num(h.count)), d = num(h.dia), dep = num(h.depth);
+    if(!n || d<=0) return;
+    holeCount += n;
+    const rpm = Math.min(num(k.maxRpm,6000), 1000*num(m.vc,100)/(Math.PI*d));
+    const feedMmPerMin = Math.max(1, num(m.fpr,0.1)*rpm);
+    const perHole = (dep + K.approachMm) / feedMmPerMin * (dep > 3*d ? K.peckFactor : 1);
+    drillMin += n * (perHole + num(k.rapidSec,2)/60);
+  });
+
+  // finishing pass over the finished surface
+  const area = num(c.surfaceArea) > 0 ? num(c.surfaceArea)
+             : (c.stockForm==="bar" ? Math.PI*num(c.D)*num(c.L) : bboxArea(num(c.L),num(c.W),num(c.H)));
+  const finishMin = K.finishRateMm2PerMin>0 ? area/K.finishRateMm2PerMin : 0;
+
+  const tolMult = (S.lib.cost.tolerance[c.tolerance]||{mult:1}).mult;
+  const finMult = (S.lib.cost.finish[c.finish]||{mult:1}).mult;
+  const cutMin = (roughMin + drillMin + finishMin) * tolMult * finMult;
+
+  const nonCutMin = num(c.toolChanges)*num(k.toolChangeSec,8)/60
+                  + K.loadUnloadSec/60 + K.inspectionSec/60;
+  const batch = Math.max(1, num(c.batchSize,1));
+  const setupPerPart = num(c.setupMin) * Math.max(1,num(c.setups,1)) / batch;
+  const cycleMin = cutMin + nonCutMin + setupPerPart;
+
+  const machineCost = cycleMin/60 * num(k.ratePerHour);
+  const labourCost  = cycleMin/60 * num(S.lib.rates.labourPerHour) * (K.operatorAttendPct/100);
+  const materialCost = stockKg * num(m.pricePerKg)
+      - (c.scrapCredit ? removedKg * num(m.scrapPerKg,0) : 0);
+
+  return {
+    lines:[
+      {k:"Stock material", v:stockKg*num(m.pricePerKg), d:r2(stockKg)+" kg @ "+CUR+num(m.pricePerKg)+"/kg"},
+      {k:"Scrap credit", v:-(c.scrapCredit?removedKg*num(m.scrapPerKg,0):0), d:c.scrapCredit? r2(removedKg)+" kg recovered":"not claimed"},
+      {k:"Machine time", v:machineCost, d:r2(cycleMin)+" min @ "+CUR+num(k.ratePerHour)+"/hr"},
+      {k:"Direct labour", v:labourCost, d:K.operatorAttendPct+"% attendance"}
+    ],
+    conversion: machineCost+labourCost,
+    material: materialCost,
+    detail:[
+      ["Stock volume", r2(stockVol)+" mm³"],
+      ["Material removed", r2(removedVol)+" mm³ ("+(stockVol? r1(removedVol/stockVol*100):0)+"%)"],
+      ["Roughing", r2(roughMin)+" min @ MRR "+num(m.mrr)+" mm³/min"],
+      ["Drilling", r2(drillMin)+" min, "+holeCount+" holes"],
+      ["Finishing", r2(finishMin)+" min over "+r2(area)+" mm²"],
+      ["Tolerance / finish uplift", "×"+r2(tolMult*finMult)],
+      ["Non-cutting", r2(nonCutMin)+" min"],
+      ["Setup amortised", r2(setupPerPart)+" min ("+num(c.setupMin)+" min / batch "+batch+")"],
+      ["Cycle time", r2(cycleMin)+" min"]
+    ]
+  };
+}
+
+/* ---- 5b. FDM ---- */
+function costFdm(pt){
+  const c = pt.cost.fdm, m = mat(c.materialId), k = mach(c.machineId), K = S.lib.cost.fdm;
+  const area = num(c.surfaceArea)>0 ? num(c.surfaceArea) : bboxArea(num(c.bx),num(c.by),num(c.bz));
+  const partVol = num(c.partVolume);
+  const extrWidth = num(c.nozzle,0.4)*K.extrusionWidthFactor;
+
+  // shell volume from surface area x wall count x extrusion width (capped at part volume)
+  const shellVol = Math.min(partVol, area * Math.max(1,num(c.walls,2)) * extrWidth);
+  const infillVol = Math.max(0, partVol - shellVol) * (num(c.infillPct,20)/100);
+  const supportVol = partVol * (num(c.supportPct,0)/100);
+  const extrudedVol = shellVol + infillVol + supportVol;
+
+  const flow = num(c.layerHeight,0.2) * extrWidth * num(k.printSpeed,60) * num(k.flowEff,0.85); // mm3/s
+  const layers = num(c.layerHeight,0.2)>0 ? Math.ceil(num(c.bz)/num(c.layerHeight,0.2)) : 0;
+  const printSec = (flow>0 ? extrudedVol/flow : 0) + layers*num(k.layerOverheadSec,1);
+  const perPlate = Math.max(1, num(c.partsPerPlate,1));
+  const machineMin = printSec/60 + num(k.warmupMin,0)/perPlate;
+
+  const massG = extrudedVol/1000 * m.density * (1 + K.wastePct/100);
+  const materialCost = massG/1000 * num(m.pricePerKg);
+  const machineCost = machineMin/60 * num(k.ratePerHour);
+  const labourMin = num(k.plateSetupMin,5)/perPlate + K.postProcessMin;
+  const labourCost = labourMin/60 * num(S.lib.rates.labourPerHour);
+  const failUplift = (machineCost+materialCost+labourCost) * (K.failurePct/100);
+
+  return {
+    lines:[
+      {k:"Filament", v:materialCost, d:r2(massG)+" g @ "+CUR+num(m.pricePerKg)+"/kg"},
+      {k:"Machine time", v:machineCost, d:r2(machineMin)+" min @ "+CUR+num(k.ratePerHour)+"/hr"},
+      {k:"Labour (setup + support removal)", v:labourCost, d:r2(labourMin)+" min"},
+      {k:"Failure allowance", v:failUplift, d:K.failurePct+"% of the above"}
+    ],
+    conversion: machineCost+labourCost+failUplift,
+    material: materialCost,
+    detail:[
+      ["Shell volume", r2(shellVol)+" mm³ ("+Math.max(1,num(c.walls))+" walls × "+r2(extrWidth)+" mm)"],
+      ["Infill volume", r2(infillVol)+" mm³ @ "+num(c.infillPct)+"%"],
+      ["Support volume", r2(supportVol)+" mm³ @ "+num(c.supportPct)+"%"],
+      ["Extruded volume", r2(extrudedVol)+" mm³"],
+      ["Volumetric flow", r2(flow)+" mm³/s"],
+      ["Layers", layers+" @ "+num(c.layerHeight)+" mm"],
+      ["Print time", r2(printSec/60)+" min"],
+      ["Parts per plate", perPlate]
+    ]
+  };
+}
+
+/* ---- 5c. SLS / MJF powder bed ---- */
+function costPowder(pt){
+  const c = pt.cost.powder, m = mat(c.materialId), k = mach(c.machineId), K = S.lib.cost.powder;
+  const buildVol = num(k.buildX,300)*num(k.buildY,300)*num(k.buildZ,300);
+  const bboxVol = num(c.bx)*num(c.by)*num(c.bz);
+  const packing = (num(c.packingOverride)>0 ? num(c.packingOverride) : K.packingDensityPct)/100;
+
+  const autoPerBuild = bboxVol>0 ? Math.floor(buildVol*packing/bboxVol) : 0;
+  const perBuild = Math.max(1, num(c.partsPerBuild)>0 ? num(c.partsPerBuild) : autoPerBuild);
+
+  const layers = num(k.layerHeight,0.1)>0 ? Math.ceil(num(k.buildZ,300)/num(k.layerHeight,0.1)) : 0;
+  const buildHr = (layers*num(k.layerTimeSec,20))/3600 + num(k.warmupMin,0)/60 + num(k.cooldownMin,0)/60;
+  const machinePerBuild = buildHr * num(k.ratePerHour);
+
+  // powder: parts consume solid powder; the surrounding cake is partly recycled
+  const partsMassKg = perBuild * num(c.partVolume)/1000 * m.density / 1000;
+  const bulk = num(m.bulkDensity, m.density*0.45);
+  const cakeMassKg = Math.max(0, (buildVol - perBuild*num(c.partVolume))/1000 * bulk / 1000);
+  const virginKg = partsMassKg + cakeMassKg*(1 - K.recyclePct/100);
+  const powderPerBuild = virginKg * num(m.pricePerKg);
+
+  const machineCost = machinePerBuild/perBuild;
+  const materialCost = powderPerBuild/perBuild;
+  const labourMin = K.depowderMinPerPart + K.postProcessMinPerPart;
+  const labourCost = labourMin/60 * num(S.lib.rates.labourPerHour);
+
+  return {
+    lines:[
+      {k:"Powder", v:materialCost, d:r2(virginKg)+" kg virgin per build ÷ "+perBuild+" parts"},
+      {k:"Machine time", v:machineCost, d:r2(buildHr)+" hr build ÷ "+perBuild+" parts"},
+      {k:"Labour (depowder + finish)", v:labourCost, d:r2(labourMin)+" min/part"}
+    ],
+    conversion: machineCost+labourCost,
+    material: materialCost,
+    detail:[
+      ["Build volume", r2(buildVol/1000)+" cm³"],
+      ["Packing density", r1(packing*100)+"%"],
+      ["Parts per build", perBuild + (num(c.partsPerBuild)>0?" (manual)":" (auto, from bounding box)")],
+      ["Layers", layers+" @ "+num(k.layerHeight)+" mm"],
+      ["Build time", r2(buildHr)+" hr incl. warm-up + cool-down"],
+      ["Cake powder", r2(cakeMassKg)+" kg, "+K.recyclePct+"% recycled"],
+      ["Virgin powder per build", r2(virginKg)+" kg"]
+    ]
+  };
+}
+
+function costPart(pt){
+  const proc = pt.cost.process;
+  let base;
+  if(proc==="machining") base = costMachining(pt);
+  else if(proc==="fdm")  base = costFdm(pt);
+  else if(proc==="powder") base = costPowder(pt);
+  else base = { lines:[{k:"Purchase price", v:num(pt.cost.purchasedPrice), d:"as quoted"}],
+                conversion:0, material:num(pt.cost.purchasedPrice), detail:[["Source","Purchased / catalogue item"]] };
+
+  const R = S.lib.rates;
+  const basis = pt.cost.basis==="inherit" ? S.settings.basis : pt.cost.basis;
+  const direct = base.conversion + base.material;
+  let scrap=0, overhead=0, margin=0, freight=0;
+  if(proc!=="purchased" && basis==="vendor"){
+    scrap    = direct * R.scrapPct/100;
+    overhead = base.conversion * R.overheadPct/100;
+    const sub = direct + scrap + overhead;
+    margin   = sub * R.marginPct/100;
+    freight  = sub * R.packFreightPct/100;
+  }
+  const unit = direct + scrap + overhead + margin + freight;
+  return Object.assign(base, {
+    basis, direct, scrap, overhead, margin, freight,
+    unit, extended: unit * Math.max(0,num(pt.qty,1))
+  });
+}
+
+function costProduct(){
+  const rows = S.parts.map(pt=>({pt, c:costPart(pt)}));
+  const partsTotal = rows.reduce((a,x)=>a+x.c.extended,0);
+  const d = dfaProduct();
+  return { rows, partsTotal, assemblyLabour:d.labourCost, total:partsTotal + d.labourCost, dfa:d };
+}
+
+/* ============================================================
+   6. IMPROVEMENT FINDER
+   ============================================================ */
+function findings(){
+  const d = dfaProduct(), cp = costProduct(), out = [];
+  const T = S.lib.dfa.targets;
+
+  cp.rows.forEach(({pt,c})=>{
+    const r = dfaPart(pt);
+    if(!r.essential && pt.cost.process!=="purchased"){
+      out.push({sev:"risk", part:pt.name, title:"Consolidation candidate",
+        why:"Fails all three minimum-part-count tests — it does not move relative to its neighbours, needs no material separation, and is not required for service access.",
+        gain:"Removing it saves "+CUR+fmt(c.extended)+" of part cost and "+r2(r.totalSec)+" s of assembly."});
+    }
+    if(!r.essential && pt.cost.process==="purchased"){
+      out.push({sev:"risk", part:pt.name, title:"Separate fastener",
+        why:"Fasteners are pure assembly cost. Design the joint as a snap, press or integral feature and both the part and its fitting time disappear.",
+        gain:"Saves "+CUR+fmt(c.extended)+" and "+r2(r.totalSec)+" s per product."});
+    }
+    if(r.overHandling){
+      out.push({sev:"warn", part:pt.name, title:"Handling index "+r.handlingIndex+" (target ≤"+T.handling+")",
+        why:"Driven by: "+ (r.hUsed.length? r.hUsed.join(", ") : "size and orientation effort") +".",
+        gain:"Add a symmetry feature or an obvious keying detail to cut "+r2(r.handlingSec)+" s of handling."});
+    }
+    if(r.overFitting){
+      out.push({sev:"warn", part:pt.name, title:"Fitting index "+r.fittingIndex+" (target ≤"+T.fitting+")",
+        why:"Driven by: "+ (r.fUsed.length? r.fUsed.join(", ") : "insertion direction") +".",
+        gain:"Chamfers, self-location or top-down access would remove much of "+r2(r.fittingSec)+" s."});
+    }
+  });
+
+  // biggest cost contributors
+  const sorted = cp.rows.slice().sort((a,b)=>b.c.extended-a.c.extended).slice(0,3);
+  sorted.forEach(({pt,c})=>{
+    if(cp.partsTotal>0 && c.extended/cp.partsTotal > 0.25){
+      out.push({sev:"neutral", part:pt.name, title:"Cost concentration — "+r1(c.extended/cp.partsTotal*100)+"% of part cost",
+        why:"A single part carries a quarter or more of the product's part cost, so it is where process and material alternatives pay off most.",
+        gain:"Re-cost it against another process before optimising anything else."});
+    }
+  });
+
+  if(d.designEff < T.designEff && d.nTotal>0){
+    out.unshift({sev:"risk", part:"— Product", title:"Design efficiency "+d.designEff+"% (target ≥"+T.designEff+"%)",
+      why:d.nRedundant+" of "+d.nTotal+" parts fail the minimum-part-count tests.",
+      gain:"The theoretical minimum for this product is "+d.nEss+" parts."});
+  }
+  const order = {risk:0, warn:1, neutral:2};
+  return out.sort((a,b)=>order[a.sev]-order[b.sev]);
+}
+
+/* ============================================================
+   7. RENDER HELPERS
+   ============================================================ */
+const h = (s)=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function fmt(n){ return (Math.round(num(n)*100)/100).toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function fmt0(n){ return Math.round(num(n)).toLocaleString("en-IN"); }
+
+function fNum(path,label,opts){
+  opts=opts||{};
+  return '<label class="f"><span class="lab">'+h(label)+'</span>'+
+    '<input type="number" data-p="'+h(path)+'" value="'+h(getPath(path))+'" step="'+(opts.step||"any")+'"'+
+    (opts.min!==undefined?' min="'+opts.min+'"':'')+(opts.disabled?' disabled':'')+'>'+
+    (opts.hint?'<span class="hint">'+h(opts.hint)+'</span>':'')+'</label>';
+}
+function fText(path,label,opts){
+  opts=opts||{};
+  return '<label class="f"><span class="lab">'+h(label)+'</span>'+
+    '<input type="text" data-p="'+h(path)+'" value="'+h(getPath(path))+'">'+
+    (opts.hint?'<span class="hint">'+h(opts.hint)+'</span>':'')+'</label>';
+}
+function fSel(path,label,opts,optsMeta){
+  const cur = getPath(path);
+  let o = "";
+  for(const k in opts) o += '<option value="'+h(k)+'"'+(k===cur?" selected":"")+'>'+h(opts[k])+'</option>';
+  return '<label class="f"><span class="lab">'+h(label)+'</span>'+
+    '<select data-p="'+h(path)+'" data-rerender="1">'+o+'</select>'+
+    ((optsMeta&&optsMeta.hint)?'<span class="hint">'+h(optsMeta.hint)+'</span>':'')+'</label>';
+}
+function fChk(path,label){
+  return '<label class="ck"><input type="checkbox" data-p="'+h(path)+'" data-rerender="1"'+(getPath(path)?" checked":"")+'><span>'+h(label)+'</span></label>';
+}
+function labelMap(tbl,withNums){
+  const o={}; for(const k in tbl) o[k] = tbl[k].label + (withNums? "  ["+tbl[k].idx+" / "+tbl[k].sec+"s]" : ""); return o;
+}
+function getPath(p){
+  return p.split(".").reduce((o,k)=> (o==null?undefined:o[k]), S);
+}
+function setPath(p,v){
+  const ks = p.split("."); let o = S;
+  for(let i=0;i<ks.length-1;i++){ if(o[ks[i]]==null) o[ks[i]]={}; o=o[ks[i]]; }
+  o[ks[ks.length-1]] = v;
+}
+function toast(msg){
+  const t=document.createElement("div"); t.className="toast"; t.textContent=msg;
+  document.body.appendChild(t); setTimeout(()=>t.remove(),2200);
+}
+
+/* ============================================================
+   8. VIEWS
+   ============================================================ */
+const TABS = [["setup","Setup"],["parts","Parts"],["analysis","Analysis"],["library","Library"],["data","Data"]];
+
+function render(){
+  document.getElementById("tabs").innerHTML = TABS.map(([k,l])=>
+    '<button data-tab="'+k+'"'+(ui.tab===k?' aria-current="page"':'')+'>'+l+'</button>').join("");
+  const app = document.getElementById("app");
+  app.innerHTML =
+      ui.tab==="setup"    ? viewSetup()
+    : ui.tab==="parts"    ? viewParts()
+    : ui.tab==="analysis" ? viewAnalysis()
+    : ui.tab==="library"  ? viewLibrary()
+    :                       viewData();
+}
+
+/* ---- Setup ---- */
+function viewSetup(){
+  const d = dfaProduct(), c = costProduct();
+  return '<div class="card"><p class="eyebrow">Project</p><h2>'+h(S.meta.name||"Untitled analysis")+'</h2>'+
+    '<p class="sub">Identify the study, then set the cost basis. Everything else follows from the parts you enter.</p>'+
+    '<div class="grid g3">'+
+      fText("meta.name","Product / study name")+
+      fText("meta.rev","Revision")+
+      fText("meta.analyst","Analyst")+
+      fText("meta.date","Date")+
+      fNum("meta.annualVolume","Annual volume",{min:0,step:1,hint:"Drives batch economics on the machining side."})+
+      fSel("settings.basis","Default cost basis",{vendor:"Vendor should-cost (with overhead + margin)",inhouse:"In-house shop cost (no margin)"},
+        {hint:"Any part can override this on its own cost tab."})+
+    '</div>'+
+    '<div style="margin-top:14px">'+fTextarea("meta.notes","Notes")+'</div>'+
+  '</div>'+
+
+  '<div class="card"><p class="eyebrow">At a glance</p><h2>Current state</h2>'+
+    '<p class="sub">Live figures from the '+S.parts.length+' part record'+(S.parts.length===1?"":"s")+' entered so far.</p>'+
+    kpiRow(d,c)+
+    '<p class="note" style="margin-top:14px">The efficiency figure compares your total assembly time against an ideal of '+
+    num(S.lib.rates.idealAssemblySec)+' s per essential part. Change that constant in the Library tab if your line runs to a different standard.</p>'+
+  '</div>'+
+
+  '<div class="card"><p class="eyebrow">Method</p><h2>What this tool computes, and on whose numbers</h2>'+
+   '<p class="note">The assembly analysis follows the published Lucas/Hull structure: each part is first tested against the three '+
+   'minimum-part-count criteria to classify it as essential or a consolidation candidate, then scored for handling and fitting difficulty. '+
+   'On top of that sits a time model that converts the same answers into seconds, giving you an assembly time and an efficiency percentage.<br><br>'+
+   '<b>Every coefficient is yours.</b> The values shipped in the Library tab are plausible starting points, not measured data and not taken '+
+   'from any vendor’s tables. Time a dozen real operations on your line, overwrite the seconds columns, and the numbers become defensible. '+
+   'Until you do, treat absolute values as indicative and trust the tool for ranking design alternatives against each other.</p>'+
+  '</div>';
+}
+function fTextarea(path,label){
+  return '<label class="f"><span class="lab">'+h(label)+'</span><textarea data-p="'+h(path)+'">'+h(getPath(path))+'</textarea></label>';
+}
+
+function kpiRow(d,c){
+  const T = S.lib.dfa.targets;
+  const cls = (v,t,inv)=> inv ? (v<=t?"ok":(v<=t*1.4?"warn":"risk")) : (v>=t?"ok":(v>=t*0.7?"warn":"risk"));
+  return '<div class="kpis">'+
+    kpi("Design efficiency", d.designEff+'<small>%</small>', d.nEss+" of "+d.nTotal+" parts essential", Math.min(100,d.designEff), cls(d.designEff,T.designEff))+
+    kpi("Theoretical minimum", d.nEss+'<small> parts</small>', d.nRedundant+" candidate"+(d.nRedundant===1?"":"s")+" for elimination")+
+    kpi("Assembly time", d.totalSec+'<small>s</small>', r2(d.totalMin)+" min per product")+
+    kpi("Assembly efficiency", d.efficiency+'<small>%</small>', "vs "+num(S.lib.rates.idealAssemblySec)+" s ideal per part", Math.min(100,d.efficiency), cls(d.efficiency,35))+
+    kpi("Feeding ratio", d.feedingRatio, "target ≤ "+T.handling, Math.min(100,d.feedingRatio/3*100), cls(d.feedingRatio,T.handling,true))+
+    kpi("Fitting ratio", d.fittingRatio, "target ≤ "+T.fitting, Math.min(100,d.fittingRatio/3*100), cls(d.fittingRatio,T.fitting,true))+
+    kpi("Product cost", CUR+fmt(c.total), "parts "+CUR+fmt(c.partsTotal)+" + assembly "+CUR+fmt(c.assemblyLabour))+
+    kpi("Annual spend", CUR+fmt0(c.total*num(S.meta.annualVolume)), "at "+fmt0(S.meta.annualVolume)+" units/yr")+
+  '</div>';
+}
+function kpi(k,v,m,pct,cls){
+  return '<div class="kpi"><div class="k">'+h(k)+'</div><div class="v">'+v+'</div>'+
+    (m?'<div class="m">'+h(m)+'</div>':'')+
+    (pct!==undefined?'<div class="meter"><i class="'+(cls||"")+'" style="width:'+Math.max(2,Math.min(100,pct))+'%"></i></div>':'')+
+  '</div>';
+}
+
+/* ---- Parts ---- */
+function viewParts(){
+  if(!ui.selPart && S.parts.length) ui.selPart = S.parts[0].id;
+  const list = S.parts.map(pt=>{
+    const r = dfaPart(pt), c = costPart(pt);
+    return '<tr class="clickable'+(pt.id===ui.selPart?" sel":"")+'" data-sel="'+pt.id+'">'+
+      '<td><b>'+h(pt.name)+'</b>'+(pt.partNo?'<br><span class="note mono">'+h(pt.partNo)+'</span>':'')+'</td>'+
+      '<td class="n">'+r.qty+'</td>'+
+      '<td>'+(r.essential?'<span class="chip ok">A</span>':'<span class="chip risk">B</span>')+'</td>'+
+      '<td class="n">'+CUR+fmt(c.extended)+'</td></tr>';
+  }).join("");
+
+  const left = '<div class="panel"><header><h2>Parts</h2>'+
+      '<button class="btn sm primary" id="btnAddPart">Add part</button>'+
+      '<button class="btn sm" id="btnImportCsv">Import CSV</button></header>'+
+    (S.parts.length? '<div class="tablewrap"><table><thead><tr><th>Part</th><th class="n">Qty</th><th>Class</th><th class="n">Extended</th></tr></thead><tbody>'+list+'</tbody></table></div>'
+                   : '<div class="empty">No parts yet. Add one, or import a BOM as CSV.</div>')+
+  '</div>';
+
+  const pt = S.parts.find(x=>x.id===ui.selPart);
+  const right = pt ? partEditor(pt) : '<div class="panel"><div class="empty">Select a part to edit it.</div></div>';
+  return '<div class="split">'+left+right+'</div>';
+}
+
+function partEditor(pt){
+  const i = S.parts.indexOf(pt), P = "parts."+i;
+  const r = dfaPart(pt), c = costPart(pt);
+  const T = S.lib.dfa;
+
+  const live = '<div class="livebar">'+
+    '<div><b>Class</b>'+(r.essential?"A – essential":"B – candidate")+'</div>'+
+    '<div><b>Handling</b>'+r.handlingIndex+(r.overHandling?' ⚠':'')+'</div>'+
+    '<div><b>Fitting</b>'+r.fittingIndex+(r.overFitting?' ⚠':'')+'</div>'+
+    '<div><b>Assembly</b>'+r.unitSec+' s ×'+r.qty+'</div>'+
+    '<div><b>Unit cost</b>'+CUR+fmt(c.unit)+'</div>'+
+    '<div><b>Extended</b>'+CUR+fmt(c.extended)+'</div>'+
+  '</div>';
+
+  return '<div class="panel"><header><h2>'+h(pt.name)+'</h2>'+
+      '<button class="btn sm" data-dup="'+pt.id+'">Duplicate</button>'+
+      '<button class="btn sm danger" data-del="'+pt.id+'">Delete</button></header><div class="body">'+
+    live+
+    '<fieldset><legend>Identity</legend><div class="grid g3">'+
+      fText(P+".name","Part name")+ fText(P+".partNo","Part number")+
+      fNum(P+".qty","Quantity per product",{min:0,step:1})+
+    '</div></fieldset>'+
+
+    '<fieldset><legend>Minimum part count test</legend>'+
+      '<p class="note" style="margin-bottom:8px">A part earns its place only if at least one answer is yes. Answer for the part as it sits against the parts already assembled beneath it.</p>'+
+      fChk(P+".dfa.moveRelative","Must it move relative to the parts already assembled?")+
+      fChk(P+".dfa.differentMaterial","Must it be a different material, or electrically / thermally isolated from them?")+
+      fChk(P+".dfa.separateForService","Must it be separate to allow assembly or service of other parts?")+
+      '<div style="margin-top:10px">'+fTextarea(P+".dfa.reason","Justification (carries into the report)")+'</div>'+
+    '</fieldset>'+
+
+    '<fieldset><legend>Handling</legend><div class="grid g2">'+
+      fSel(P+".dfa.size","Size / weight class", labelMap(T.hSize,true))+
+      fSel(P+".dfa.sym","Orientation", labelMap(T.hSym,true))+
+    '</div><div class="grid g2" style="margin-top:10px">'+
+      Object.keys(T.hFlags).map(k=>fChk(P+".dfa.hFlags."+k, T.hFlags[k].label+"  ["+T.hFlags[k].idx+" / "+T.hFlags[k].sec+"s]")).join("")+
+    '</div></fieldset>'+
+
+    '<fieldset><legend>Fitting</legend><div class="grid g3">'+
+      fSel(P+".dfa.dir","Insertion direction", labelMap(T.fDir,true))+
+      fSel(P+".dfa.fix","Fixing method", labelMap(T.fFix,true))+
+      fNum(P+".dfa.fixCount","Number of fixings",{min:1,step:1,hint:"4 screws = 4."})+
+    '</div><div class="grid g2" style="margin-top:10px">'+
+      Object.keys(T.fFlags).map(k=>fChk(P+".dfa.fFlags."+k, T.fFlags[k].label+"  ["+T.fFlags[k].idx+" / "+T.fFlags[k].sec+"s]")).join("")+
+    '</div></fieldset>'+
+
+    '<fieldset><legend>Cost</legend><div class="grid g2">'+
+      fSel(P+".cost.process","Process",{machining:"CNC machining / drilling", fdm:"3D printing – FDM", powder:"3D printing – SLS / MJF", purchased:"Purchased / catalogue"})+
+      fSel(P+".cost.basis","Cost basis",{inherit:"Inherit from project ("+(S.settings.basis==="vendor"?"vendor should-cost":"in-house")+")", vendor:"Vendor should-cost", inhouse:"In-house shop cost"})+
+    '</div>'+ processFields(pt,P) +
+      costBreakdown(c)+
+    '</fieldset>'+
+  '</div></div>';
+}
+
+function processFields(pt,P){
+  const p = pt.cost.process;
+  const matsOf = g => { const o={}; S.lib.materials.filter(m=>m.group===g).forEach(m=>o[m.id]=m.name); return o; };
+  const machOf = g => { const o={}; S.lib.machines.filter(m=>m.group===g).forEach(m=>o[m.id]=m.name); return o; };
+
+  if(p==="purchased"){
+    return '<div class="grid g2" style="margin-top:12px">'+fNum(P+".cost.purchasedPrice","Unit price ("+CUR+")",{min:0,hint:"Quoted or catalogue price. No overhead or margin is added."})+'</div>';
+  }
+  if(p==="machining"){
+    const c = pt.cost.machining, C = P+".cost.machining";
+    const bar = c.stockForm==="bar";
+    return '<div class="grid g3" style="margin-top:12px">'+
+      fSel(C+".materialId","Material", matsOf("machining"))+
+      fSel(C+".machineId","Machine", machOf("machining"))+
+      fSel(C+".stockForm","Stock form",{block:"Block / plate", bar:"Round bar"})+
+    '</div><div class="grid g4" style="margin-top:10px">'+
+      (bar ? fNum(C+".D","Stock ø (mm)",{min:0}) + fNum(C+".L","Stock length (mm)",{min:0})
+           : fNum(C+".L","Stock L (mm)",{min:0}) + fNum(C+".W","Stock W (mm)",{min:0}) + fNum(C+".H","Stock H (mm)",{min:0}))+
+      fNum(C+".partVolume","Finished volume (mm³)",{min:0,hint:"From the CAD mass properties."})+
+    '</div><div class="grid g4" style="margin-top:10px">'+
+      fNum(C+".surfaceArea","Finished area (mm²)",{min:0,hint:"0 = estimate from stock size."})+
+      fNum(C+".setups","Setups",{min:1,step:1})+
+      fNum(C+".toolChanges","Tool changes",{min:0,step:1})+
+      fNum(C+".setupMin","Setup time (min)",{min:0})+
+    '</div><div class="grid g4" style="margin-top:10px">'+
+      fNum(C+".batchSize","Batch size",{min:1,step:1,hint:"Setup is amortised over this."})+
+      fSel(C+".tolerance","Tolerance", labelMapMult(S.lib.cost.tolerance))+
+      fSel(C+".finish","Surface finish", labelMapMult(S.lib.cost.finish))+
+      '<div style="align-self:end">'+fChk(C+".scrapCredit","Claim scrap credit on removed material")+'</div>'+
+    '</div>'+ holesEditor(pt,C);
+  }
+  if(p==="fdm"){
+    const C = P+".cost.fdm";
+    return '<div class="grid g3" style="margin-top:12px">'+
+      fSel(C+".materialId","Filament", matsOf("fdm"))+
+      fSel(C+".machineId","Printer", machOf("fdm"))+
+      fNum(C+".partsPerPlate","Parts per plate",{min:1,step:1,hint:"Shares warm-up and plate setup."})+
+    '</div><div class="grid g4" style="margin-top:10px">'+
+      fNum(C+".bx","Bounding X (mm)",{min:0})+ fNum(C+".by","Bounding Y (mm)",{min:0})+
+      fNum(C+".bz","Build height Z (mm)",{min:0,hint:"Sets the layer count."})+
+      fNum(C+".partVolume","Part volume (mm³)",{min:0})+
+    '</div><div class="grid g4" style="margin-top:10px">'+
+      fNum(C+".layerHeight","Layer height (mm)",{min:0.01,step:0.01})+
+      fNum(C+".nozzle","Nozzle ø (mm)",{min:0.1,step:0.05})+
+      fNum(C+".walls","Wall count",{min:1,step:1})+
+      fNum(C+".infillPct","Infill (%)",{min:0,max:100,step:1})+
+    '</div><div class="grid g2" style="margin-top:10px">'+
+      fNum(C+".supportPct","Support volume (% of part)",{min:0,step:1})+
+      fNum(C+".surfaceArea","Surface area (mm²)",{min:0,hint:"0 = estimate from the bounding box. Real area from CAD gives a better shell volume."})+
+    '</div>';
+  }
+  const C = P+".cost.powder";
+  return '<div class="grid g3" style="margin-top:12px">'+
+    fSel(C+".materialId","Powder", matsOf("powder"))+
+    fSel(C+".machineId","Machine", machOf("powder"))+
+    fNum(C+".partVolume","Part volume (mm³)",{min:0})+
+  '</div><div class="grid g3" style="margin-top:10px">'+
+    fNum(C+".bx","Bounding X (mm)",{min:0})+ fNum(C+".by","Bounding Y (mm)",{min:0})+ fNum(C+".bz","Bounding Z (mm)",{min:0})+
+  '</div><div class="grid g2" style="margin-top:10px">'+
+    fNum(C+".partsPerBuild","Parts per build",{min:0,step:1,hint:"0 = calculate from packing density."})+
+    fNum(C+".packingOverride","Packing density override (%)",{min:0,max:60,step:0.5,hint:"0 = use the library default."})+
+  '</div>';
+}
+function labelMapMult(t){ const o={}; for(const k in t) o[k]=t[k].label+"  [×"+t[k].mult+"]"; return o; }
+
+function holesEditor(pt,C){
+  const rows = (pt.cost.machining.holes||[]).map((hh,i)=>
+    '<tr><td><input type="number" data-p="'+C+'.holes.'+i+'.count" value="'+num(hh.count)+'" min="0" step="1"></td>'+
+    '<td><input type="number" data-p="'+C+'.holes.'+i+'.dia" value="'+num(hh.dia)+'" min="0" step="0.1"></td>'+
+    '<td><input type="number" data-p="'+C+'.holes.'+i+'.depth" value="'+num(hh.depth)+'" min="0" step="0.1"></td>'+
+    '<td class="right"><button class="btn sm danger" data-delhole="'+i+'">Remove</button></td></tr>').join("");
+  return '<div style="margin-top:14px"><p class="lab" style="font-family:var(--f-mono);font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--steel);margin:0 0 6px">Drilled holes</p>'+
+    '<div class="tablewrap"><table><thead><tr><th>Count</th><th>ø (mm)</th><th>Depth (mm)</th><th></th></tr></thead>'+
+    '<tbody>'+(rows||'<tr><td colspan="4" class="note">No holes defined.</td></tr>')+'</tbody></table></div>'+
+    '<button class="btn sm" id="btnAddHole" style="margin-top:8px">Add hole group</button></div>';
+}
+
+function costBreakdown(c){
+  const rows = c.lines.filter(l=>Math.abs(l.v)>0.0001).map(l=>
+    '<tr><td>'+h(l.k)+'<br><span class="note">'+h(l.d)+'</span></td><td class="n">'+CUR+fmt(l.v)+'</td></tr>').join("");
+  const add = [];
+  if(c.scrap)    add.push(["Scrap allowance", c.scrap]);
+  if(c.overhead) add.push(["Factory overhead", c.overhead]);
+  if(c.margin)   add.push(["Supplier margin", c.margin]);
+  if(c.freight)  add.push(["Packaging + freight", c.freight]);
+  const addRows = add.map(([k,v])=>'<tr><td>'+h(k)+'</td><td class="n">'+CUR+fmt(v)+'</td></tr>').join("");
+  const det = c.detail.map(([k,v])=>'<tr><td>'+h(k)+'</td><td class="n">'+h(v)+'</td></tr>').join("");
+  return '<div style="margin-top:16px"><div class="tablewrap"><table><thead><tr><th>Cost element</th><th class="n">Amount</th></tr></thead><tbody>'+
+    rows+addRows+
+    '<tr><td><b style="color:var(--ink)">Unit cost ('+(c.basis==="vendor"?"vendor should-cost":"in-house")+')</b></td><td class="n"><b style="color:var(--ink)">'+CUR+fmt(c.unit)+'</b></td></tr>'+
+    '</tbody></table></div>'+
+    '<details class="calc"><summary>Show the working</summary><div class="tablewrap"><table><tbody>'+det+'</tbody></table></div></details></div>';
+}
+
+/* ---- Analysis ---- */
+function viewAnalysis(){
+  const c = costProduct(), d = c.dfa;
+  const f = findings();
+
+  const partRows = c.rows.map(({pt,c:cc})=>{
+    const r = dfaPart(pt);
+    return '<tr><td><b>'+h(pt.name)+'</b></td>'+
+      '<td>'+(r.essential?'<span class="chip ok">A</span>':'<span class="chip risk">B</span>')+'</td>'+
+      '<td class="n">'+r.qty+'</td>'+
+      '<td class="n'+(r.overHandling?' over':'')+'">'+r.handlingIndex+'</td>'+
+      '<td class="n'+(r.overFitting?' over':'')+'">'+r.fittingIndex+'</td>'+
+      '<td class="n">'+r.totalSec+'</td>'+
+      '<td>'+h(procLabel(pt.cost.process))+'</td>'+
+      '<td class="n">'+CUR+fmt(cc.unit)+'</td>'+
+      '<td class="n">'+CUR+fmt(cc.extended)+'</td>'+
+      '<td class="n">'+(c.partsTotal? r1(cc.extended/c.partsTotal*100):0)+'%</td></tr>';
+  }).join("");
+
+  const findRows = f.length ? f.map(x=>
+    '<li><span class="chip '+(x.sev==="risk"?"risk":x.sev==="warn"?"warn":"neutral")+'">'+
+      (x.sev==="risk"?"act":x.sev==="warn"?"review":"note")+'</span>'+
+      '<div><b>'+h(x.part)+' — '+h(x.title)+'</b><br>'+h(x.why)+'<br><span class="note">'+h(x.gain)+'</span></div></li>').join("")
+    : '<li><span class="chip ok">clear</span><div>No parts breach the targets. Tighten the targets in the Library tab if this looks too easy.</div></li>';
+
+  return '<div class="card"><p class="eyebrow">'+h(S.meta.name)+' · rev '+h(S.meta.rev)+'</p><h2>Results</h2>'+
+      '<p class="sub">Everything below recomputes from the part records — nothing is cached.</p>'+
+      kpiRow(d,c)+'</div>'+
+
+    '<div class="card"><h2>Part-by-part</h2><p class="sub">Class A parts pass at least one minimum-part-count test. Red indices breach the targets.</p>'+
+      '<div class="tablewrap"><table><thead><tr><th>Part</th><th>Class</th><th class="n">Qty</th>'+
+      '<th class="n">Handling</th><th class="n">Fitting</th><th class="n">Assy s</th><th>Process</th>'+
+      '<th class="n">Unit</th><th class="n">Extended</th><th class="n">Share</th></tr></thead><tbody>'+
+      (partRows||'<tr><td colspan="10" class="note">No parts yet.</td></tr>')+'</tbody></table></div></div>'+
+
+    '<div class="card"><h2>Where the money and the minutes are</h2>'+
+      '<div class="tablewrap"><table><thead><tr><th>Element</th><th class="n">Cost</th><th class="n">Share</th></tr></thead><tbody>'+
+        '<tr><td>Parts (all processes)</td><td class="n">'+CUR+fmt(c.partsTotal)+'</td><td class="n">'+(c.total?r1(c.partsTotal/c.total*100):0)+'%</td></tr>'+
+        '<tr><td>Assembly labour ('+d.totalSec+' s @ '+CUR+num(S.lib.rates.assemblyLabourPerHour)+'/hr)</td><td class="n">'+CUR+fmt(c.assemblyLabour)+'</td><td class="n">'+(c.total?r1(c.assemblyLabour/c.total*100):0)+'%</td></tr>'+
+        '<tr><td><b style="color:var(--ink)">Total product cost</b></td><td class="n"><b style="color:var(--ink)">'+CUR+fmt(c.total)+'</b></td><td class="n">100%</td></tr>'+
+        '<tr><td>Annual, at '+fmt0(S.meta.annualVolume)+' units</td><td class="n">'+CUR+fmt0(c.total*num(S.meta.annualVolume))+'</td><td class="n"></td></tr>'+
+      '</tbody></table></div></div>'+
+
+    '<div class="card"><h2>What to change</h2><p class="sub">Ranked by impact. Consolidation first — a part removed costs nothing to make, handle, fit or stock.</p>'+
+      '<ul class="flags">'+findRows+'</ul></div>'+
+
+    '<div class="card noprint"><h2>Report</h2><p class="sub">Print to PDF for the design review, or export the raw numbers.</p>'+
+      '<div class="rowact"><button class="btn primary" onclick="window.print()">Print / save as PDF</button>'+
+      '<button class="btn" id="btnCsvOut">Export results as CSV</button></div></div>';
+}
+function procLabel(p){ return {machining:"CNC", fdm:"FDM", powder:"SLS/MJF", purchased:"Purchased"}[p]||p; }
+
+/* ---- Library ---- */
+function viewLibrary(){
+  const sub = [["rates","Rates"],["materials","Materials"],["machines","Machines"],["dfa","DFA tables"],["cost","Cost model"]];
+  const nav = '<nav class="tabs" style="margin-bottom:16px">'+sub.map(([k,l])=>
+    '<button data-libtab="'+k+'"'+(ui.libTab===k?' aria-current="page"':'')+'>'+l+'</button>').join("")+'</nav>';
+
+  let body = "";
+  if(ui.libTab==="rates"){
+    body = '<div class="card"><h2>Rates</h2><p class="sub">The handful of numbers that move every result. Get these right first.</p><div class="grid g3">'+
+      fNum("lib.rates.labourPerHour","Direct labour ("+CUR+"/hr)",{min:0})+
+      fNum("lib.rates.assemblyLabourPerHour","Assembly labour ("+CUR+"/hr)",{min:0})+
+      fNum("lib.rates.engineerPerHour","Engineer / programmer ("+CUR+"/hr)",{min:0})+
+      fNum("lib.rates.overheadPct","Factory overhead (%)",{min:0,hint:"On conversion cost, vendor basis only."})+
+      fNum("lib.rates.scrapPct","Scrap allowance (%)",{min:0})+
+      fNum("lib.rates.marginPct","Supplier margin (%)",{min:0})+
+      fNum("lib.rates.packFreightPct","Packaging + freight (%)",{min:0})+
+      fNum("lib.rates.idealAssemblySec","Ideal assembly time (s/part)",{min:0.1,step:0.1,hint:"Denominator of the efficiency score."})+
+    '</div></div>'+
+    '<div class="card"><h2>Targets</h2><p class="sub">Thresholds that drive the warning flags.</p><div class="grid g3">'+
+      fNum("lib.dfa.targets.handling","Handling index target",{min:0,step:0.1})+
+      fNum("lib.dfa.targets.fitting","Fitting index target",{min:0,step:0.1})+
+      fNum("lib.dfa.targets.designEff","Design efficiency target (%)",{min:0,step:1})+
+    '</div></div>';
+  }
+  else if(ui.libTab==="materials"){
+    const rows = S.lib.materials.map((m,i)=>{
+      const M="lib.materials."+i;
+      return '<tr><td>'+h(m.name)+'<br><span class="note mono">'+h(m.id)+' · '+h(m.group)+'</span></td>'+
+        '<td><input type="number" data-p="'+M+'.density" value="'+num(m.density)+'" step="0.01"></td>'+
+        '<td><input type="number" data-p="'+M+'.pricePerKg" value="'+num(m.pricePerKg)+'" step="1"></td>'+
+        '<td>'+(m.group==="machining"?'<input type="number" data-p="'+M+'.scrapPerKg" value="'+num(m.scrapPerKg)+'" step="1">':'<span class="note">—</span>')+'</td>'+
+        '<td>'+(m.group==="machining"?'<input type="number" data-p="'+M+'.mrr" value="'+num(m.mrr)+'" step="100">':'<span class="note">—</span>')+'</td>'+
+        '<td>'+(m.group==="machining"?'<input type="number" data-p="'+M+'.vc" value="'+num(m.vc)+'" step="1">':
+               m.group==="powder"?'<input type="number" data-p="'+M+'.bulkDensity" value="'+num(m.bulkDensity)+'" step="0.01">':'<span class="note">—</span>')+'</td>'+
+        '<td class="right"><button class="btn sm danger" data-delmat="'+i+'">Remove</button></td></tr>';
+    }).join("");
+    body = '<div class="card"><h2>Materials</h2>'+
+      '<p class="sub">Density in g/cm³. MRR is the material removal rate in mm³/min, Vc the cutting speed in m/min. '+
+      'Last column is Vc for machining stock and bulk density for powders.</p>'+
+      '<div class="tablewrap"><table><thead><tr><th>Material</th><th>Density</th><th>'+CUR+'/kg</th><th>Scrap '+CUR+'/kg</th><th>MRR</th><th>Vc / bulk</th><th></th></tr></thead>'+
+      '<tbody>'+rows+'</tbody></table></div>'+
+      '<div class="rowact" style="margin-top:10px"><button class="btn sm" data-addmat="machining">Add machining stock</button>'+
+      '<button class="btn sm" data-addmat="fdm">Add filament</button><button class="btn sm" data-addmat="powder">Add powder</button></div></div>';
+  }
+  else if(ui.libTab==="machines"){
+    const rows = S.lib.machines.map((k,i)=>{
+      const M="lib.machines."+i, extra=[];
+      if(k.group==="machining") extra.push(["Max rpm",M+".maxRpm"],["Tool change s",M+".toolChangeSec"]);
+      if(k.group==="fdm") extra.push(["Print speed mm/s",M+".printSpeed"],["Warm-up min",M+".warmupMin"]);
+      if(k.group==="powder") extra.push(["Layer time s",M+".layerTimeSec"],["Cool-down min",M+".cooldownMin"]);
+      return '<tr><td>'+h(k.name)+'<br><span class="note mono">'+h(k.group)+'</span></td>'+
+        '<td><input type="number" data-p="'+M+'.ratePerHour" value="'+num(k.ratePerHour)+'" step="10"></td>'+
+        extra.map(([lab,p])=>'<td><span class="note">'+lab+'</span><input type="number" data-p="'+p+'" value="'+num(getPath(p))+'" step="0.1"></td>').join("")+
+        '<td class="right"><button class="btn sm danger" data-delmach="'+i+'">Remove</button></td></tr>';
+    }).join("");
+    body = '<div class="card"><h2>Machines</h2><p class="sub">Hourly rate should already include depreciation, power, tooling consumables and maintenance — but not operator labour, which is added separately.</p>'+
+      '<div class="tablewrap"><table><thead><tr><th>Machine</th><th>'+CUR+'/hr</th><th colspan="2">Process parameters</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
+      '<p class="note" style="margin-top:10px">Powder machine build envelopes and layer heights are in the exported JSON — edit them there for a new machine, or duplicate an existing one.</p></div>';
+  }
+  else if(ui.libTab==="dfa"){
+    body = '<div class="card"><h2>DFA method tables</h2>'+
+      '<p class="sub">Two numbers per row: the Lucas-style penalty index, and the seconds the time model adds. '+
+      'The index drives the redesign flags; the seconds drive assembly time and cost. Calibrate the seconds against a stopwatch on your own line.</p>'+
+      dfaTable("Handling — size and weight","lib.dfa.hSize",S.lib.dfa.hSize)+
+      dfaTable("Handling — orientation","lib.dfa.hSym",S.lib.dfa.hSym)+
+      dfaTable("Handling — difficulties (additive)","lib.dfa.hFlags",S.lib.dfa.hFlags)+
+      dfaTable("Fitting — insertion direction","lib.dfa.fDir",S.lib.dfa.fDir)+
+      dfaTable("Fitting — difficulties (additive)","lib.dfa.fFlags",S.lib.dfa.fFlags)+
+      dfaTable("Fitting — fixing method (per fixing)","lib.dfa.fFix",S.lib.dfa.fFix)+
+    '</div>';
+  }
+  else {
+    const C = S.lib.cost;
+    body = '<div class="card"><h2>Machining model</h2><div class="grid g3">'+
+      fNum("lib.cost.machining.approachMm","Drill approach (mm)",{min:0,step:0.1})+
+      fNum("lib.cost.machining.peckFactor","Deep-hole peck factor",{min:1,step:0.01})+
+      fNum("lib.cost.machining.loadUnloadSec","Load + unload (s)",{min:0})+
+      fNum("lib.cost.machining.inspectionSec","In-process inspection (s)",{min:0})+
+      fNum("lib.cost.machining.finishRateMm2PerMin","Finishing rate (mm²/min)",{min:1})+
+      fNum("lib.cost.machining.operatorAttendPct","Operator attendance (%)",{min:0,max:100})+
+    '</div></div>'+
+    '<div class="card"><h2>FDM model</h2><div class="grid g4">'+
+      fNum("lib.cost.fdm.extrusionWidthFactor","Extrusion width / nozzle ø",{min:0.5,step:0.005})+
+      fNum("lib.cost.fdm.wastePct","Filament waste (%)",{min:0})+
+      fNum("lib.cost.fdm.failurePct","Failed-print allowance (%)",{min:0})+
+      fNum("lib.cost.fdm.postProcessMin","Post-processing (min/part)",{min:0,step:0.5})+
+    '</div></div>'+
+    '<div class="card"><h2>Powder bed model</h2><div class="grid g4">'+
+      fNum("lib.cost.powder.packingDensityPct","Packing density (%)",{min:1,max:60,step:0.5,hint:"Share of the build envelope filled by parts. 8–12% is typical."})+
+      fNum("lib.cost.powder.recyclePct","Cake powder recycled (%)",{min:0,max:100})+
+      fNum("lib.cost.powder.depowderMinPerPart","Depowdering (min/part)",{min:0,step:0.5})+
+      fNum("lib.cost.powder.postProcessMinPerPart","Finishing (min/part)",{min:0,step:0.5})+
+    '</div></div>'+
+    '<div class="card"><h2>Tolerance and finish multipliers</h2><p class="sub">Applied to machining cutting time.</p>'+
+      '<div class="grid g2"><div>'+Object.keys(C.tolerance).map(k=>fNum("lib.cost.tolerance."+k+".mult",C.tolerance[k].label,{min:1,step:0.01})).join("")+'</div>'+
+      '<div>'+Object.keys(C.finish).map(k=>fNum("lib.cost.finish."+k+".mult",C.finish[k].label,{min:1,step:0.01})).join("")+'</div></div></div>';
+  }
+  return nav+body;
+}
+function dfaTable(title,path,tbl){
+  const rows = Object.keys(tbl).map(k=>
+    '<tr><td>'+h(tbl[k].label)+'</td>'+
+    '<td><input type="number" data-p="'+path+'.'+k+'.idx" value="'+num(tbl[k].idx)+'" step="0.1"></td>'+
+    '<td><input type="number" data-p="'+path+'.'+k+'.sec" value="'+num(tbl[k].sec)+'" step="0.1"></td></tr>').join("");
+  return '<h3 style="margin:18px 0 8px;font-size:13px">'+h(title)+'</h3>'+
+    '<div class="tablewrap"><table><thead><tr><th>Condition</th><th style="width:110px">Index</th><th style="width:110px">Seconds</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+
+/* ---- Data ---- */
+function viewData(){
+  return '<div class="card"><h2>Save and share</h2>'+
+    '<p class="sub">Your work lives in this browser’s local storage. Export a JSON file to keep it in the repo, move it between machines, or hand it to a colleague.</p>'+
+    '<div class="rowact"><button class="btn primary" id="btnExport2">Export project JSON</button>'+
+    '<button class="btn" id="btnImport2">Import project JSON</button>'+
+    '<button class="btn" id="btnCsvOut2">Export results CSV</button>'+
+    '<button class="btn danger" id="btnReset">Reset to sample</button>'+
+    '<button class="btn danger" id="btnClear">Clear all parts</button></div></div>'+
+
+    '<div class="card"><h2>Import a BOM</h2>'+
+    '<p class="sub">CSV with a header row. Unknown columns are ignored; missing ones take defaults you can fill in afterwards.</p>'+
+    '<div class="tablewrap"><table><thead><tr><th>Column</th><th>Meaning</th><th>Accepted values</th></tr></thead><tbody>'+
+    [["name","Part name","any text"],
+     ["partNo","Part number","any text"],
+     ["qty","Quantity per product","number"],
+     ["process","Cost process","machining, fdm, powder, purchased"],
+     ["price","Unit price, purchased parts only","number"],
+     ["volume","Part volume, mm³","number"],
+     ["bx / by / bz","Bounding box, mm","number"],
+     ["material","Material id","e.g. al6061, petg, pa12"],
+     ["moves / material_diff / service","Minimum part count answers","yes / no / 1 / 0"],
+     ["size","Handling size class","normal, small, verySmall, large, heavy"],
+     ["sym","Orientation class","symmetric, oneWay, twoWay, nonObvious"],
+     ["fix","Fixing method","none, snap, clip, screw, screwHand, rivet, weld, adhesive, solder, press"],
+     ["fixCount","Number of fixings","number"]
+    ].map(r=>'<tr><td class="mono">'+h(r[0])+'</td><td>'+h(r[1])+'</td><td class="note">'+h(r[2])+'</td></tr>').join("")+
+    '</tbody></table></div>'+
+    '<div class="rowact" style="margin-top:12px"><button class="btn primary" id="btnImportCsv2">Choose CSV file</button>'+
+    '<button class="btn" id="btnCsvTemplate">Download blank template</button></div></div>'+
+
+    '<div class="card"><h2>Storage</h2><p class="note">Key: <span class="mono">'+LSKEY+'</span>. '+
+    'Local storage is per-browser and per-folder — opening the file from a different path, browser or profile starts empty. '+
+    'Export before you rely on it.</p></div>';
+}
+
+/* ============================================================
+   9. CSV
+   ============================================================ */
+function parseCsv(text){
+  const rows=[]; let row=[], cell="", q=false;
+  for(let i=0;i<text.length;i++){
+    const ch=text[i];
+    if(q){
+      if(ch==='"'){ if(text[i+1]==='"'){cell+='"';i++;} else q=false; }
+      else cell+=ch;
+    } else if(ch==='"') q=true;
+    else if(ch===","){ row.push(cell); cell=""; }
+    else if(ch==="\n"){ row.push(cell); rows.push(row); row=[]; cell=""; }
+    else if(ch!=="\r") cell+=ch;
+  }
+  if(cell.length||row.length){ row.push(cell); rows.push(row); }
+  return rows.filter(r=>r.some(c=>c.trim()!==""));
+}
+function yes(v){ const s=String(v||"").trim().toLowerCase(); return s==="1"||s==="y"||s==="yes"||s==="true"; }
+
+function importCsv(text){
+  const rows = parseCsv(text);
+  if(rows.length<2){ toast("Nothing to import"); return; }
+  const head = rows[0].map(x=>x.trim().toLowerCase());
+  const col = n=>head.indexOf(n);
+  let added=0;
+  rows.slice(1).forEach(r=>{
+    const g = n => { const i=col(n); return i>=0 ? String(r[i]||"").trim() : ""; };
+    const pt = samplePart();
+    pt.name = g("name") || "Imported part";
+    pt.partNo = g("partno");
+    if(g("qty")) pt.qty = num(g("qty"),1);
+    const proc = g("process").toLowerCase();
+    if(["machining","fdm","powder","purchased"].indexOf(proc)>=0) pt.cost.process = proc;
+    if(g("price")) pt.cost.purchasedPrice = num(g("price"));
+    const vol = num(g("volume"),0), bx=num(g("bx"),0), by=num(g("by"),0), bz=num(g("bz"),0);
+    ["machining","fdm","powder"].forEach(k=>{ if(vol) pt.cost[k].partVolume = vol; });
+    if(bx){ pt.cost.fdm.bx=bx; pt.cost.powder.bx=bx; pt.cost.machining.L=bx; }
+    if(by){ pt.cost.fdm.by=by; pt.cost.powder.by=by; pt.cost.machining.W=by; }
+    if(bz){ pt.cost.fdm.bz=bz; pt.cost.powder.bz=bz; pt.cost.machining.H=bz; }
+    const mid = g("material");
+    if(mid && S.lib.materials.some(m=>m.id===mid)){
+      const grp = S.lib.materials.find(m=>m.id===mid).group;
+      if(grp==="machining") pt.cost.machining.materialId=mid;
+      if(grp==="fdm") pt.cost.fdm.materialId=mid;
+      if(grp==="powder") pt.cost.powder.materialId=mid;
+    }
+    pt.dfa.moveRelative = yes(g("moves"));
+    pt.dfa.differentMaterial = yes(g("material_diff"));
+    pt.dfa.separateForService = yes(g("service"));
+    if(S.lib.dfa.hSize[g("size")]) pt.dfa.size = g("size");
+    if(S.lib.dfa.hSym[g("sym")]) pt.dfa.sym = g("sym");
+    if(S.lib.dfa.fFix[g("fix")]) pt.dfa.fix = g("fix");
+    if(g("fixcount")) pt.dfa.fixCount = num(g("fixcount"),1);
+    S.parts.push(pt); added++;
+  });
+  save(); render(); toast(added+" part"+(added===1?"":"s")+" imported");
+}
+
+function csvOut(){
+  const c = costProduct();
+  const head = ["Part","Part no","Qty","Class","Handling index","Fitting index","Handling s","Fitting s","Assembly s (ext)",
+                "Process","Basis","Material cost","Conversion","Unit cost","Extended","Justification"];
+  const lines = [head];
+  c.rows.forEach(({pt,c:cc})=>{
+    const r = dfaPart(pt);
+    lines.push([pt.name, pt.partNo, r.qty, r.essential?"A":"B", r.handlingIndex, r.fittingIndex,
+      r.handlingSec, r.fittingSec, r.totalSec, procLabel(pt.cost.process), cc.basis,
+      r2(cc.material), r2(cc.conversion), r2(cc.unit), r2(cc.extended), pt.dfa.reason||""]);
+  });
+  const d = c.dfa;
+  lines.push([]);
+  lines.push(["Design efficiency %", d.designEff]);
+  lines.push(["Parts total / essential", d.nTotal, d.nEss]);
+  lines.push(["Assembly time s", d.totalSec]);
+  lines.push(["Assembly efficiency %", d.efficiency]);
+  lines.push(["Feeding ratio", d.feedingRatio]);
+  lines.push(["Fitting ratio", d.fittingRatio]);
+  lines.push(["Parts cost", r2(c.partsTotal)]);
+  lines.push(["Assembly labour", r2(c.assemblyLabour)]);
+  lines.push(["Total product cost", r2(c.total)]);
+  const body = lines.map(r=>r.map(v=>{
+    const s = String(v==null?"":v);
+    return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s;
+  }).join(",")).join("\n");
+  download((S.meta.name||"analysis").replace(/[^\w-]+/g,"_")+"_results.csv", body, "text/csv");
+}
+
+function download(name, text, mime){
+  const blob = new Blob([text],{type:(mime||"application/json")+";charset=utf-8"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href=url; a.download=name; document.body.appendChild(a); a.click();
+  setTimeout(()=>{URL.revokeObjectURL(url); a.remove();},0);
+}
+
+/* ============================================================
+   10. EVENTS
+   ============================================================ */
+document.addEventListener("click", e=>{
+  // selecting a part from the list: the marker sits on the row, not a button
+  const row = e.target.closest("[data-sel]");
+  if(row && !e.target.closest("button")){ ui.selPart = row.dataset.sel; render(); return; }
+
+  const t = e.target.closest("button");
+  if(!t) return;
+  const d = t.dataset;
+
+  if(d.tab){ ui.tab=d.tab; render(); return; }
+  if(d.libtab){ ui.libTab=d.libtab; render(); return; }
+
+  if(t.id==="btnAddPart"){ const p=samplePart(); S.parts.push(p); ui.selPart=p.id; save(); render(); return; }
+  if(d.dup){
+    const src = S.parts.find(x=>x.id===d.dup);
+    const cp = JSON.parse(JSON.stringify(src)); cp.id=uid(); cp.name=src.name+" (copy)";
+    S.parts.splice(S.parts.indexOf(src)+1,0,cp); ui.selPart=cp.id; save(); render(); return;
+  }
+  if(d.del){
+    const src = S.parts.find(x=>x.id===d.del);
+    if(confirm("Delete “"+src.name+"”?")){
+      S.parts.splice(S.parts.indexOf(src),1);
+      ui.selPart = S.parts.length? S.parts[0].id : null; save(); render();
+    }
+    return;
+  }
+  if(t.id==="btnAddHole"){
+    const pt = S.parts.find(x=>x.id===ui.selPart);
+    pt.cost.machining.holes.push({count:1,dia:5,depth:10}); save(); render(); return;
+  }
+  if(d.delhole!==undefined){
+    const pt = S.parts.find(x=>x.id===ui.selPart);
+    pt.cost.machining.holes.splice(+d.delhole,1); save(); render(); return;
+  }
+  if(d.delmat!==undefined){ S.lib.materials.splice(+d.delmat,1); save(); render(); return; }
+  if(d.delmach!==undefined){ S.lib.machines.splice(+d.delmach,1); save(); render(); return; }
+  if(d.addmat){
+    const g=d.addmat, id="m"+Math.random().toString(36).slice(2,6);
+    const base = g==="machining" ? {density:7.8,pricePerKg:100,scrapPerKg:30,mrr:9000,vc:90,fpr:0.12}
+               : g==="powder"    ? {density:1.0,bulkDensity:0.45,pricePerKg:4000}
+               :                   {density:1.24,pricePerKg:1200};
+    S.lib.materials.push(Object.assign({id,name:"New "+g+" material",group:g},base));
+    save(); render(); return;
+  }
+
+  if(t.id==="btnExport"||t.id==="btnExport2"){
+    download((S.meta.name||"analysis").replace(/[^\w-]+/g,"_")+".json", JSON.stringify(S,null,2));
+    toast("Exported"); return;
+  }
+  if(t.id==="btnImport"||t.id==="btnImport2"){ document.getElementById("fileImport").click(); return; }
+  if(t.id==="btnImportCsv"||t.id==="btnImportCsv2"){ document.getElementById("fileCsv").click(); return; }
+  if(t.id==="btnCsvOut"||t.id==="btnCsvOut2"){ csvOut(); return; }
+  if(t.id==="btnCsvTemplate"){
+    download("bom-template.csv",
+      "name,partNo,qty,process,price,volume,bx,by,bz,material,moves,material_diff,service,size,sym,fix,fixCount\n"+
+      "Base plate,BP-001,1,machining,,28000,60,40,20,al6061,no,no,yes,normal,oneWay,none,1\n"+
+      "M4 cap screw,STD-M4,4,purchased,4.5,,,,,,no,no,no,small,oneWay,screw,1\n","text/csv");
+    return;
+  }
+  if(t.id==="btnReset"){ if(confirm("Discard everything and reload the sample project?")){ S=sampleProject(); ui.selPart=null; save(); render(); } return; }
+  if(t.id==="btnClear"){ if(confirm("Delete all parts? The library and rates are kept.")){ S.parts=[]; ui.selPart=null; save(); render(); } return; }
+});
+
+document.addEventListener("input", e=>{
+  const el = e.target; const p = el.dataset.p;
+  if(!p) return;
+  let v;
+  if(el.type==="checkbox") v = el.checked;
+  else if(el.type==="number") v = el.value===""?0:parseFloat(el.value);
+  else v = el.value;
+  setPath(p, v);
+  save();
+  if(el.type!=="checkbox" && el.tagName!=="SELECT") refreshLive();
+});
+document.addEventListener("change", e=>{
+  const el = e.target;
+  if(!el.dataset.p) return;
+  if(el.dataset.rerender) render();
+});
+
+function refreshLive(){
+  // update the numbers that sit outside the form without rebuilding it (keeps focus)
+  const pt = S.parts.find(x=>x.id===ui.selPart);
+  const bar = document.querySelector(".livebar");
+  if(ui.tab==="parts" && pt && bar){
+    const r = dfaPart(pt), c = costPart(pt);
+    bar.innerHTML =
+      '<div><b>Class</b>'+(r.essential?"A – essential":"B – candidate")+'</div>'+
+      '<div><b>Handling</b>'+r.handlingIndex+(r.overHandling?' ⚠':'')+'</div>'+
+      '<div><b>Fitting</b>'+r.fittingIndex+(r.overFitting?' ⚠':'')+'</div>'+
+      '<div><b>Assembly</b>'+r.unitSec+' s ×'+r.qty+'</div>'+
+      '<div><b>Unit cost</b>'+CUR+fmt(c.unit)+'</div>'+
+      '<div><b>Extended</b>'+CUR+fmt(c.extended)+'</div>';
+  }
+}
+
+document.getElementById("fileImport").addEventListener("change", e=>{
+  const f = e.target.files[0]; if(!f) return;
+  const rd = new FileReader();
+  rd.onload = ()=>{
+    try{
+      const o = JSON.parse(rd.result);
+      if(!o.parts) throw new Error("not a project file");
+      S = migrate(o); ui.selPart=null; save(); render(); toast("Project loaded");
+    }catch(err){ alert("Could not read that file: "+err.message); }
+  };
+  rd.readAsText(f); e.target.value="";
+});
+document.getElementById("fileCsv").addEventListener("change", e=>{
+  const f = e.target.files[0]; if(!f) return;
+  const rd = new FileReader();
+  rd.onload = ()=>{ try{ importCsv(rd.result); }catch(err){ alert("Could not read that CSV: "+err.message); } };
+  rd.readAsText(f); e.target.value="";
+});
+
+/* ---- boot ---- */
+S = load();
+render();
+</script>
+</body>
+</html>
