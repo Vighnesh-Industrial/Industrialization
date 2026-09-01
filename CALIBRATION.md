@@ -79,7 +79,6 @@ coefficient that dominates it — measure that one first and the rest can wait.
 | Process | The number that decides it | How to get it |
 |---|---|---|
 | **Harness** | Crimp seconds per contact, and connector assembly seconds | Time one real harness build end to end, then divide by the contact and connector counts. Harness cost is almost entirely labour, so nothing else matters as much |
-| **Composite** | Layup minutes per ply per m² | Time one real part: cutting, positioning and consolidating each ply. Include the debulks. This single number moves composite cost more than material price does |
 | **Foam** | Block margin, for CNC parts | Measure the blank you actually buy against the finished part. The yield figure the tool reports should match what you see on the floor |
 
 Two more worth an early look:
@@ -89,6 +88,23 @@ Two more worth an early look:
 - **Powder-bed and cure-cycle loading.** `partsPerCure` and `partsPerBuild`
   divide the most expensive line in each of those models. Getting the loading
   wrong by a factor of two moves the part cost by the same factor.
+
+## 4c. Serviceability — the numbers behind the solder question
+
+| Field | How to get it |
+|---|---|
+| **Desolder + remake seconds per joint** | Time one real board swap: break the joint, clean the pad, re-solder, inspect. This decides whether connectorising pays |
+| **Damage risk per desolder event (%)** | Your own rework reject rate. On an expensive assembly this term outweighs the labour by an order of magnitude, so a guess here is worse than a measurement |
+| **Access seconds per part removed** | Walk one real disassembly and count what comes off before the target part is reachable |
+| **Fault-finding and retest minutes** | From the maintenance procedure, not the ideal case |
+| **Removals per life, per part** | Scheduled swaps from the maintenance schedule, plus expected failures from your reliability data. This is the number that turns a per-event cost into a fleet cost |
+
+**What the payback figure does not include.** It prices maintenance labour and
+the risk of writing off the assembly. It does not price turnaround time, whether
+a repair can happen at the flight line instead of a bench, aircraft
+availability, or the operational cost of having a technician with a soldering
+iron near a live airframe. Those are usually the deciding arguments — use the
+number to size the trade, not to settle it.
 
 ## 4c. Mass
 

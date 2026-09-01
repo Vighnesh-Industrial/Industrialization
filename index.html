@@ -368,6 +368,21 @@ const DEFAULT_LIB = {
     blockMarginMm:10, trimMin:4, wastePct:10
   },
 
+  /* Serviceability. A joint that is cheap to make once can be ruinous to break:
+     these are the numbers that price that difference. */
+  service: {
+    removeFactor:0.7,          // removal time as a fraction of the fitting time
+    refitFactor:1.0,           // refit time as a multiple of the fitting time
+    accessPartSec:25,          // per part that must come off first to reach this one
+    desolderSecPerJoint:75,    // desolder, clean, re-solder and inspect one wire-to-board joint
+    diagnosisMin:10,           // fault-finding before the repair starts
+    testAfterMin:8,            // functional retest after it
+    connectorCostPerJoint:180, // both halves plus contacts, to connectorise one joint
+    connectorGramsPerJoint:9,
+    connectorMateSec:8,        // what that joint costs to break and remake once connectorised
+    solderDamageRiskPct:4      // chance a desolder/resolder event damages the board or the pad
+  },
+
   /* ---- cost model coefficients ---- */
   cost: {
     tolerance: {
@@ -411,7 +426,8 @@ const DEFAULT_LIB = {
 function samplePart(over){
   return Object.assign({
     id: uid(), name:"New part", partNo:"", qty:1, notes:"",
-    module:"", massG:0, fieldAssembly:false, toolFree:false,
+    module:"", massG:0, fieldAssembly:false, toolFree:false, domain:"mech",
+    service:{ cls:"none", removalsPerLife:0, accessDepth:0, destructive:false, solderJoints:0, reworkMin:0 },
     dfa:{
       moveRelative:false, differentMaterial:false, separateForService:false, reason:"",
       size:"normal", sym:"oneWay", hFlags:{},
@@ -457,14 +473,6 @@ function sampleProject(){
   };
 
   const parts = [
-    P("Wing skin, upper LH","Wing LH",
-      {moveRelative:false,differentMaterial:false,separateForService:false,
-       reason:"Bonded to the lower skin - consolidation candidate only if the layup can be done as one closed moulding.",
-       size:"large",sym:"oneWay",hFlags:{delicate:true,twoHands:true},dir:"topDown",
-       fFlags:{notSelfLocating:true,holdDown:true},fix:"adhesive",fixCount:1},
-      {process:"composite", set:{materialId:"cf200p",machineId:"oven",areaMm2:310000,plies:3,debulks:1,
-        cureHr:4,partsPerCure:2,coreId:"nomex3",coreThickness:3,toolCost:240000,toolLife:400}}),
-
     P("Wing core, foam","Wing LH",
       {moveRelative:false,differentMaterial:true,separateForService:false,
        reason:"Core material must differ from the skins.",
@@ -500,14 +508,17 @@ function sampleProject(){
        fFlags:{torqueSpec:true,threadlock:true},fix:"screw",fixCount:4},
       {process:"machining", set:{materialId:"al6061",machineId:"vmc",stockForm:"block",
         L:56,W:56,H:14,partVolume:16500,setups:1,toolChanges:4,setupMin:30,batchSize:60,
-        tolerance:"medium",finish:"asMachined",holes:[{count:8,dia:4,depth:14}]}}),
+        tolerance:"medium",finish:"asMachined",holes:[{count:8,dia:4,depth:14}]}},
+      {domain:"electromech"}),
 
     P("VTOL motor","Boom LH",
       {moveRelative:true,differentMaterial:false,separateForService:true,
        reason:"Rotating assembly.",
        size:"normal",sym:"twoWay",hFlags:{},dir:"topDown",
        fFlags:{torqueSpec:true,connectorMate:true},fix:"screw",fixCount:4},
-      {process:"purchased", price:4200}, {massG:186}),
+      {process:"purchased", price:4200},
+      {massG:186, domain:"electromech",
+       service:{cls:"depot", removalsPerLife:2, accessDepth:1, destructive:false, solderJoints:3, reworkMin:0}}),
 
     P("ESC to motor harness","Boom LH",
       {moveRelative:false,differentMaterial:true,separateForService:true,
@@ -516,15 +527,9 @@ function sampleProject(){
        fFlags:{routing:true,connectorMate:true,restrictedVision:true},fix:"cableTie",fixCount:4},
       {process:"harness", set:{wireId:"w14",lengthMm:620,cores:3,branches:1,
         connAPins:3,connAPrice:95,connBPins:3,connBPrice:95,sleevingMm:520,
-        heatshrink:6,labels:2,ties:4}}),
-
-    P("Fuselage shell, LH","Fuselage",
-      {moveRelative:false,differentMaterial:false,separateForService:true,
-       reason:"Opens for avionics access.",
-       size:"large",sym:"oneWay",hFlags:{delicate:true,twoHands:true},dir:"side",
-       fFlags:{notSelfLocating:true,holdDown:true},fix:"quickRel",fixCount:6},
-      {process:"composite", set:{materialId:"cf200p",machineId:"oven",areaMm2:210000,plies:4,debulks:1,
-        cureHr:4,partsPerCure:2,toolCost:310000,toolLife:400}}),
+        heatshrink:6,labels:2,ties:4}},
+      {domain:"wiring",
+       service:{cls:"depot", removalsPerLife:2, accessDepth:3, destructive:false, solderJoints:0, reworkMin:0}}),
 
     P("Avionics tray","Fuselage",
       {moveRelative:false,differentMaterial:false,separateForService:false,
@@ -532,14 +537,17 @@ function sampleProject(){
        size:"normal",sym:"oneWay",hFlags:{},dir:"topDown",
        fFlags:{esd:true},fix:"screw",fixCount:6},
       {process:"fdm", set:{materialId:"pa12cf",machineId:"fdmInd",bx:180,by:90,bz:22,
-        partVolume:41000,layerHeight:0.2,nozzle:0.4,walls:4,infillPct:30,supportPct:6,partsPerPlate:2}}),
+        partVolume:41000,layerHeight:0.2,nozzle:0.4,walls:4,infillPct:30,supportPct:6,partsPerPlate:2}},
+      {domain:"electromech"}),
 
     P("Flight controller","Fuselage",
       {moveRelative:false,differentMaterial:true,separateForService:true,
        reason:"Electronics - isolated and field-replaceable.",
        size:"small",sym:"twoWay",hFlags:{delicate:true},dir:"topDown",
        fFlags:{esd:true,connectorMate:true,calibrate:true,traceability:true},fix:"screw",fixCount:4},
-      {process:"purchased", price:38000}, {massG:64}),
+      {process:"purchased", price:38000},
+      {massG:64, domain:"elec",
+       service:{cls:"depot", removalsPerLife:3, accessDepth:4, destructive:false, solderJoints:9, reworkMin:0}}),
 
     P("Main power harness","Fuselage",
       {moveRelative:false,differentMaterial:true,separateForService:true,
@@ -548,21 +556,27 @@ function sampleProject(){
        fFlags:{routing:true,connectorMate:true,obstructed:true},fix:"cableTie",fixCount:6},
       {process:"harness", set:{wireId:"w12",lengthMm:480,cores:2,branches:3,
         connAPins:2,connAPrice:340,connBPins:2,connBPrice:180,splices:2,sleevingMm:450,
-        heatshrink:10,labels:4,ties:6,testMin:6}}),
+        heatshrink:10,labels:4,ties:6,testMin:6}},
+      {domain:"wiring",
+       service:{cls:"depot", removalsPerLife:2, accessDepth:5, destructive:false, solderJoints:6, reworkMin:0}}),
 
     P("Battery pack","Fuselage",
       {moveRelative:false,differentMaterial:true,separateForService:true,
        reason:"Swapped between sorties.",
        size:"large",sym:"twoWay",hFlags:{},dir:"topDown",
        fFlags:{connectorMate:true},fix:"velcro",fixCount:2},
-      {process:"purchased", price:26000}, {massG:1450, fieldAssembly:true, toolFree:true}),
+      {process:"purchased", price:26000},
+      {massG:1450, fieldAssembly:true, toolFree:true, domain:"elec",
+       service:{cls:"field", removalsPerLife:400, accessDepth:0, destructive:false, solderJoints:0, reworkMin:0}}),
 
     P("Payload gimbal","Payload",
       {moveRelative:true,differentMaterial:false,separateForService:true,
        reason:"Swappable payload - the product feature.",
        size:"normal",sym:"twoWay",hFlags:{delicate:true},dir:"topDown",
        fFlags:{connectorMate:true,calibrate:true},fix:"quickRel",fixCount:1},
-      {process:"purchased", price:210000}, {massG:640, fieldAssembly:true, toolFree:true}),
+      {process:"purchased", price:210000},
+      {massG:640, fieldAssembly:true, toolFree:true, domain:"electromech",
+       service:{cls:"field", removalsPerLife:60, accessDepth:0, destructive:false, solderJoints:0, reworkMin:0}}),
 
     P("M4 × 12 cap screw","Fasteners",
       {moveRelative:false,differentMaterial:false,separateForService:false,
@@ -574,9 +588,9 @@ function sampleProject(){
 
   return {
     schema:1,
-    meta:{name:"Sample – VTOL fixed-wing airframe", rev:"A", analyst:"",
+    meta:{name:"Sample – VTOL airframe", rev:"A", analyst:"",
           date:new Date().toISOString().slice(0,10),
-          annualVolume:500, massTargetG:7000, fieldDeployTargetSec:300,
+          annualVolume:500, massTargetG:10000, fieldDeployTargetSec:300,
           notes:"Illustrative only – quantities, geometry and prices are invented. "+
                 "Replace with your own BOM (Data tab → Reset clears this)."},
     settings:{basis:"vendor"},
@@ -1041,6 +1055,55 @@ function costFoam(pt){
   };
 }
 
+/* ============================================================
+   5g. SERVICEABILITY
+   What it costs to take the thing apart again. A permanent joint on a
+   part that has to come out is the defect this exists to surface.
+   ============================================================ */
+const PERMANENT_FIX = ["solder","weld","adhesive","rivet","lockwire"];
+
+function servicePart(pt, unitCost){
+  const K = S.lib.service, sv = pt.service || {}, r = dfaPart(pt);
+  const cls = sv.cls || "none";
+  const solder = Math.max(0, num(sv.solderJoints));
+  const depth  = Math.max(0, num(sv.accessDepth));
+  const removals = Math.max(0, num(sv.removalsPerLife));
+
+  const permanent = PERMANENT_FIX.indexOf(pt.dfa.fix) >= 0;
+  const destructive = !!sv.destructive || (permanent && pt.dfa.fix !== "lockwire");
+
+  const accessSec  = depth * K.accessPartSec;
+  const removeSec  = r.fittingSec * K.removeFactor + solder * K.desolderSecPerJoint;
+  const refitSec   = r.fittingSec * K.refitFactor + r.handlingSec + solder * K.desolderSecPerJoint;
+  const overheadSec= (K.diagnosisMin + K.testAfterMin + num(sv.reworkMin)) * 60;
+  const eventSec   = accessSec*2 + removeSec + refitSec + overheadSec;
+
+  const labourCost = eventSec/3600 * num(S.lib.rates.labourPerHour);
+  const scrapCost  = destructive ? num(unitCost) : 0;
+  // Repeated reflow on the same pads carries a real chance of writing off the
+  // board. On an expensive assembly this dominates the labour, which is why a
+  // labour-only payback figure understates the case for a connector.
+  const riskPct    = num(sv.damageRiskPct, S.lib.service.solderDamageRiskPct);
+  const riskCost   = solder>0 ? num(unitCost) * riskPct/100 : 0;
+  const eventCost  = labourCost + scrapCost + riskCost;
+
+  // what connectorising the soldered joints would trade
+  const connCost   = solder * K.connectorCostPerJoint;
+  const connGrams  = solder * K.connectorGramsPerJoint;
+  const savedSec   = solder * (K.desolderSecPerJoint*2 - K.connectorMateSec);
+
+  return {
+    cls, solder, depth, removals, permanent, destructive,
+    eventSec:r2(eventSec), eventMin:r2(eventSec/60),
+    eventCost, lifetimeCost: eventCost*removals, lifetimeSec: eventSec*removals,
+    connCost, connGrams, savedSec:r2(savedSec),
+    labourCost, riskCost, riskPct,
+    savedPerRemoval: savedSec/3600*num(S.lib.rates.labourPerHour) + riskCost,
+    breakeven: savedSec>0 ? Math.ceil(connCost / Math.max(0.01, savedSec/3600*num(S.lib.rates.labourPerHour) + riskCost)) : 0,
+    serviceable: cls==="field" || cls==="depot"
+  };
+}
+
 function costPart(pt){
   const proc = pt.cost.process;
   let base;
@@ -1068,6 +1131,7 @@ function costPart(pt){
   const unit = direct + scrap + overhead + margin + freight;
   const qty = Math.max(0,num(pt.qty,1));
   const massG = num(pt.massG)>0 ? num(pt.massG) : num(base.massG,0);
+  base.service = servicePart(pt, unit);
   return Object.assign(base, {
     basis, direct, scrap, overhead, margin, freight, massG,
     massSource: num(pt.massG)>0 ? "entered" : (massG>0 ? "calculated" : "unknown"),
@@ -1082,9 +1146,37 @@ function costProduct(){
   const massG = rows.reduce((a,x)=>a+x.c.massExtended,0);
   const unknownMass = rows.filter(x=>x.c.massSource==="unknown").length;
   const d = dfaProduct();
+  const svc = {
+    lifetimeCost: rows.reduce((a,x)=>a+x.c.service.lifetimeCost,0),
+    solderJoints: rows.reduce((a,x)=>a+x.c.service.solder*Math.max(1,num(x.pt.qty,1)),0),
+    trapped: rows.filter(x=>x.c.service.serviceable && (x.c.service.permanent || x.c.service.solder>0)),
+    worst: rows.filter(x=>x.c.service.serviceable).sort((a,b)=>b.c.service.eventSec-a.c.service.eventSec)[0] || null,
+    serviceable: rows.filter(x=>x.c.service.serviceable).length
+  };
   return { rows, partsTotal, massG, unknownMass,
            assemblyLabour:d.labourCost, total:partsTotal + d.labourCost, dfa:d,
-           modules: moduleRollup(rows) };
+           modules: moduleRollup(rows), domains: domainRollup(rows), svc };
+}
+
+/* Mechanical, electrical, wiring and the interface between them. The
+   electromechanical parts are where most integration problems live, so they
+   are worth being able to see on their own. */
+const DOMAINS = {
+  mech:"Mechanical", elec:"Electrical / electronic",
+  electromech:"Electromechanical interface", wiring:"Wiring / harness"
+};
+function domainRollup(rows){
+  const map = new Map();
+  Object.keys(DOMAINS).forEach(k=>map.set(k,{key:k, name:DOMAINS[k], parts:0, ess:0, cost:0, massG:0, sec:0, svcCost:0, solder:0}));
+  rows.forEach(({pt,c})=>{
+    const g = map.get(pt.domain) || map.get("mech");
+    const r = dfaPart(pt);
+    g.parts += r.qty; if(r.essential) g.ess += r.qty;
+    g.cost += c.extended; g.massG += c.massExtended; g.sec += r.totalSec;
+    g.svcCost += c.service.lifetimeCost; g.solder += c.service.solder*r.qty;
+  });
+  return Array.from(map.values()).filter(g=>g.parts>0)
+    .map(g=>Object.assign(g,{designEff: g.parts? r1(g.ess/g.parts*100):0}));
 }
 
 /* Per-module rollup. A drone BOM is only legible module by module -
@@ -1127,6 +1219,27 @@ function findings(){
         why:"Fasteners are pure assembly cost and dead weight. Design the joint as a snap, press or integral feature and the part, its mass and its fitting time all disappear.",
         gain:"Saves "+CUR+fmt(c.extended)+grams+" and "+r2(r.totalSec)+" s per product."});
     }
+    const sv = c.service;
+    if(sv.serviceable && sv.solder > 0){
+      out.unshift({sev:"risk", part:pt.name, title:sv.solder+" soldered joint"+(sv.solder===1?"":"s")+" on a "+(sv.cls==="field"?"field":"depot")+"-replaceable item",
+        why:"The wires are soldered directly to the board on the line. Nothing here is wrong at build — it is the cheapest, lightest joint you can make. "+
+            "The cost lands at every removal afterwards: this part cannot be swapped without a soldering iron, so a "+
+            (sv.cls==="field"?"flight-line swap becomes a bench job":"bench job becomes a rework job")+".",
+        gain:"One service event is "+sv.eventMin+" min. Connectorising these joints costs about "+CUR+fmt(sv.connCost)+
+             " and "+r1(sv.connGrams)+" g, and saves "+r2(sv.savedSec/60)+" min per removal — it pays for itself after "+
+             sv.breakeven+" removal"+(sv.breakeven===1?"":"s")+
+             (sv.removals? ", against "+sv.removals+" expected over life." : ", and no expected removals are recorded yet.")});
+    }
+    else if(sv.serviceable && sv.destructive){
+      out.push({sev:"risk", part:pt.name, title:"Destructive removal on a serviceable item",
+        why:"The joint cannot be broken without destroying the part or its fixing, yet the part is expected to come out in service.",
+        gain:"Each removal writes off "+CUR+fmt(c.unit)+" on top of "+sv.eventMin+" min of labour."});
+    }
+    if(sv.serviceable && sv.depth >= 4){
+      out.push({sev:"warn", weight:sv.eventSec, part:pt.name, title:"Buried "+sv.depth+" parts deep",
+        why:"Reaching it means removing "+sv.depth+" other parts first, twice — once to get in and once to close up.",
+        gain:"Access adds "+r2(sv.depth*S.lib.service.accessPartSec*2/60)+" min to every service event on this part."});
+    }
     if(pt.fieldAssembly && !pt.toolFree){
       out.push({sev:"risk", part:pt.name, title:"Field-assembled but needs a tool",
         why:"This part is fitted by the operator in the field, yet it is not marked tool-free. Tool-free field assembly is a product-level promise; every exception erodes it and adds to deployment time.",
@@ -1165,6 +1278,21 @@ function findings(){
     }
   });
 
+  // serviceability at product level
+  if(cp.svc.solderJoints > 0){
+    const trapped = cp.svc.trapped.length;
+    const totalConn = cp.svc.trapped.reduce((a,x)=>a+x.c.service.connCost,0);
+    const totalGrams = cp.svc.trapped.reduce((a,x)=>a+x.c.service.connGrams,0);
+    const savedLife = cp.svc.trapped.reduce((a,x)=>a+x.c.service.savedSec*x.c.service.removals,0);
+    if(trapped > 0){
+      out.unshift({sev:"risk", part:"— Product", title:cp.svc.solderJoints+" soldered joints, "+trapped+" of them on serviceable items",
+        why:"Wire-to-board soldering is decided once at design and paid for at every repair for the life of the fleet. "+
+            "It does not appear in build cost, which is why it survives design reviews.",
+        gain:"Connectorising just the joints on serviceable items: about "+CUR+fmt(totalConn)+" and "+r1(totalGrams)+" g added"+
+             (num(S.meta.massTargetG)>0? " ("+r1(totalGrams/num(S.meta.massTargetG)*100)+"% of the mass budget)":"")+
+             ", against "+r2(savedLife/3600)+" hours of maintenance labour saved over the expected removals."});
+    }
+  }
   // mass budget
   if(num(S.meta.massTargetG)>0 && cp.massG>0){
     const over = cp.massG - num(S.meta.massTargetG);
@@ -1322,6 +1450,9 @@ function kpiRow(d,c){
     kpi("Fitting ratio", d.fittingRatio, "target ≤ "+T.fitting, Math.min(100,d.fittingRatio/3*100), cls(d.fittingRatio,T.fitting,true))+
     kpi("Product cost", CUR+fmt(c.total), "parts "+CUR+fmt(c.partsTotal)+" + assembly "+CUR+fmt(c.assemblyLabour))+
     massKpi(c)+
+    (c.svc.serviceable ? kpi("Lifetime service", CUR+fmt0(c.svc.lifetimeCost),
+        c.svc.solderJoints? c.svc.solderJoints+" soldered joints, "+c.svc.trapped.length+" on serviceable items"
+                          : c.svc.serviceable+" serviceable items, none soldered shut") : "")+
     (d.fieldParts ? kpi("Field deployment", d.fieldMin+'<small>min</small>',
         d.fieldParts+" part"+(d.fieldParts===1?"":"s")+" fitted in the field"+(d.fieldToolParts? ", "+d.fieldToolParts+" needing a tool":", all tool-free"),
         num(S.meta.fieldDeployTargetSec)>0 ? Math.min(100, d.fieldSec/num(S.meta.fieldDeployTargetSec)*100) : undefined,
@@ -1398,9 +1529,33 @@ function partEditor(pt){
             : c.massSource==="unknown" ? "No geometry to calculate from — enter it" : "Entered value in use"})+
     '</div>'+
     '<div class="grid g2" style="margin-top:10px">'+
-      fChk(P+".fieldAssembly","Fitted by the operator in the field, not in the factory")+
-      fChk(P+".toolFree","Tool-free — no spanner, driver or torque wrench needed")+
+      fSel(P+".domain","Domain", DOMAINS)+
+      '<div>'+
+        fChk(P+".fieldAssembly","Fitted by the operator in the field, not in the factory")+
+        fChk(P+".toolFree","Tool-free — no spanner, driver or torque wrench needed")+
+      '</div>'+
     '</div></fieldset>'+
+
+    '<fieldset><legend>Serviceability</legend>'+
+      '<p class="note" style="margin-bottom:10px">What it costs to take this back apart. A joint that is cheap to make once '+
+      'and expensive to break is invisible in build cost — this is where it shows up.</p>'+
+      '<div class="grid g3">'+
+        fSel(P+".service.cls","Service class",{none:"Never removed after build", field:"Field-replaceable (flight line)",
+          depot:"Depot / workshop replaceable", factory:"Factory only"})+
+        fNum(P+".service.removalsPerLife","Expected removals over life",{min:0,step:1,
+          hint:"Scheduled swaps plus expected failures."})+
+        fNum(P+".service.accessDepth","Parts to remove first",{min:0,step:1,
+          hint:"How deeply buried it is. Counted twice — in and out."})+
+      '</div><div class="grid g3" style="margin-top:10px">'+
+        fNum(P+".service.solderJoints","Soldered wire-to-board joints",{min:0,step:1,
+          hint:"Joints that must be unsoldered to remove it."})+
+        fNum(P+".service.damageRiskPct","Damage risk per event (%)",{min:0,max:100,step:0.5,
+          hint:"Chance a desolder event writes off the part. Blank = library default."})+
+        fNum(P+".service.reworkMin","Extra rework (min)",{min:0,step:0.5,
+          hint:"Anything the model does not already count."})+
+        '<div style="align-self:end">'+fChk(P+".service.destructive","Removal destroys the part or its joint")+'</div>'+
+      '</div>'+ serviceReadout(c.service, c.unit) +
+    '</fieldset>'+
 
     '<fieldset><legend>Minimum part count test</legend>'+
       '<p class="note" style="margin-bottom:8px">A part earns its place only if at least one answer is yes. Answer for the part as it sits against the parts already assembled beneath it.</p>'+
@@ -1426,14 +1581,34 @@ function partEditor(pt){
     '</div></fieldset>'+
 
     '<fieldset><legend>Cost</legend><div class="grid g2">'+
+      /* Composite is modelled (costComposite) but left out of this list on
+         request. Add composite:"Composite layup" back here to re-enable it. */
       fSel(P+".cost.process","Process",{machining:"CNC machining / drilling", fdm:"3D printing – FDM",
-        powder:"3D printing – SLS / MJF", composite:"Composite layup", foam:"Foam", harness:"Wire harness",
+        powder:"3D printing – SLS / MJF", foam:"Foam", harness:"Wire harness",
         purchased:"Purchased / catalogue"})+
       fSel(P+".cost.basis","Cost basis",{inherit:"Inherit from project ("+(S.settings.basis==="vendor"?"vendor should-cost":"in-house")+")", vendor:"Vendor should-cost", inhouse:"In-house shop cost"})+
     '</div>'+ processFields(pt,P) +
       costBreakdown(c)+
     '</fieldset>'+
   '</div></div>';
+}
+
+function serviceReadout(sv, unitCost){
+  if(sv.cls==="none" || sv.cls==="factory") return '<p class="note" style="margin-top:12px">Not treated as a service item, so no repair cost is counted.</p>';
+  const rows = [
+    ["One service event", sv.eventMin+" min"],
+    ["Access (in and out)", r2(sv.depth*S.lib.service.accessPartSec*2/60)+" min over "+sv.depth+" part(s)"],
+    ["Soldered joints to break and remake", sv.solder],
+    ["Cost per event", CUR+fmt(sv.eventCost)+(sv.destructive? " incl. "+CUR+fmt(unitCost)+" written off":"")],
+    ["  of which labour", CUR+fmt(sv.labourCost)],
+    ["  of which risk of damaging it", sv.riskCost? CUR+fmt(sv.riskCost)+" ("+sv.riskPct+"% of "+CUR+fmt(unitCost)+")" : "—"],
+    ["Over "+sv.removals+" expected removal(s)", CUR+fmt(sv.lifetimeCost)]
+  ];
+  const trade = sv.solder>0 ? '<tr><td>Connectorise instead</td><td class="n">'+CUR+fmt(sv.connCost)+" + "+r1(sv.connGrams)+
+      ' g, saves '+r2(sv.savedSec/60)+' min/removal, pays back after '+sv.breakeven+'</td></tr>' : '';
+  return '<div style="margin-top:14px"><div class="tablewrap"><table><tbody>'+
+    rows.map(([k,v])=>'<tr><td>'+h(k)+'</td><td class="n">'+h(v)+'</td></tr>').join("")+trade+
+    '</tbody></table></div></div>';
 }
 
 function processFields(pt,P){
@@ -1629,7 +1804,7 @@ function viewAnalysis(){
       '<th class="n">Handling</th><th class="n">Fitting</th><th class="n">Assy s</th><th>Process</th>'+
       '<th class="n">Unit</th><th class="n">Extended</th><th class="n">Mass g</th><th class="n">Share</th></tr></thead><tbody>'+
       (partRows||'<tr><td colspan="11" class="note">No parts yet.</td></tr>')+'</tbody></table></div></div>'+
-      moduleCard(c)+ fieldCard(c)+
+      moduleCard(c)+ domainCard(c)+ serviceCard(c)+ fieldCard(c)+
 
     '<div class="card"><h2>Where the money and the minutes are</h2>'+
       '<div class="tablewrap"><table><thead><tr><th>Element</th><th class="n">Cost</th><th class="n">Share</th></tr></thead><tbody>'+
@@ -1664,6 +1839,59 @@ function moduleCard(c){
     '<div class="tablewrap"><table><thead><tr><th>Module</th><th class="n">Parts</th><th class="n">Design eff.</th>'+
     '<th class="n">Mass g</th><th class="n">Mass %</th><th class="n">Assy s</th><th class="n">Cost</th><th class="n">Cost %</th>'+
     '</tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+}
+
+function domainCard(c){
+  if(c.domains.length<2) return "";
+  const rows = c.domains.map(g=>
+    '<tr><td><b>'+h(g.name)+'</b></td><td class="n">'+g.parts+'</td>'+
+    '<td class="n'+(g.designEff<S.lib.dfa.targets.designEff?' over':'')+'">'+g.designEff+'%</td>'+
+    '<td class="n">'+r1(g.massG)+'</td><td class="n">'+r2(g.sec)+'</td>'+
+    '<td class="n">'+CUR+fmt(g.cost)+'</td>'+
+    '<td class="n'+(g.solder?' over':'')+'">'+(g.solder||"—")+'</td>'+
+    '<td class="n">'+(g.svcCost? CUR+fmt(g.svcCost):"—")+'</td></tr>').join("");
+  return '<div class="card"><h2>By domain</h2>'+
+    '<p class="sub">Mechanical, electrical, wiring, and the electromechanical interface between them — where brackets meet boards '+
+    'and most integration problems live.</p>'+
+    '<div class="tablewrap"><table><thead><tr><th>Domain</th><th class="n">Parts</th><th class="n">Design eff.</th>'+
+    '<th class="n">Mass g</th><th class="n">Assy s</th><th class="n">Cost</th><th class="n">Solder joints</th>'+
+    '<th class="n">Lifetime service</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+}
+
+function serviceCard(c){
+  const items = c.rows.filter(x=>x.c.service.serviceable);
+  if(!items.length) return "";
+  const K = S.lib.service;
+  const rows = items.sort((a,b)=>b.c.service.eventSec-a.c.service.eventSec).map(({pt,c:cc})=>{
+    const sv = cc.service;
+    return '<tr><td><b>'+h(pt.name)+'</b><br><span class="note">'+h(pt.module||"")+'</span></td>'+
+      '<td>'+(sv.cls==="field"?'<span class="chip acc">field</span>':'<span class="chip neutral">depot</span>')+'</td>'+
+      '<td>'+(sv.solder? '<span class="chip risk">'+sv.solder+' soldered</span>'
+             : sv.destructive? '<span class="chip risk">destructive</span>'
+             : '<span class="chip ok">separable</span>')+'</td>'+
+      '<td class="n">'+sv.depth+'</td><td class="n">'+sv.eventMin+'</td>'+
+      '<td class="n">'+CUR+fmt(sv.eventCost)+'</td><td class="n">'+sv.removals+'</td>'+
+      '<td class="n">'+CUR+fmt(sv.lifetimeCost)+'</td>'+
+      '<td class="n">'+(sv.solder? CUR+fmt(sv.connCost)+" / "+sv.breakeven : "—")+'</td></tr>';
+  }).join("");
+  const totLife = items.reduce((a,x)=>a+x.c.service.lifetimeCost,0);
+  return '<div class="card"><h2>Serviceability</h2>'+
+    '<p class="sub">Every item expected to come out again. A soldered wire-to-board joint costs nothing to make and nothing in grams, '+
+    'so build cost never sees it — the whole bill arrives at the first repair. The last column is what a connector would cost '+
+    'and how many removals it takes to pay for itself.</p>'+
+    '<div class="tablewrap"><table><thead><tr><th>Part</th><th>Class</th><th>Joint</th><th class="n">Depth</th>'+
+    '<th class="n">Event min</th><th class="n">Event cost</th><th class="n">Removals</th><th class="n">Lifetime</th>'+
+    '<th class="n">Connectorise / payback</th></tr></thead><tbody>'+rows+
+    '<tr><td colspan="7"><b style="color:var(--ink)">Lifetime service cost</b></td>'+
+    '<td class="n"><b style="color:var(--ink)">'+CUR+fmt(totLife)+'</b></td><td></td></tr>'+
+    '</tbody></table></div>'+
+    '<p class="note" style="margin-top:10px">Assumes '+K.desolderSecPerJoint+' s to break and remake one soldered joint, '+
+    K.diagnosisMin+' min fault-finding, '+K.testAfterMin+' min retest, and a '+K.solderDamageRiskPct+
+    '% chance per event of damaging the board — all editable in Library → Cost model.<br><br>'+
+    '<b>Read the payback column carefully.</b> It counts maintenance labour and the risk of writing off the assembly, '+
+    'and at Indian labour rates a connector rarely pays back on labour alone. The arguments it does <i>not</i> price are usually '+
+    'the deciding ones: turnaround time, whether the repair can happen at the flight line instead of a bench, aircraft '+
+    'availability, and the fact that a soldered joint means a technician with an iron near a live airframe.</p></div>';
 }
 
 function fieldCard(c){
@@ -1829,6 +2057,20 @@ function viewLibrary(){
       fNum("lib.composite.ndtMin","Inspection / NDT (min)",{min:0})+
       fNum("lib.composite.scrapPct","Scrap allowance (%)",{min:0,hint:"Composites scrap far higher than machining."})+
     '</div></div>'+
+    '<div class="card"><h2>Serviceability model</h2>'+
+      '<p class="sub">The desolder figure is the one that decides whether connectorising pays. Time one real board swap and overwrite it.</p><div class="grid g4">'+
+      fNum("lib.service.desolderSecPerJoint","Desolder + remake (s/joint)",{min:0,hint:"Break, clean, re-solder and inspect one wire-to-board joint."})+
+      fNum("lib.service.accessPartSec","Access (s per part removed)",{min:0})+
+      fNum("lib.service.diagnosisMin","Fault-finding (min/event)",{min:0})+
+      fNum("lib.service.testAfterMin","Retest after repair (min/event)",{min:0})+
+      fNum("lib.service.removeFactor","Removal time ÷ fitting time",{min:0,step:0.05})+
+      fNum("lib.service.refitFactor","Refit time × fitting time",{min:0,step:0.05})+
+      fNum("lib.service.connectorCostPerJoint","Connectorise ("+CUR+"/joint)",{min:0,hint:"Both halves plus contacts."})+
+      fNum("lib.service.connectorGramsPerJoint","Connector mass (g/joint)",{min:0,step:0.5})+
+      fNum("lib.service.connectorMateSec","Mate/demate once connectorised (s)",{min:0})+
+      fNum("lib.service.solderDamageRiskPct","Damage risk per desolder (%)",{min:0,max:100,step:0.5,
+        hint:"Chance of writing off the board. On an expensive assembly this outweighs the labour."})+
+    '</div></div>'+
     '<div class="card"><h2>Foam model</h2><div class="grid g3">'+
       fNum("lib.foamProc.blockMarginMm","Block margin (mm/side)",{min:0,step:0.5,hint:"Oversize on the blank before cutting."})+
       fNum("lib.foamProc.trimMin","Trim / dress (min)",{min:0,step:0.5})+
@@ -1903,6 +2145,7 @@ const CSV_COLUMNS = [
   ["Identity","qty","Quantity per product","number"],
   ["Identity","module","Module / subassembly this part belongs to","any text — e.g. Wing LH, Boom, Avionics bay"],
   ["Identity","massG","Mass in grams. Blank or 0 = calculated from geometry where possible","number"],
+  ["Identity","domain","Which engineering domain the part belongs to","mech, elec, electromech, wiring"],
   ["Identity","fieldAssembly","Fitted by the operator in the field, not the factory","yes / no"],
   ["Identity","toolFree","No tool needed to fit or remove it","yes / no"],
   ["Min part count","moves","Moves relative to parts already assembled?","yes / no"],
@@ -1967,7 +2210,14 @@ const CSV_COLUMNS = [
   ["Harness","splices","Number of splices","number"],
   ["Harness","sleevingMm","Sleeving or braid length, mm","number"],
   ["Harness","heatshrink / labels / ties","Piece counts","number"],
-  ["Harness","testMin","Continuity test minutes. Blank = library default","number"]
+  ["Harness","testMin","Continuity test minutes. Blank = library default","number"],
+  ["Service","serviceClass","Whether and where the part is replaced","none, field, depot, factory"],
+  ["Service","removalsPerLife","Scheduled swaps plus expected failures, over the aircraft's life","number"],
+  ["Service","accessDepth","How many parts must be removed first to reach it","number"],
+  ["Service","solderJoints","Wire-to-board joints that must be unsoldered to remove it","number"],
+  ["Service","destructiveRemoval","Removal destroys the part or its joint","yes / no"],
+  ["Service","damageRiskPct","Chance a desolder event writes off the part, %. Blank = library default","number"],
+  ["Service","reworkMin","Extra rework minutes the model does not already count","number"]
 ];
 
 /* Column names accepted by the importer. Anything else in the file is ignored,
@@ -2001,6 +2251,21 @@ function importCsv(text){
     if(has("massg")) pt.massG = nOf("massg",0);
     if(has("fieldassembly")) pt.fieldAssembly = yes(g("fieldassembly"));
     if(has("toolfree")) pt.toolFree = yes(g("toolfree"));
+    if(has("domain")){
+      const dm = g("domain").toLowerCase();
+      if(DOMAINS[dm]) pt.domain = dm; else warn.push(rowRef+": domain “"+dm+"” not recognised");
+    }
+    if(has("serviceclass")){
+      const sc = g("serviceclass").toLowerCase();
+      if(["none","field","depot","factory"].indexOf(sc)>=0) pt.service.cls = sc;
+      else warn.push(rowRef+": serviceClass “"+sc+"” not recognised");
+    }
+    if(has("removalsperlife"))    pt.service.removalsPerLife = nOf("removalsperlife",0);
+    if(has("accessdepth"))        pt.service.accessDepth     = nOf("accessdepth",0);
+    if(has("solderjoints"))       pt.service.solderJoints    = nOf("solderjoints",0);
+    if(has("reworkmin"))          pt.service.reworkMin       = nOf("reworkmin",0);
+    if(has("damageriskpct"))      pt.service.damageRiskPct   = nOf("damageriskpct",0);
+    if(has("destructiveremoval")) pt.service.destructive     = yes(g("destructiveremoval"));
 
     /* ---- minimum part count test ---- */
     pt.dfa.moveRelative       = yes(g("moves"));
@@ -2161,7 +2426,8 @@ function csvOut(){
   const c = costProduct();
   const head = ["Part","Part no","Module","Qty","Class","Handling index","Fitting index","Handling s","Fitting s","Assembly s (ext)",
                 "Process","Basis","Material cost","Conversion","Unit cost","Extended","Mass g (unit)","Mass g (ext)","Mass source",
-                "Field assembly","Tool free","Justification"];
+                "Field assembly","Tool free","Domain","Service class","Solder joints","Access depth",
+                "Removals/life","Service event min","Service event cost","Lifetime service cost","Justification"];
   const lines = [head];
   c.rows.forEach(({pt,c:cc})=>{
     const r = dfaPart(pt);
@@ -2169,7 +2435,10 @@ function csvOut(){
       r.handlingSec, r.fittingSec, r.totalSec, procLabel(pt.cost.process), cc.basis,
       r2(cc.material), r2(cc.conversion), r2(cc.unit), r2(cc.extended),
       r2(cc.massG), r2(cc.massExtended), cc.massSource,
-      pt.fieldAssembly?"yes":"no", pt.toolFree?"yes":"no", pt.dfa.reason||""]);
+      pt.fieldAssembly?"yes":"no", pt.toolFree?"yes":"no",
+      DOMAINS[pt.domain]||pt.domain, cc.service.cls, cc.service.solder, cc.service.depth,
+      cc.service.removals, cc.service.eventMin, r2(cc.service.eventCost), r2(cc.service.lifetimeCost),
+      pt.dfa.reason||""]);
   });
   const d = c.dfa;
   lines.push([]);
@@ -2187,6 +2456,8 @@ function csvOut(){
   lines.push(["Parts with no mass recorded", c.unknownMass]);
   lines.push(["Field deployment s", d.fieldSec]);
   lines.push(["Field parts / needing a tool", d.fieldParts, d.fieldToolParts]);
+  lines.push(["Lifetime service cost", r2(c.svc.lifetimeCost)]);
+  lines.push(["Soldered joints total / on serviceable items", c.svc.solderJoints, c.svc.trapped.length]);
   lines.push([]);
   lines.push(["Module","Parts","Design eff %","Mass g","Assembly s","Cost"]);
   c.modules.forEach(g=>lines.push([g.name, g.parts, g.designEff, r1(g.massG), r2(g.sec), r2(g.cost)]));

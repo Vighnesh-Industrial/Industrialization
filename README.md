@@ -13,8 +13,8 @@ network. Double-click the file and it runs.
 
 **Mass**
 
-Grams are the second currency. Machined, printed, composite, foam and harness
-parts calculate their own mass from geometry; purchased parts take an entered
+Grams are the second currency. Machined, printed, foam and harness parts
+calculate their own mass from geometry; purchased parts take an entered
 value. Set a mass budget and the analysis reports mass beside cost, cost per
 gram, how many grams sit in parts that fail the minimum-part-count tests, and
 which parts have no mass recorded yet.
@@ -33,6 +33,32 @@ operator does on site, out of the transport case. Anything field-assembled that
 is not `toolFree`, or that is joined with a screw, rivet, weld or lockwire, is
 flagged — if tool-free deployment is a product promise, this is where it gets
 measured against a target.
+
+**Serviceability**
+
+Build cost and mass both reward a soldered wire-to-board joint: no connector to
+buy, no grams, quick to fit. The entire cost arrives later, at every repair —
+which is why the practice survives design reviews that only look at build.
+
+Each part carries a service class, expected removals over life, how many parts
+must be removed to reach it, and how many soldered joints must be broken. From
+that the tool prices one service event (fault-finding, access in and out,
+desolder and remake, refit, retest), the labour, the risk of writing off the
+assembly during rework, and the lifetime cost across expected removals. For any
+soldered joint it also runs the trade: what connectorising costs in rupees and
+grams, and how many removals it takes to pay back.
+
+On an expensive board the write-off risk dominates the labour — at Indian labour
+rates a connector rarely pays back on labour alone, but a 4% chance of killing a
+₹38,000 board changes the answer completely. The payback figure prices those two
+things only; turnaround time, flight-line versus bench repair, and aircraft
+availability are usually the deciding arguments and are not in the number.
+
+**Domains**
+
+Parts are tagged mechanical, electrical, wiring or electromechanical, and rolled
+up that way — so the interface between the mechanical and electrical sides, where
+most integration problems live, can be looked at on its own.
 
 **Assembly analysis (DFA)**
 
@@ -57,10 +83,6 @@ measured against a target.
 - **SLS / MJF** — parts per build from packing density, build time from layer
   count plus warm-up and cool-down, powder split into part mass and partly
   recycled cake, depowdering and finishing labour
-- **Composite layup** — fabric or prepreg by areal weight and ply count, resin
-  for wet layup, optional sandwich core, bagging consumables, layup and debulk
-  labour, cure time shared across a cycle, mould cost amortised over tool life,
-  trim, NDT and a scrap allowance
 - **Foam** — CNC or hot-wire from block (block cost, cut time, yield) or bead
   moulded (cycle time, cavities, tooling amortised)
 - **Wire harness** — wire by the metre per conductor, connectors and contacts,
@@ -78,6 +100,10 @@ Each estimate shows its full working — every rate, time and assumption — und
 put in front of a supplier beats a number you cannot explain.
 
 ---
+
+A composite layup model exists in the code (`costComposite`) but is left out of
+the process dropdown, since it is not part of the current BOM. Re-enabling it is
+a one-line change, marked in `processFields`.
 
 ## Where the numbers come from
 
@@ -100,7 +126,7 @@ absolute values as indicative. See `CALIBRATION.md` for what to measure.
 |---|---|
 | **Setup** | Project identity, annual volume, default cost basis, live summary |
 | **Parts** | Part list and the editor: identity, minimum-part-count test, handling, fitting, cost |
-| **Analysis** | KPIs, part-by-part table, per-module rollup, field deployment, cost split, ranked list of what to change, print-to-PDF |
+| **Analysis** | KPIs, part-by-part table, per-module and per-domain rollups, serviceability, field deployment, cost split, ranked list of what to change, print-to-PDF |
 | **Library** | Rates, materials, machines, DFA method tables, cost model coefficients — all editable |
 | **Data** | Export/import project JSON, CSV BOM import, results CSV export, reset |
 
@@ -113,7 +139,7 @@ anything you want to keep or share. Import restores it anywhere.
 
 ## Importing a BOM
 
-**`input-template.xlsx`** is the input specification: a Parts sheet with all 107
+**`input-template.xlsx`** is the input specification: a Parts sheet with all 106
 columns and dropdowns on every one that takes a fixed value, a field guide
 saying what each column means and where the answer comes from, the accepted
 values, and a sheet listing the inputs that live in the tool's Library rather
@@ -128,7 +154,7 @@ finish the analysis in the tool. Values that are not recognised are listed back
 to you on import rather than silently dropped. The Data tab documents every
 column too, and *Download blank template* gives you the header row alone.
 
-107 columns cover every process. Most analyses need 25–35 — delete the column
+106 columns cover every process. Most analyses need 25–35 — delete the column
 groups for processes you do not use.
 
 The bare minimum is `name`. For a DFA result you want `qty`, `module`, the three
