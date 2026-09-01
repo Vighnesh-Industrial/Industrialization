@@ -81,15 +81,24 @@ anything you want to keep or share. Import restores it anywhere.
 
 ## Importing a BOM
 
-Data tab → *Download blank template* gives you the exact header row. Columns:
+**`input-template.xlsx`** is the input specification: a Parts sheet with all 68
+columns and dropdowns on every one that takes a fixed value, a field guide
+saying what each column means and where the answer comes from, the accepted
+values, and a sheet listing the inputs that live in the tool's Library rather
+than in the file.
 
-```
-name, partNo, qty, process, price, volume, bx, by, bz, material,
-moves, material_diff, service, size, sym, fix, fixCount
-```
+Fill it in, save the Parts sheet as CSV (File → Save As → CSV UTF-8), then
+Data tab → *Import CSV*.
 
-Unknown columns are ignored and missing ones take defaults, so a two-column
-`name,qty` file imports fine and you fill in the analysis afterwards.
+Column order does not matter, unknown columns are ignored, and missing ones
+keep their defaults — so a two-column `name,qty` file imports fine and you
+finish the analysis in the tool. Values that are not recognised are listed back
+to you on import rather than silently dropped. The Data tab documents every
+column too, and *Download blank template* gives you the header row alone.
+
+The bare minimum is `name`. For a DFA result you want `qty`, the three
+minimum-part-count answers, `size`, `sym`, `dir`, `fix` and `fixCount`; for a
+cost result, `process`, `material`, `volume` and the bounding box.
 
 ## Reporting
 

@@ -1215,22 +1215,11 @@ function viewData(){
     '<button class="btn danger" id="btnClear">Clear all parts</button></div></div>'+
 
     '<div class="card"><h2>Import a BOM</h2>'+
-    '<p class="sub">CSV with a header row. Unknown columns are ignored; missing ones take defaults you can fill in afterwards.</p>'+
-    '<div class="tablewrap"><table><thead><tr><th>Column</th><th>Meaning</th><th>Accepted values</th></tr></thead><tbody>'+
-    [["name","Part name","any text"],
-     ["partNo","Part number","any text"],
-     ["qty","Quantity per product","number"],
-     ["process","Cost process","machining, fdm, powder, purchased"],
-     ["price","Unit price, purchased parts only","number"],
-     ["volume","Part volume, mm³","number"],
-     ["bx / by / bz","Bounding box, mm","number"],
-     ["material","Material id","e.g. al6061, petg, pa12"],
-     ["moves / material_diff / service","Minimum part count answers","yes / no / 1 / 0"],
-     ["size","Handling size class","normal, small, verySmall, large, heavy"],
-     ["sym","Orientation class","symmetric, oneWay, twoWay, nonObvious"],
-     ["fix","Fixing method","none, snap, clip, screw, screwHand, rivet, weld, adhesive, solder, press"],
-     ["fixCount","Number of fixings","number"]
-    ].map(r=>'<tr><td class="mono">'+h(r[0])+'</td><td>'+h(r[1])+'</td><td class="note">'+h(r[2])+'</td></tr>').join("")+
+    '<p class="sub">CSV with a header row, in any column order. Unknown columns are ignored and missing ones keep their defaults, '+
+    'so a two-column <span class="mono">name,qty</span> file imports fine. Working in Excel? Fill in '+
+    '<span class="mono">input-template.xlsx</span> and save the Parts sheet as CSV.</p>'+
+    '<div class="tablewrap"><table><thead><tr><th>Group</th><th>Column</th><th>Meaning</th><th>Accepted values</th></tr></thead><tbody>'+
+    CSV_COLUMNS.map(r=>'<tr><td class="note">'+h(r[0])+'</td><td class="mono">'+h(r[1])+'</td><td>'+h(r[2])+'</td><td class="note">'+h(r[3])+'</td></tr>').join("")+
     '</tbody></table></div>'+
     '<div class="rowact" style="margin-top:12px"><button class="btn primary" id="btnImportCsv2">Choose CSV file</button>'+
     '<button class="btn" id="btnCsvTemplate">Download blank template</button></div></div>'+
@@ -1260,43 +1249,180 @@ function parseCsv(text){
 }
 function yes(v){ const s=String(v||"").trim().toLowerCase(); return s==="1"||s==="y"||s==="yes"||s==="true"; }
 
+/* Canonical column spec: [group, column, meaning, accepted values].
+   Drives both the Data tab documentation and the blank template download,
+   and matches the Parts sheet of input-template.xlsx column for column. */
+const CSV_COLUMNS = [
+  ["Identity","name","Part name","any text — the only column that really must be filled"],
+  ["Identity","partNo","Part number","any text"],
+  ["Identity","qty","Quantity per product","number"],
+  ["Min part count","moves","Moves relative to parts already assembled?","yes / no"],
+  ["Min part count","material_diff","Must be a different material or isolated?","yes / no"],
+  ["Min part count","service","Must be separate for assembly or service?","yes / no"],
+  ["Min part count","reason","Justification, carried into the report","any text"],
+  ["Handling","size","Size / weight class","normal, small, verySmall, large, heavy"],
+  ["Handling","sym","Orientation effort","symmetric, oneWay, twoWay, nonObvious"],
+  ["Handling","h_nests / h_flexible / h_delicate / h_sticky / h_sharp / h_slippery / h_twoHands / h_toolNeeded / h_magnification","Handling difficulty flags, one column each","yes / no"],
+  ["Fitting","dir","Insertion direction","topDown, side, underneath"],
+  ["Fitting","f_notSelfLocating / f_holdDown / f_resistance / f_obstructed / f_restrictedVision / f_reorient / f_adjust / f_testStep","Fitting difficulty flags, one column each","yes / no"],
+  ["Fitting","fix","Fixing method","none, snap, clip, screw, screwHand, rivet, weld, adhesive, solder, press"],
+  ["Fitting","fixCount","Number of fixings (4 screws = 4)","number"],
+  ["Cost","process","Which cost model to use","machining, fdm, powder, purchased"],
+  ["Cost","basis","Cost basis for this part","inherit, vendor, inhouse"],
+  ["Cost","material","Material id from the library","al6061, ms1018, ss304, brass, delrin, pla, petg, abs, pa12cf, pa12, pa11, pa12gb"],
+  ["Cost","machine","Machine id from the library","vmc, drill, lathe, fdm1, fdmInd, sls1, mjf1"],
+  ["Cost","price","Unit price — purchased parts only","number"],
+  ["Geometry","volume","Finished part volume, mm³ (CAD mass properties)","number"],
+  ["Geometry","bx / by / bz","Bounding box X, Y, Z in mm. Z is build height for printing","number"],
+  ["Geometry","surfaceArea","Finished surface area, mm². Blank = estimate from the bounding box","number"],
+  ["Machining","stockForm","Stock form","block, bar"],
+  ["Machining","stock_L / stock_W / stock_H","Stock block size, mm. Blank = use the bounding box","number"],
+  ["Machining","stock_D","Stock bar diameter, mm (bar only)","number"],
+  ["Machining","setups","Number of setups","number"],
+  ["Machining","toolChanges","Tool changes per part","number"],
+  ["Machining","setupMin","Setup time per batch, minutes","number"],
+  ["Machining","batchSize","Batch size the setup is amortised over","number"],
+  ["Machining","tolerance","Tightest tolerance on the part","coarse, medium, fine, precision"],
+  ["Machining","finish","Surface finish required","asMachined, good, fine, ground"],
+  ["Machining","scrapCredit","Claim scrap value on removed material?","yes / no"],
+  ["Machining","hole1_count / hole1_dia / hole1_depth","First hole group: how many, ø mm, depth mm","number"],
+  ["Machining","hole2_count / hole2_dia / hole2_depth","Second hole group","number"],
+  ["Machining","hole3_count / hole3_dia / hole3_depth","Third hole group","number"],
+  ["FDM","layerHeight","Layer height, mm","number"],
+  ["FDM","nozzle","Nozzle diameter, mm","number"],
+  ["FDM","walls","Wall / perimeter count","number"],
+  ["FDM","infillPct","Infill density, %","number"],
+  ["FDM","supportPct","Support volume as % of part volume","number"],
+  ["FDM","partsPerPlate","Parts printed per plate","number"],
+  ["SLS / MJF","partsPerBuild","Parts per build. Blank or 0 = calculate from packing density","number"],
+  ["SLS / MJF","packingOverride","Packing density override, %. Blank or 0 = library default","number"]
+];
+
+/* Column names accepted by the importer. Anything else in the file is ignored,
+   and any column left out keeps the default, so a two-column name,qty sheet
+   imports fine. See input-template.xlsx for the full sheet. */
+const CSV_HANDLING_FLAGS = ["nests","flexible","delicate","sticky","sharp","slippery","twoHands","toolNeeded","magnification"];
+const CSV_FITTING_FLAGS  = ["notSelfLocating","holdDown","resistance","obstructed","restrictedVision","reorient","adjust","testStep"];
+
 function importCsv(text){
   const rows = parseCsv(text);
   if(rows.length<2){ toast("Nothing to import"); return; }
   const head = rows[0].map(x=>x.trim().toLowerCase());
-  const col = n=>head.indexOf(n);
+  const col = n=>head.indexOf(String(n).toLowerCase());
+  const warn = [];
   let added=0;
-  rows.slice(1).forEach(r=>{
-    const g = n => { const i=col(n); return i>=0 ? String(r[i]||"").trim() : ""; };
+
+  rows.slice(1).forEach((r,ri)=>{
+    const g = n => { const i=col(n); return i>=0 ? String(r[i]==null?"":r[i]).trim() : ""; };
+    const has = n => col(n)>=0 && String(r[col(n)]==null?"":r[col(n)]).trim()!=="";
+    const nOf = (n,d) => has(n) ? num(g(n),d) : d;
+    const rowRef = "row "+(ri+2);
     const pt = samplePart();
+
+    /* ---- identity ---- */
     pt.name = g("name") || "Imported part";
     pt.partNo = g("partno");
-    if(g("qty")) pt.qty = num(g("qty"),1);
+    if(has("qty")) pt.qty = nOf("qty",1);
+
+    /* ---- minimum part count test ---- */
+    pt.dfa.moveRelative       = yes(g("moves"));
+    pt.dfa.differentMaterial  = yes(g("material_diff"));
+    pt.dfa.separateForService = yes(g("service"));
+    if(has("reason")) pt.dfa.reason = g("reason");
+
+    /* ---- handling ---- */
+    if(has("size")){ if(S.lib.dfa.hSize[g("size")]) pt.dfa.size=g("size"); else warn.push(rowRef+": size “"+g("size")+"” not recognised"); }
+    if(has("sym")){ if(S.lib.dfa.hSym[g("sym")]) pt.dfa.sym=g("sym"); else warn.push(rowRef+": sym “"+g("sym")+"” not recognised"); }
+    CSV_HANDLING_FLAGS.forEach(f=>{ if(has("h_"+f)) pt.dfa.hFlags[f] = yes(g("h_"+f)); });
+
+    /* ---- fitting ---- */
+    if(has("dir")){ if(S.lib.dfa.fDir[g("dir")]) pt.dfa.dir=g("dir"); else warn.push(rowRef+": dir “"+g("dir")+"” not recognised"); }
+    CSV_FITTING_FLAGS.forEach(f=>{ if(has("f_"+f)) pt.dfa.fFlags[f] = yes(g("f_"+f)); });
+    if(has("fix")){ if(S.lib.dfa.fFix[g("fix")]) pt.dfa.fix=g("fix"); else warn.push(rowRef+": fix “"+g("fix")+"” not recognised"); }
+    if(has("fixcount")) pt.dfa.fixCount = nOf("fixcount",1);
+
+    /* ---- cost: common ---- */
     const proc = g("process").toLowerCase();
-    if(["machining","fdm","powder","purchased"].indexOf(proc)>=0) pt.cost.process = proc;
-    if(g("price")) pt.cost.purchasedPrice = num(g("price"));
-    const vol = num(g("volume"),0), bx=num(g("bx"),0), by=num(g("by"),0), bz=num(g("bz"),0);
-    ["machining","fdm","powder"].forEach(k=>{ if(vol) pt.cost[k].partVolume = vol; });
+    if(proc){
+      if(["machining","fdm","powder","purchased"].indexOf(proc)>=0) pt.cost.process = proc;
+      else warn.push(rowRef+": process “"+proc+"” not recognised");
+    }
+    const basis = g("basis").toLowerCase();
+    if(basis){
+      if(["inherit","vendor","inhouse"].indexOf(basis)>=0) pt.cost.basis = basis;
+      else warn.push(rowRef+": basis “"+basis+"” not recognised");
+    }
+    if(has("price")) pt.cost.purchasedPrice = nOf("price",0);
+
+    const vol = nOf("volume",0), bx = nOf("bx",0), by = nOf("by",0), bz = nOf("bz",0);
+    if(vol) ["machining","fdm","powder"].forEach(k=>{ pt.cost[k].partVolume = vol; });
     if(bx){ pt.cost.fdm.bx=bx; pt.cost.powder.bx=bx; pt.cost.machining.L=bx; }
     if(by){ pt.cost.fdm.by=by; pt.cost.powder.by=by; pt.cost.machining.W=by; }
     if(bz){ pt.cost.fdm.bz=bz; pt.cost.powder.bz=bz; pt.cost.machining.H=bz; }
+    if(has("surfacearea")){ const a=nOf("surfacearea",0); pt.cost.machining.surfaceArea=a; pt.cost.fdm.surfaceArea=a; }
+
     const mid = g("material");
-    if(mid && S.lib.materials.some(m=>m.id===mid)){
-      const grp = S.lib.materials.find(m=>m.id===mid).group;
-      if(grp==="machining") pt.cost.machining.materialId=mid;
-      if(grp==="fdm") pt.cost.fdm.materialId=mid;
-      if(grp==="powder") pt.cost.powder.materialId=mid;
+    if(mid){
+      const m = S.lib.materials.find(x=>x.id===mid);
+      if(m){
+        if(m.group==="machining") pt.cost.machining.materialId=mid;
+        if(m.group==="fdm")       pt.cost.fdm.materialId=mid;
+        if(m.group==="powder")    pt.cost.powder.materialId=mid;
+      } else warn.push(rowRef+": material “"+mid+"” is not in the library");
     }
-    pt.dfa.moveRelative = yes(g("moves"));
-    pt.dfa.differentMaterial = yes(g("material_diff"));
-    pt.dfa.separateForService = yes(g("service"));
-    if(S.lib.dfa.hSize[g("size")]) pt.dfa.size = g("size");
-    if(S.lib.dfa.hSym[g("sym")]) pt.dfa.sym = g("sym");
-    if(S.lib.dfa.fFix[g("fix")]) pt.dfa.fix = g("fix");
-    if(g("fixcount")) pt.dfa.fixCount = num(g("fixcount"),1);
+    const kid = g("machine");
+    if(kid){
+      const k = S.lib.machines.find(x=>x.id===kid);
+      if(k){
+        if(k.group==="machining") pt.cost.machining.machineId=kid;
+        if(k.group==="fdm")       pt.cost.fdm.machineId=kid;
+        if(k.group==="powder")    pt.cost.powder.machineId=kid;
+      } else warn.push(rowRef+": machine “"+kid+"” is not in the library");
+    }
+
+    /* ---- cost: machining ---- */
+    const mc = pt.cost.machining;
+    if(has("stockform")){ const sf=g("stockform").toLowerCase(); if(sf==="block"||sf==="bar") mc.stockForm=sf; else warn.push(rowRef+": stockForm “"+sf+"” not recognised"); }
+    if(has("stock_l")) mc.L = nOf("stock_l",0);
+    if(has("stock_w")) mc.W = nOf("stock_w",0);
+    if(has("stock_h")) mc.H = nOf("stock_h",0);
+    if(has("stock_d")) mc.D = nOf("stock_d",0);
+    if(has("setups"))      mc.setups      = nOf("setups",1);
+    if(has("toolchanges")) mc.toolChanges = nOf("toolchanges",0);
+    if(has("setupmin"))    mc.setupMin    = nOf("setupmin",0);
+    if(has("batchsize"))   mc.batchSize   = nOf("batchsize",1);
+    if(has("tolerance")){ if(S.lib.cost.tolerance[g("tolerance")]) mc.tolerance=g("tolerance"); else warn.push(rowRef+": tolerance “"+g("tolerance")+"” not recognised"); }
+    if(has("finish")){ if(S.lib.cost.finish[g("finish")]) mc.finish=g("finish"); else warn.push(rowRef+": finish “"+g("finish")+"” not recognised"); }
+    if(has("scrapcredit")) mc.scrapCredit = yes(g("scrapcredit"));
+    const holes = [];
+    for(let i=1;i<=3;i++){
+      if(has("hole"+i+"_count")){
+        holes.push({count:nOf("hole"+i+"_count",0), dia:nOf("hole"+i+"_dia",0), depth:nOf("hole"+i+"_depth",0)});
+      }
+    }
+    if(holes.length) mc.holes = holes;
+
+    /* ---- cost: FDM ---- */
+    const fc = pt.cost.fdm;
+    if(has("layerheight"))   fc.layerHeight   = nOf("layerheight",0.2);
+    if(has("nozzle"))        fc.nozzle        = nOf("nozzle",0.4);
+    if(has("walls"))         fc.walls         = nOf("walls",3);
+    if(has("infillpct"))     fc.infillPct     = nOf("infillpct",25);
+    if(has("supportpct"))    fc.supportPct    = nOf("supportpct",0);
+    if(has("partsperplate")) fc.partsPerPlate = nOf("partsperplate",1);
+
+    /* ---- cost: powder ---- */
+    const pc = pt.cost.powder;
+    if(has("partsperbuild"))    pc.partsPerBuild    = nOf("partsperbuild",0);
+    if(has("packingoverride"))  pc.packingOverride  = nOf("packingoverride",0);
+
     S.parts.push(pt); added++;
   });
-  save(); render(); toast(added+" part"+(added===1?"":"s")+" imported");
+
+  save(); render();
+  toast(added+" part"+(added===1?"":"s")+" imported"+(warn.length?" · "+warn.length+" warning"+(warn.length===1?"":"s"):""));
+  if(warn.length) alert("Imported "+added+" part"+(added===1?"":"s")+", but some values were not recognised and the defaults were kept:\n\n"+
+    warn.slice(0,25).join("\n")+(warn.length>25?"\n… and "+(warn.length-25)+" more":""));
 }
 
 function csvOut(){
@@ -1392,10 +1518,8 @@ document.addEventListener("click", e=>{
   if(t.id==="btnImportCsv"||t.id==="btnImportCsv2"){ document.getElementById("fileCsv").click(); return; }
   if(t.id==="btnCsvOut"||t.id==="btnCsvOut2"){ csvOut(); return; }
   if(t.id==="btnCsvTemplate"){
-    download("bom-template.csv",
-      "name,partNo,qty,process,price,volume,bx,by,bz,material,moves,material_diff,service,size,sym,fix,fixCount\n"+
-      "Base plate,BP-001,1,machining,,28000,60,40,20,al6061,no,no,yes,normal,oneWay,none,1\n"+
-      "M4 cap screw,STD-M4,4,purchased,4.5,,,,,,no,no,no,small,oneWay,screw,1\n","text/csv");
+    const headers = CSV_COLUMNS.filter(c=>c[1].indexOf(" / ")<0).map(c=>c[1]);
+    download("bom-template.csv", headers.join(",")+"\n", "text/csv");
     return;
   }
   if(t.id==="btnReset"){ if(confirm("Discard everything and reload the sample project?")){ S=sampleProject(); ui.selPart=null; save(); render(); } return; }
