@@ -11,6 +11,29 @@ network. Double-click the file and it runs.
 
 ## What it does
 
+**Mass**
+
+Grams are the second currency. Machined, printed, composite, foam and harness
+parts calculate their own mass from geometry; purchased parts take an entered
+value. Set a mass budget and the analysis reports mass beside cost, cost per
+gram, how many grams sit in parts that fail the minimum-part-count tests, and
+which parts have no mass recorded yet.
+
+**Modules**
+
+Every part carries a module — Wing LH, Boom LH, Fuselage, Payload, Fasteners —
+and every result is also reported per module. It is the only way a
+several-hundred-part BOM stays legible, and it shows which module to send to a
+consolidation review first.
+
+**Field deployment**
+
+Parts marked `fieldAssembly` produce a second, separate assembly time: what the
+operator does on site, out of the transport case. Anything field-assembled that
+is not `toolFree`, or that is joined with a screw, rivet, weld or lockwire, is
+flagged — if tool-free deployment is a product promise, this is where it gets
+measured against a target.
+
 **Assembly analysis (DFA)**
 
 - Tests every part against the three minimum-part-count criteria and classifies
@@ -34,6 +57,15 @@ network. Double-click the file and it runs.
 - **SLS / MJF** — parts per build from packing density, build time from layer
   count plus warm-up and cool-down, powder split into part mass and partly
   recycled cake, depowdering and finishing labour
+- **Composite layup** — fabric or prepreg by areal weight and ply count, resin
+  for wet layup, optional sandwich core, bagging consumables, layup and debulk
+  labour, cure time shared across a cycle, mould cost amortised over tool life,
+  trim, NDT and a scrap allowance
+- **Foam** — CNC or hot-wire from block (block cost, cut time, yield) or bead
+  moulded (cycle time, cavities, tooling amortised)
+- **Wire harness** — wire by the metre per conductor, connectors and contacts,
+  cut/strip/crimp/connector-assembly times, sleeving, heatshrink, labels, ties,
+  and continuity test
 - **Purchased** — quoted price, so the BOM rolls up completely
 
 Every part carries a cost basis: **vendor should-cost** adds scrap, factory
@@ -68,7 +100,7 @@ absolute values as indicative. See `CALIBRATION.md` for what to measure.
 |---|---|
 | **Setup** | Project identity, annual volume, default cost basis, live summary |
 | **Parts** | Part list and the editor: identity, minimum-part-count test, handling, fitting, cost |
-| **Analysis** | KPIs, part-by-part table, cost split, ranked list of what to change, print-to-PDF |
+| **Analysis** | KPIs, part-by-part table, per-module rollup, field deployment, cost split, ranked list of what to change, print-to-PDF |
 | **Library** | Rates, materials, machines, DFA method tables, cost model coefficients — all editable |
 | **Data** | Export/import project JSON, CSV BOM import, results CSV export, reset |
 
@@ -81,7 +113,7 @@ anything you want to keep or share. Import restores it anywhere.
 
 ## Importing a BOM
 
-**`input-template.xlsx`** is the input specification: a Parts sheet with all 68
+**`input-template.xlsx`** is the input specification: a Parts sheet with all 107
 columns and dropdowns on every one that takes a fixed value, a field guide
 saying what each column means and where the answer comes from, the accepted
 values, and a sheet listing the inputs that live in the tool's Library rather
@@ -96,9 +128,14 @@ finish the analysis in the tool. Values that are not recognised are listed back
 to you on import rather than silently dropped. The Data tab documents every
 column too, and *Download blank template* gives you the header row alone.
 
-The bare minimum is `name`. For a DFA result you want `qty`, the three
+107 columns cover every process. Most analyses need 25–35 — delete the column
+groups for processes you do not use.
+
+The bare minimum is `name`. For a DFA result you want `qty`, `module`, the three
 minimum-part-count answers, `size`, `sym`, `dir`, `fix` and `fixCount`; for a
-cost result, `process`, `material`, `volume` and the bounding box.
+cost result, `process`, `material`, `volume` and the bounding box; for a mass
+result, `massG` on every purchased part, since bought-in items have no geometry
+to calculate from.
 
 ## Reporting
 
@@ -118,7 +155,10 @@ Deliberately out of scope for v1, in rough order of value:
 2. **STEP file import** for bounding box, volume and surface area, removing the
    manual geometry entry. Feature recognition (holes, pockets, bends) is a much
    larger job and should stay manual until the rest is calibrated.
-3. **Sheet metal and injection moulding** process models, if the part mix moves
+3. **Assembly sequence** — the model currently treats parts as an unordered set.
+   A sequence would let re-orientation costs be attributed properly, and would
+   let the field-deployment estimate follow the actual deployment procedure
+   rather than summing the parts.
+4. **Sheet metal and injection moulding** process models, if the part mix moves
    that way.
-4. **Assembly sequence** — the current model treats parts as an unordered set.
-   A sequence would let re-orientation costs be attributed properly.
+5. **Harness formboard length** from routed CAD rather than a typed length.

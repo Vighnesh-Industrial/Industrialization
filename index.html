@@ -120,8 +120,15 @@ table input,table select{padding:4px 6px;font-size:12px}
 
 /* ---- KPI tiles ---- */
 .kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule)}
-@media(max-width:1000px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:560px){.kpis{grid-template-columns:1fr}}
+.kpi:last-child:nth-child(4n+1){grid-column:span 4}
+.kpi:last-child:nth-child(4n+2){grid-column:span 3}
+.kpi:last-child:nth-child(4n+3){grid-column:span 2}
+@media(max-width:1000px){
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .kpi:last-child:nth-child(n){grid-column:auto}
+  .kpi:last-child:nth-child(2n+1){grid-column:span 2}
+}
+@media(max-width:560px){.kpis{grid-template-columns:1fr}.kpi:last-child:nth-child(n){grid-column:auto}}
 .kpi{background:var(--surface);padding:14px 16px}
 .kpi .k{font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--steel);margin-bottom:6px}
 .kpi .v{font-family:var(--f-mono);font-size:24px;font-variant-numeric:tabular-nums;line-height:1.1;color:var(--ink)}
@@ -224,7 +231,28 @@ const DEFAULT_LIB = {
     // powder
     {id:"pa12",   name:"PA12 powder (SLS)", density:1.01, bulkDensity:0.45, pricePerKg:3800, group:"powder"},
     {id:"pa11",   name:"PA11 powder",       density:1.03, bulkDensity:0.46, pricePerKg:5600, group:"powder"},
-    {id:"pa12gb", name:"PA12-GB powder",    density:1.30, bulkDensity:0.60, pricePerKg:4200, group:"powder"}
+    {id:"pa12gb", name:"PA12-GB powder",    density:1.30, bulkDensity:0.60, pricePerKg:4200, group:"powder"},
+    // wire: priced per metre per conductor, mass in grams per metre
+    {id:"w24",    name:"24 AWG PTFE, silver plated", pricePerM:22,  gramsPerM:2.4,  group:"wire"},
+    {id:"w22",    name:"22 AWG PTFE, silver plated", pricePerM:28,  gramsPerM:3.6,  group:"wire"},
+    {id:"w20",    name:"20 AWG silicone",            pricePerM:34,  gramsPerM:5.2,  group:"wire"},
+    {id:"w18",    name:"18 AWG silicone",            pricePerM:46,  gramsPerM:8.1,  group:"wire"},
+    {id:"w14",    name:"14 AWG silicone (power)",    pricePerM:95,  gramsPerM:19.0, group:"wire"},
+    {id:"w12",    name:"12 AWG silicone (power)",    pricePerM:140, gramsPerM:29.0, group:"wire"},
+    {id:"wstp",   name:"Shielded twisted pair 26AWG",pricePerM:130, gramsPerM:11.0, group:"wire"},
+    {id:"wcoax",  name:"RF coax RG178",              pricePerM:120, gramsPerM:6.0,  group:"wire"},
+    // composite: gsm is fabric areal weight, density the cured laminate
+    {id:"cf200p", name:"CF prepreg 200 gsm 2x2 twill", gsm:200, pricePerKg:4800, density:1.55, prepreg:true,  group:"composite"},
+    {id:"cf200d", name:"CF dry fabric 200 gsm",        gsm:200, pricePerKg:2200, density:1.55, prepreg:false, group:"composite"},
+    {id:"cf600d", name:"CF dry fabric 600 gsm biax",   gsm:600, pricePerKg:2000, density:1.55, prepreg:false, group:"composite"},
+    {id:"gf200d", name:"Glass fabric 200 gsm",         gsm:200, pricePerKg:420,  density:1.90, prepreg:false, group:"composite"},
+    {id:"kev170", name:"Aramid fabric 170 gsm",        gsm:170, pricePerKg:3200, density:1.44, prepreg:false, group:"composite"},
+    // foam and core: density in kg/m3
+    {id:"epp60",  name:"EPP bead 60 kg/m3",         density:60, pricePerKg:450,  group:"foam"},
+    {id:"epo45",  name:"EPO bead 45 kg/m3",         density:45, pricePerKg:520,  group:"foam"},
+    {id:"xps35",  name:"XPS block 35 kg/m3",        density:35, pricePerKg:380,  group:"foam"},
+    {id:"pu80",   name:"PU foam 80 kg/m3",          density:80, pricePerKg:600,  group:"foam"},
+    {id:"nomex3", name:"Nomex honeycomb 3 mm core", density:48, pricePerKg:9500, group:"foam"}
   ],
 
   machines: [
@@ -238,7 +266,13 @@ const DEFAULT_LIB = {
     {id:"sls1",  name:"SLS 340×340×600", group:"powder", ratePerHour:950,
       buildX:340, buildY:340, buildZ:600, layerHeight:0.10, layerTimeSec:38, warmupMin:120, cooldownMin:600},
     {id:"mjf1",  name:"MJF 380×284×380", group:"powder", ratePerHour:1150,
-      buildX:380, buildY:284, buildZ:380, layerHeight:0.08, layerTimeSec:9, warmupMin:45, cooldownMin:180}
+      buildX:380, buildY:284, buildZ:380, layerHeight:0.08, layerTimeSec:9, warmupMin:45, cooldownMin:180},
+    {id:"rtcure",    name:"Room-temperature cure (no equipment)", group:"cure", ratePerHour:0},
+    {id:"oven",      name:"Composite cure oven",                  group:"cure", ratePerHour:600},
+    {id:"autoclave", name:"Autoclave",                            group:"cure", ratePerHour:3500},
+    {id:"foamMould", name:"EPP/EPO bead moulding machine",        group:"foam", ratePerHour:1400, cycleSec:180},
+    {id:"foamCnc",   name:"CNC foam router / hot wire",           group:"foam", ratePerHour:450, mrr:900000},
+    {id:"bench",     name:"Harness bench (crimp + test)",         group:"harness", ratePerHour:150}
   ],
 
   /* ---- DFA method tables -------------------------------------------------
@@ -288,7 +322,14 @@ const DEFAULT_LIB = {
       restrictedVision:{label:"Restricted vision",                      idx:0.4, sec:2.0},
       reorient:       {label:"Assembly must be re-oriented first",      idx:0.4, sec:4.0},
       adjust:         {label:"Adjustment / alignment step",             idx:0.5, sec:8.0},
-      testStep:       {label:"In-process test or measurement",          idx:0.4, sec:12.0}
+      testStep:       {label:"In-process test or measurement",          idx:0.4, sec:12.0},
+      connectorMate:  {label:"Connector to mate, seat and latch",          idx:0.3, sec:6.0},
+      routing:        {label:"Cable routing, dressing and securing",       idx:0.6, sec:35.0},
+      torqueSpec:     {label:"Torque-controlled fastening + witness mark", idx:0.4, sec:14.0},
+      threadlock:     {label:"Threadlocker or structural adhesive",        idx:0.3, sec:9.0},
+      esd:            {label:"ESD-sensitive – strap, mat, handling care",  idx:0.3, sec:8.0},
+      calibrate:      {label:"Calibration or alignment routine",           idx:0.6, sec:45.0},
+      traceability:   {label:"Serial recorded / build record entry",       idx:0.2, sec:20.0}
     },
     fFix: {
       none:     {label:"None – held by earlier part",   idx:0.0, sec:0.0},
@@ -300,9 +341,31 @@ const DEFAULT_LIB = {
       weld:     {label:"Weld / braze",                       idx:0.8, sec:14.0},
       adhesive: {label:"Adhesive",                           idx:0.7, sec:8.0},
       solder:   {label:"Solder",                             idx:0.8, sec:11.0},
-      press:    {label:"Press fit",                          idx:0.5, sec:4.0}
+      press:    {label:"Press fit",                          idx:0.5, sec:4.0},
+      cableTie: {label:"Cable tie / lacing",                 idx:0.3, sec:12.0},
+      velcro:   {label:"Hook-and-loop strap",                idx:0.2, sec:5.0},
+      quickRel: {label:"Quick-release / captive latch",      idx:0.1, sec:2.5},
+      lockwire: {label:"Lockwired fastener",                 idx:0.9, sec:70.0}
     },
     targets:{handling:1.5, fitting:1.5, designEff:60}
+  },
+
+  /* Airframe-specific process coefficients. Same rule as everything else:
+     starting points, to be replaced with your own measured values. */
+  harness: {
+    cutStripSecPerEnd:18, crimpSecPerContact:22, connectorAssySec:90,
+    sleevingSecPerM:60, heatshrinkSecEach:25, labelSecEach:20, tieSecEach:12,
+    continuityTestMin:4, wireWastePct:8,
+    sleevingPricePerM:45, heatshrinkPriceEach:6, labelPriceEach:4,
+    tiePriceEach:1.5, contactPriceEach:6, connectorGramsEach:6
+  },
+  composite: {
+    layupMinPerPlyPerM2:14, prepMin:20, debulkMinEach:12, baggingMinPerM2:18,
+    consumablePricePerM2:320, resinRatio:0.45, resinPricePerKg:1400,
+    trimFinishMin:25, ndtMin:8, scrapPct:8, fabricWastePct:15
+  },
+  foamProc: {
+    blockMarginMm:10, trimMin:4, wastePct:10
   },
 
   /* ---- cost model coefficients ---- */
@@ -348,6 +411,7 @@ const DEFAULT_LIB = {
 function samplePart(over){
   return Object.assign({
     id: uid(), name:"New part", partNo:"", qty:1, notes:"",
+    module:"", massG:0, fieldAssembly:false, toolFree:false,
     dfa:{
       moveRelative:false, differentMaterial:false, separateForService:false, reason:"",
       size:"normal", sym:"oneWay", hFlags:{},
@@ -363,32 +427,158 @@ function samplePart(over){
         layerHeight:0.2, nozzle:0.4, infillPct:25, walls:3, supportPct:12,
         partsPerPlate:4, surfaceArea:0 },
       powder:{ materialId:"pa12", machineId:"mjf1", bx:60,by:40,bz:20, partVolume:28000,
-        partsPerBuild:0, packingOverride:0 }
+        partsPerBuild:0, packingOverride:0 },
+      harness:{ wireId:"w22", lengthMm:300, cores:2, branches:1,
+        connAPins:2, connAPrice:35, connBPins:2, connBPrice:35, splices:0,
+        sleevingMm:0, heatshrink:2, labels:2, ties:3, contactsOverride:0, testMin:0 },
+      composite:{ materialId:"cf200p", machineId:"oven", coreId:"", coreThickness:0,
+        areaMm2:120000, plies:4, debulks:1, cureHr:4, partsPerCure:2,
+        toolCost:180000, toolLife:400, trimMin:0, ndtMin:0 },
+      foam:{ materialId:"epp60", machineId:"foamCnc", method:"cnc",
+        bx:300,by:120,bz:60, partVolume:900000,
+        toolCost:0, toolLife:1000, cavities:1, cycleSec:0, skinArea:0 }
     }
   }, over||{});
 }
 
 function sampleProject(){
-  const p = (n,o)=>{const x=samplePart(o); x.name=n; return x;};
+  /* A VTOL fixed-wing airframe, shaped like the real thing: composite skins,
+     foam cores, machined fittings, printed brackets, harnesses and bought-in
+     avionics, grouped by module. Replace it with your own BOM - Data tab. */
+  const P = (name, module, dfa, cost, extra) => {
+    const pt = samplePart();
+    pt.name = name; pt.module = module;
+    Object.assign(pt.dfa, dfa);
+    pt.cost.process = cost.process;
+    if(cost.set) Object.assign(pt.cost[cost.process==="purchased"?"machining":cost.process], cost.set);
+    if(cost.process==="purchased") pt.cost.purchasedPrice = cost.price||0;
+    Object.assign(pt, extra||{});
+    return pt;
+  };
+
   const parts = [
-    p("Base plate", {qty:1, dfa:{moveRelative:false,differentMaterial:false,separateForService:true,reason:"Mounting interface – must be separate to attach to the frame.",
-        size:"normal",sym:"oneWay",hFlags:{},dir:"topDown",fFlags:{},fix:"none",fixCount:1}}),
-    p("Pivot arm", {qty:1, dfa:{moveRelative:true,differentMaterial:false,separateForService:false,reason:"Rotates relative to the base.",
-        size:"normal",sym:"twoWay",hFlags:{},dir:"topDown",fFlags:{notSelfLocating:true},fix:"none",fixCount:1}}),
-    p("Bronze bush", {qty:2, dfa:{moveRelative:false,differentMaterial:true,separateForService:true,reason:"Bearing material must differ from the arm.",
-        size:"small",sym:"oneWay",hFlags:{slippery:true},dir:"topDown",fFlags:{resistance:true},fix:"press",fixCount:1}}),
-    p("Cover", {qty:1, dfa:{moveRelative:false,differentMaterial:false,separateForService:false,reason:"Candidate for consolidation into the base.",
-        size:"large",sym:"oneWay",hFlags:{},dir:"topDown",fFlags:{holdDown:true},fix:"screw",fixCount:4}}),
-    p("M4 cap screw", {qty:4, dfa:{moveRelative:false,differentMaterial:false,separateForService:false,reason:"Separate fastener – pure assembly cost.",
-        size:"small",sym:"oneWay",hFlags:{nests:true},dir:"topDown",fFlags:{},fix:"screw",fixCount:1}})
+    P("Wing skin, upper LH","Wing LH",
+      {moveRelative:false,differentMaterial:false,separateForService:false,
+       reason:"Bonded to the lower skin - consolidation candidate only if the layup can be done as one closed moulding.",
+       size:"large",sym:"oneWay",hFlags:{delicate:true,twoHands:true},dir:"topDown",
+       fFlags:{notSelfLocating:true,holdDown:true},fix:"adhesive",fixCount:1},
+      {process:"composite", set:{materialId:"cf200p",machineId:"oven",areaMm2:310000,plies:3,debulks:1,
+        cureHr:4,partsPerCure:2,coreId:"nomex3",coreThickness:3,toolCost:240000,toolLife:400}}),
+
+    P("Wing core, foam","Wing LH",
+      {moveRelative:false,differentMaterial:true,separateForService:false,
+       reason:"Core material must differ from the skins.",
+       size:"large",sym:"oneWay",hFlags:{delicate:true},dir:"topDown",fFlags:{},fix:"adhesive",fixCount:1},
+      {process:"foam", set:{materialId:"xps35",machineId:"foamCnc",method:"cnc",
+        bx:900,by:180,bz:38,partVolume:2400000}}),
+
+    P("Spar, CFRP tube","Wing LH",
+      {moveRelative:false,differentMaterial:false,separateForService:true,
+       reason:"Removed to break the wing down for transport.",
+       size:"large",sym:"oneWay",hFlags:{},dir:"side",fFlags:{resistance:true},fix:"quickRel",fixCount:2},
+      {process:"purchased", price:2400}, {massG:145, fieldAssembly:true, toolFree:true}),
+
+    P("Wing root fitting","Wing LH",
+      {moveRelative:false,differentMaterial:false,separateForService:true,
+       reason:"Carries the wing-to-fuselage joint load and must be separable in the field.",
+       size:"normal",sym:"twoWay",hFlags:{},dir:"side",
+       fFlags:{notSelfLocating:true,torqueSpec:true,threadlock:true},fix:"screw",fixCount:4},
+      {process:"machining", set:{materialId:"al6061",machineId:"vmc",stockForm:"block",
+        L:70,W:45,H:26,partVolume:31000,setups:2,toolChanges:5,setupMin:45,batchSize:40,
+        tolerance:"medium",finish:"good",holes:[{count:4,dia:5,depth:26},{count:2,dia:8,depth:20}]}}),
+
+    P("Boom, CFRP tube","Boom LH",
+      {moveRelative:false,differentMaterial:false,separateForService:true,
+       reason:"Folds or detaches for transport.",
+       size:"large",sym:"oneWay",hFlags:{},dir:"side",fFlags:{},fix:"quickRel",fixCount:2},
+      {process:"purchased", price:1850}, {massG:210, fieldAssembly:true, toolFree:true}),
+
+    P("VTOL motor mount","Boom LH",
+      {moveRelative:false,differentMaterial:false,separateForService:true,
+       reason:"Motor is a service item.",
+       size:"normal",sym:"twoWay",hFlags:{},dir:"topDown",
+       fFlags:{torqueSpec:true,threadlock:true},fix:"screw",fixCount:4},
+      {process:"machining", set:{materialId:"al6061",machineId:"vmc",stockForm:"block",
+        L:56,W:56,H:14,partVolume:16500,setups:1,toolChanges:4,setupMin:30,batchSize:60,
+        tolerance:"medium",finish:"asMachined",holes:[{count:8,dia:4,depth:14}]}}),
+
+    P("VTOL motor","Boom LH",
+      {moveRelative:true,differentMaterial:false,separateForService:true,
+       reason:"Rotating assembly.",
+       size:"normal",sym:"twoWay",hFlags:{},dir:"topDown",
+       fFlags:{torqueSpec:true,connectorMate:true},fix:"screw",fixCount:4},
+      {process:"purchased", price:4200}, {massG:186}),
+
+    P("ESC to motor harness","Boom LH",
+      {moveRelative:false,differentMaterial:true,separateForService:true,
+       reason:"Conductor - must be insulated from the structure and replaceable.",
+       size:"normal",sym:"nonObvious",hFlags:{flexible:true,nests:true},dir:"side",
+       fFlags:{routing:true,connectorMate:true,restrictedVision:true},fix:"cableTie",fixCount:4},
+      {process:"harness", set:{wireId:"w14",lengthMm:620,cores:3,branches:1,
+        connAPins:3,connAPrice:95,connBPins:3,connBPrice:95,sleevingMm:520,
+        heatshrink:6,labels:2,ties:4}}),
+
+    P("Fuselage shell, LH","Fuselage",
+      {moveRelative:false,differentMaterial:false,separateForService:true,
+       reason:"Opens for avionics access.",
+       size:"large",sym:"oneWay",hFlags:{delicate:true,twoHands:true},dir:"side",
+       fFlags:{notSelfLocating:true,holdDown:true},fix:"quickRel",fixCount:6},
+      {process:"composite", set:{materialId:"cf200p",machineId:"oven",areaMm2:210000,plies:4,debulks:1,
+        cureHr:4,partsPerCure:2,toolCost:310000,toolLife:400}}),
+
+    P("Avionics tray","Fuselage",
+      {moveRelative:false,differentMaterial:false,separateForService:false,
+       reason:"Candidate for consolidation into the fuselage shell as a moulded-in feature.",
+       size:"normal",sym:"oneWay",hFlags:{},dir:"topDown",
+       fFlags:{esd:true},fix:"screw",fixCount:6},
+      {process:"fdm", set:{materialId:"pa12cf",machineId:"fdmInd",bx:180,by:90,bz:22,
+        partVolume:41000,layerHeight:0.2,nozzle:0.4,walls:4,infillPct:30,supportPct:6,partsPerPlate:2}}),
+
+    P("Flight controller","Fuselage",
+      {moveRelative:false,differentMaterial:true,separateForService:true,
+       reason:"Electronics - isolated and field-replaceable.",
+       size:"small",sym:"twoWay",hFlags:{delicate:true},dir:"topDown",
+       fFlags:{esd:true,connectorMate:true,calibrate:true,traceability:true},fix:"screw",fixCount:4},
+      {process:"purchased", price:38000}, {massG:64}),
+
+    P("Main power harness","Fuselage",
+      {moveRelative:false,differentMaterial:true,separateForService:true,
+       reason:"Conductor, and the highest-current path in the aircraft.",
+       size:"normal",sym:"nonObvious",hFlags:{flexible:true},dir:"topDown",
+       fFlags:{routing:true,connectorMate:true,obstructed:true},fix:"cableTie",fixCount:6},
+      {process:"harness", set:{wireId:"w12",lengthMm:480,cores:2,branches:3,
+        connAPins:2,connAPrice:340,connBPins:2,connBPrice:180,splices:2,sleevingMm:450,
+        heatshrink:10,labels:4,ties:6,testMin:6}}),
+
+    P("Battery pack","Fuselage",
+      {moveRelative:false,differentMaterial:true,separateForService:true,
+       reason:"Swapped between sorties.",
+       size:"large",sym:"twoWay",hFlags:{},dir:"topDown",
+       fFlags:{connectorMate:true},fix:"velcro",fixCount:2},
+      {process:"purchased", price:26000}, {massG:1450, fieldAssembly:true, toolFree:true}),
+
+    P("Payload gimbal","Payload",
+      {moveRelative:true,differentMaterial:false,separateForService:true,
+       reason:"Swappable payload - the product feature.",
+       size:"normal",sym:"twoWay",hFlags:{delicate:true},dir:"topDown",
+       fFlags:{connectorMate:true,calibrate:true},fix:"quickRel",fixCount:1},
+      {process:"purchased", price:210000}, {massG:640, fieldAssembly:true, toolFree:true}),
+
+    P("M4 × 12 cap screw","Fasteners",
+      {moveRelative:false,differentMaterial:false,separateForService:false,
+       reason:"Separate fastener - dead weight and pure assembly cost.",
+       size:"small",sym:"oneWay",hFlags:{nests:true},dir:"topDown",
+       fFlags:{torqueSpec:true},fix:"screw",fixCount:1},
+      {process:"purchased", price:6}, {qty:18, massG:2.1})
   ];
-  parts[2].cost.process="machining"; parts[2].cost.machining.materialId="brass";
-  parts[3].cost.process="fdm";
-  parts[4].cost.process="purchased"; parts[4].cost.purchasedPrice=4.5;
+
   return {
     schema:1,
-    meta:{name:"Sample – pivot bracket assembly", rev:"A", analyst:"", date:new Date().toISOString().slice(0,10),
-          annualVolume:5000, notes:"Delete this sample once you start your own analysis (Data tab → Reset)."},
+    meta:{name:"Sample – VTOL fixed-wing airframe", rev:"A", analyst:"",
+          date:new Date().toISOString().slice(0,10),
+          annualVolume:500, massTargetG:7000, fieldDeployTargetSec:300,
+          notes:"Illustrative only – quantities, geometry and prices are invented. "+
+                "Replace with your own BOM (Data tab → Reset clears this)."},
     settings:{basis:"vendor"},
     lib: JSON.parse(JSON.stringify(DEFAULT_LIB)),
     parts
@@ -481,12 +671,23 @@ function dfaProduct(){
   const efficiency = totalSec>0 ? (nEss*ideal/totalSec)*100 : 0;
   const denom = nEss || 1;
   const labourCost = (totalSec/3600) * num(S.lib.rates.assemblyLabourPerHour,0);
+
+  // field deployment: only the parts the operator fits in the field
+  let fieldSec = 0, fieldParts = 0, fieldToolParts = 0;
+  rows.forEach(({pt,r})=>{
+    if(pt.fieldAssembly){
+      fieldSec += r.totalSec; fieldParts += r.qty;
+      if(!pt.toolFree) fieldToolParts += r.qty;
+    }
+  });
+
   return {
     rows, nTotal, nEss, nRedundant:nTotal-nEss,
     totalSec:r2(totalSec), totalMin:r2(totalSec/60),
     designEff:r1(designEff), efficiency:r1(efficiency),
     feedingRatio:r2(sumH/denom), fittingRatio:r2(sumF/denom),
-    labourCost
+    labourCost,
+    fieldSec:r2(fieldSec), fieldMin:r2(fieldSec/60), fieldParts, fieldToolParts
   };
 }
 
@@ -549,6 +750,7 @@ function costMachining(pt){
       - (c.scrapCredit ? removedKg * num(m.scrapPerKg,0) : 0);
 
   return {
+    massG: partVol/1000 * m.density,
     lines:[
       {k:"Stock material", v:stockKg*num(m.pricePerKg), d:r2(stockKg)+" kg @ "+CUR+num(m.pricePerKg)+"/kg"},
       {k:"Scrap credit", v:-(c.scrapCredit?removedKg*num(m.scrapPerKg,0):0), d:c.scrapCredit? r2(removedKg)+" kg recovered":"not claimed"},
@@ -598,6 +800,7 @@ function costFdm(pt){
   const failUplift = (machineCost+materialCost+labourCost) * (K.failurePct/100);
 
   return {
+    massG: (shellVol + infillVol)/1000 * m.density,
     lines:[
       {k:"Filament", v:materialCost, d:r2(massG)+" g @ "+CUR+num(m.pricePerKg)+"/kg"},
       {k:"Machine time", v:machineCost, d:r2(machineMin)+" min @ "+CUR+num(k.ratePerHour)+"/hr"},
@@ -646,6 +849,7 @@ function costPowder(pt){
   const labourCost = labourMin/60 * num(S.lib.rates.labourPerHour);
 
   return {
+    massG: num(c.partVolume)/1000 * m.density,
     lines:[
       {k:"Powder", v:materialCost, d:r2(virginKg)+" kg virgin per build ÷ "+perBuild+" parts"},
       {k:"Machine time", v:machineCost, d:r2(buildHr)+" hr build ÷ "+perBuild+" parts"},
@@ -665,14 +869,190 @@ function costPowder(pt){
   };
 }
 
+/* ---- 5d. wire harness ---- */
+function costHarness(pt){
+  const c = pt.cost.harness, w = mat(c.wireId), k = mach(c.machineId||"bench"), K = S.lib.harness;
+  const lenM = num(c.lengthMm)/1000;
+  const cores = Math.max(1, num(c.cores,1));
+  const branches = Math.max(1, num(c.branches,1));
+
+  const wireM = lenM * cores * (1 + K.wireWastePct/100);
+  const wireCost = wireM * num(w.pricePerM);
+
+  const contacts = num(c.contactsOverride)>0 ? num(c.contactsOverride)
+                 : num(c.connAPins) + num(c.connBPins) + num(c.splices)*2;
+  const connectors = (num(c.connAPins)>0?1:0) + (num(c.connBPins)>0?1:0);
+  const connCost = num(c.connAPrice) + num(c.connBPrice) + contacts*K.contactPriceEach;
+
+  const sleevM = num(c.sleevingMm)/1000;
+  const consumables = sleevM*K.sleevingPricePerM
+                    + num(c.heatshrink)*K.heatshrinkPriceEach
+                    + num(c.labels)*K.labelPriceEach
+                    + num(c.ties)*K.tiePriceEach;
+
+  const testMin = num(c.testMin)>0 ? num(c.testMin) : K.continuityTestMin;
+  const buildSec = cores*2*K.cutStripSecPerEnd
+                 + contacts*K.crimpSecPerContact
+                 + connectors*K.connectorAssySec
+                 + sleevM*K.sleevingSecPerM
+                 + num(c.heatshrink)*K.heatshrinkSecEach
+                 + num(c.labels)*K.labelSecEach
+                 + num(c.ties)*K.tieSecEach
+                 + (branches-1)*K.connectorAssySec*0.5;
+  const buildMin = buildSec/60 + testMin;
+  const labourCost = buildMin/60 * num(S.lib.rates.labourPerHour);
+  const benchCost = buildMin/60 * num(k.ratePerHour);
+
+  const massG = lenM*cores*num(w.gramsPerM) + connectors*K.connectorGramsEach
+              + num(c.heatshrink)*0.4 + num(c.ties)*0.8;
+
+  return {
+    massG,
+    lines:[
+      {k:"Wire", v:wireCost, d:r2(wireM)+" m of "+w.name+" incl. "+K.wireWastePct+"% waste"},
+      {k:"Connectors + contacts", v:connCost, d:connectors+" connector"+(connectors===1?"":"s")+", "+contacts+" contacts"},
+      {k:"Sleeving, heatshrink, labels, ties", v:consumables, d:r2(sleevM)+" m sleeving, "+num(c.heatshrink)+" HS, "+num(c.labels)+" labels, "+num(c.ties)+" ties"},
+      {k:"Build labour", v:labourCost, d:r2(buildMin)+" min incl. "+r2(testMin)+" min continuity test"},
+      {k:"Bench time", v:benchCost, d:r2(buildMin)+" min @ "+CUR+num(k.ratePerHour)+"/hr"}
+    ],
+    conversion: labourCost + benchCost,
+    material: wireCost + connCost + consumables,
+    detail:[
+      ["Route length", num(c.lengthMm)+" mm × "+cores+" cores"],
+      ["Branches", branches],
+      ["Cut and strip", cores*2+" ends @ "+K.cutStripSecPerEnd+" s"],
+      ["Crimping", contacts+" contacts @ "+K.crimpSecPerContact+" s"],
+      ["Connector assembly", connectors+" @ "+K.connectorAssySec+" s"],
+      ["Build time", r2(buildMin)+" min"],
+      ["Harness mass", r2(massG)+" g"]
+    ]
+  };
+}
+
+/* ---- 5e. composite layup ---- */
+function costComposite(pt){
+  const c = pt.cost.composite, m = mat(c.materialId), k = mach(c.machineId||"oven"), K = S.lib.composite;
+  const areaM2 = num(c.areaMm2)/1e6;
+  const plies = Math.max(1, num(c.plies,1));
+
+  const fabricKg = areaM2 * plies * num(m.gsm,200)/1000 * (1 + K.fabricWastePct/100);
+  const fabricCost = fabricKg * num(m.pricePerKg);
+  const resinKg = m.prepreg ? 0 : fabricKg * K.resinRatio;
+  const resinCost = resinKg * K.resinPricePerKg;
+
+  let coreKg = 0, coreCost = 0;
+  if(c.coreId && num(c.coreThickness)>0){
+    const core = mat(c.coreId);
+    coreKg = areaM2 * num(c.coreThickness)/1000 * num(core.density,50);
+    coreCost = coreKg * num(core.pricePerKg);
+  }
+
+  const consumableCost = areaM2 * K.consumablePricePerM2;
+
+  const layupMin = plies * areaM2 * K.layupMinPerPlyPerM2 + K.prepMin
+                 + num(c.debulks) * K.debulkMinEach + areaM2 * K.baggingMinPerM2;
+  const finishMin = (num(c.trimMin)>0?num(c.trimMin):K.trimFinishMin) + (num(c.ndtMin)>0?num(c.ndtMin):K.ndtMin);
+  const labourCost = (layupMin + finishMin)/60 * num(S.lib.rates.labourPerHour);
+
+  const perCure = Math.max(1, num(c.partsPerCure,1));
+  const cureCost = num(c.cureHr) * num(k.ratePerHour) / perCure;
+
+  const toolLife = Math.max(1, num(c.toolLife,1));
+  const toolingCost = num(c.toolCost) / toolLife;
+
+  const direct = fabricCost + resinCost + coreCost + consumableCost + labourCost + cureCost + toolingCost;
+  const scrapUplift = direct * K.scrapPct/100;
+
+  const massG = (fabricKg/(1 + K.fabricWastePct/100) + resinKg + coreKg) * 1000;
+
+  return {
+    massG,
+    lines:[
+      {k:"Fabric", v:fabricCost, d:r2(fabricKg)+" kg, "+plies+" plies of "+num(m.gsm)+" gsm over "+r2(areaM2)+" m²"},
+      {k:"Resin", v:resinCost, d:m.prepreg? "included in prepreg" : r2(resinKg)+" kg at "+K.resinRatio+" ratio"},
+      {k:"Core", v:coreCost, d:coreKg? r2(coreKg)+" kg" : "none"},
+      {k:"Bagging consumables", v:consumableCost, d:r2(areaM2)+" m² @ "+CUR+K.consumablePricePerM2+"/m²"},
+      {k:"Layup + finishing labour", v:labourCost, d:r2(layupMin+finishMin)+" min"},
+      {k:"Cure", v:cureCost, d:num(c.cureHr)+" hr on "+k.name+" ÷ "+perCure+" parts"},
+      {k:"Tooling amortised", v:toolingCost, d:CUR+fmt0(num(c.toolCost))+" mould ÷ "+toolLife+" parts"},
+      {k:"Scrap allowance", v:scrapUplift, d:K.scrapPct+"% – composites scrap high"}
+    ],
+    conversion: labourCost + cureCost + toolingCost + scrapUplift,
+    material: fabricCost + resinCost + coreCost + consumableCost,
+    detail:[
+      ["Laminate area", r2(areaM2)+" m²"],
+      ["Ply count", plies + (m.prepreg? " (prepreg)" : " (wet layup)")],
+      ["Layup labour", r2(layupMin)+" min incl. "+num(c.debulks)+" debulk(s)"],
+      ["Trim + NDT", r2(finishMin)+" min"],
+      ["Cure cycle", num(c.cureHr)+" hr, "+perCure+" parts per cycle"],
+      ["Cured mass", r2(massG)+" g"]
+    ]
+  };
+}
+
+/* ---- 5f. foam ---- */
+function costFoam(pt){
+  const c = pt.cost.foam, m = mat(c.materialId), k = mach(c.machineId||"foamCnc"), K = S.lib.foamProc;
+  const partVol = num(c.partVolume);
+  const partKg = partVol/1e9 * num(m.density,60);      // mm3 -> m3 -> kg
+  let materialCost, machineMin, toolingCost = 0, detail = [];
+
+  if(c.method === "moulded"){
+    const cav = Math.max(1, num(c.cavities,1));
+    const cycleSec = num(c.cycleSec)>0 ? num(c.cycleSec) : num(k.cycleSec,180);
+    materialCost = partKg * num(m.pricePerKg) * (1 + K.wastePct/100);
+    machineMin = (cycleSec/60) / cav;
+    const toolLife = Math.max(1, num(c.toolLife,1));
+    toolingCost = num(c.toolCost)/toolLife;
+    detail = [
+      ["Method","Bead moulding"],
+      ["Cycle", cycleSec+" s ÷ "+cav+" cavities"],
+      ["Tooling", CUR+fmt0(num(c.toolCost))+" ÷ "+toolLife+" parts"]
+    ];
+  } else {
+    const mar = K.blockMarginMm;
+    const blockVol = (num(c.bx)+2*mar)*(num(c.by)+2*mar)*(num(c.bz)+2*mar);
+    const blockKg = blockVol/1e9 * num(m.density,35);
+    materialCost = blockKg * num(m.pricePerKg);
+    machineMin = num(k.mrr,900000)>0 ? Math.max(0, blockVol - partVol)/num(k.mrr,900000) : 0;
+    detail = [
+      ["Method","CNC / hot-wire from block"],
+      ["Block", r2(blockVol/1000)+" cm³ with "+mar+" mm margin"],
+      ["Removed", r2((blockVol-partVol)/1000)+" cm³ @ "+num(k.mrr)+" mm³/min"],
+      ["Yield", blockKg>0? r1(partKg/blockKg*100)+"% of the block ends up in the part" : "-"]
+    ];
+  }
+
+  const machineCost = machineMin/60 * num(k.ratePerHour);
+  const labourMin = K.trimMin;
+  const labourCost = labourMin/60 * num(S.lib.rates.labourPerHour);
+
+  return {
+    massG: partKg*1000,
+    lines:[
+      {k:"Foam", v:materialCost, d:r2(partKg*1000)+" g at "+num(m.density)+" kg/m³"},
+      {k:"Machine time", v:machineCost, d:r2(machineMin)+" min @ "+CUR+num(k.ratePerHour)+"/hr"},
+      {k:"Tooling amortised", v:toolingCost, d:toolingCost? "per part" : "none"},
+      {k:"Trim labour", v:labourCost, d:labourMin+" min"}
+    ],
+    conversion: machineCost + labourCost + toolingCost,
+    material: materialCost,
+    detail: detail.concat([["Part mass", r2(partKg*1000)+" g"]])
+  };
+}
+
 function costPart(pt){
   const proc = pt.cost.process;
   let base;
   if(proc==="machining") base = costMachining(pt);
   else if(proc==="fdm")  base = costFdm(pt);
   else if(proc==="powder") base = costPowder(pt);
+  else if(proc==="harness") base = costHarness(pt);
+  else if(proc==="composite") base = costComposite(pt);
+  else if(proc==="foam") base = costFoam(pt);
   else base = { lines:[{k:"Purchase price", v:num(pt.cost.purchasedPrice), d:"as quoted"}],
-                conversion:0, material:num(pt.cost.purchasedPrice), detail:[["Source","Purchased / catalogue item"]] };
+                conversion:0, material:num(pt.cost.purchasedPrice),
+                detail:[["Source","Purchased / catalogue item"]] };
 
   const R = S.lib.rates;
   const basis = pt.cost.basis==="inherit" ? S.settings.basis : pt.cost.basis;
@@ -686,17 +1066,45 @@ function costPart(pt){
     freight  = sub * R.packFreightPct/100;
   }
   const unit = direct + scrap + overhead + margin + freight;
+  const qty = Math.max(0,num(pt.qty,1));
+  const massG = num(pt.massG)>0 ? num(pt.massG) : num(base.massG,0);
   return Object.assign(base, {
-    basis, direct, scrap, overhead, margin, freight,
-    unit, extended: unit * Math.max(0,num(pt.qty,1))
+    basis, direct, scrap, overhead, margin, freight, massG,
+    massSource: num(pt.massG)>0 ? "entered" : (massG>0 ? "calculated" : "unknown"),
+    massExtended: massG*qty,
+    unit, extended: unit * qty
   });
 }
 
 function costProduct(){
   const rows = S.parts.map(pt=>({pt, c:costPart(pt)}));
   const partsTotal = rows.reduce((a,x)=>a+x.c.extended,0);
+  const massG = rows.reduce((a,x)=>a+x.c.massExtended,0);
+  const unknownMass = rows.filter(x=>x.c.massSource==="unknown").length;
   const d = dfaProduct();
-  return { rows, partsTotal, assemblyLabour:d.labourCost, total:partsTotal + d.labourCost, dfa:d };
+  return { rows, partsTotal, massG, unknownMass,
+           assemblyLabour:d.labourCost, total:partsTotal + d.labourCost, dfa:d,
+           modules: moduleRollup(rows) };
+}
+
+/* Per-module rollup. A drone BOM is only legible module by module -
+   wing, boom, avionics bay, payload - so every result is available that way. */
+function moduleRollup(rows){
+  const map = new Map();
+  rows.forEach(({pt,c})=>{
+    const key = (pt.module||"").trim() || "Unassigned";
+    if(!map.has(key)) map.set(key, {name:key, parts:0, ess:0, cost:0, massG:0, sec:0, fieldSec:0});
+    const g = map.get(key), r = dfaPart(pt);
+    g.parts += r.qty;
+    if(r.essential) g.ess += r.qty;
+    g.cost += c.extended;
+    g.massG += c.massExtended;
+    g.sec += r.totalSec;
+    if(pt.fieldAssembly) g.fieldSec += r.totalSec;
+  });
+  return Array.from(map.values())
+    .map(g=>Object.assign(g,{designEff: g.parts? r1(g.ess/g.parts*100):0}))
+    .sort((a,b)=>b.cost-a.cost);
 }
 
 /* ============================================================
@@ -708,23 +1116,39 @@ function findings(){
 
   cp.rows.forEach(({pt,c})=>{
     const r = dfaPart(pt);
+    const grams = c.massExtended ? ", "+r1(c.massExtended)+" g" : "";
     if(!r.essential && pt.cost.process!=="purchased"){
       out.push({sev:"risk", part:pt.name, title:"Consolidation candidate",
         why:"Fails all three minimum-part-count tests — it does not move relative to its neighbours, needs no material separation, and is not required for service access.",
-        gain:"Removing it saves "+CUR+fmt(c.extended)+" of part cost and "+r2(r.totalSec)+" s of assembly."});
+        gain:"Removing it saves "+CUR+fmt(c.extended)+grams+" and "+r2(r.totalSec)+" s of assembly."});
     }
     if(!r.essential && pt.cost.process==="purchased"){
       out.push({sev:"risk", part:pt.name, title:"Separate fastener",
-        why:"Fasteners are pure assembly cost. Design the joint as a snap, press or integral feature and both the part and its fitting time disappear.",
-        gain:"Saves "+CUR+fmt(c.extended)+" and "+r2(r.totalSec)+" s per product."});
+        why:"Fasteners are pure assembly cost and dead weight. Design the joint as a snap, press or integral feature and the part, its mass and its fitting time all disappear.",
+        gain:"Saves "+CUR+fmt(c.extended)+grams+" and "+r2(r.totalSec)+" s per product."});
+    }
+    if(pt.fieldAssembly && !pt.toolFree){
+      out.push({sev:"risk", part:pt.name, title:"Field-assembled but needs a tool",
+        why:"This part is fitted by the operator in the field, yet it is not marked tool-free. Tool-free field assembly is a product-level promise; every exception erodes it and adds to deployment time.",
+        gain:"Re-detail as a snap, captive latch or quick-release to remove "+r2(r.totalSec)+" s from deployment."});
+    }
+    if(pt.fieldAssembly && ["screw","screwHand","lockwire","rivet","weld","adhesive","solder"].indexOf(pt.dfa.fix)>=0){
+      out.push({sev:"warn", weight:r.fittingSec*r.qty+1e6, part:pt.name, title:"Field joint uses a "+(S.lib.dfa.fFix[pt.dfa.fix]||{label:pt.dfa.fix}).label.toLowerCase(),
+        why:"Permanent or torque-dependent fixings do not belong on a joint the operator makes and breaks in the field.",
+        gain:"A quick-release or captive latch would cut "+r2(r.fittingSec)+" s and remove a torque-control step from deployment."});
+    }
+    if(c.massSource==="unknown" && c.massExtended===0){
+      out.push({sev:"neutral", part:pt.name, title:"No mass recorded",
+        why:"Purchased and catalogue parts have no geometry to compute mass from, so the product mass roll-up is incomplete until you enter it.",
+        gain:"Enter the mass in grams on the part's Identity section."});
     }
     if(r.overHandling){
-      out.push({sev:"warn", part:pt.name, title:"Handling index "+r.handlingIndex+" (target ≤"+T.handling+")",
+      out.push({sev:"warn", weight:r.handlingSec*r.qty, part:pt.name, title:"Handling index "+r.handlingIndex+" (target ≤"+T.handling+")",
         why:"Driven by: "+ (r.hUsed.length? r.hUsed.join(", ") : "size and orientation effort") +".",
         gain:"Add a symmetry feature or an obvious keying detail to cut "+r2(r.handlingSec)+" s of handling."});
     }
     if(r.overFitting){
-      out.push({sev:"warn", part:pt.name, title:"Fitting index "+r.fittingIndex+" (target ≤"+T.fitting+")",
+      out.push({sev:"warn", weight:r.fittingSec*r.qty, part:pt.name, title:"Fitting index "+r.fittingIndex+" (target ≤"+T.fitting+")",
         why:"Driven by: "+ (r.fUsed.length? r.fUsed.join(", ") : "insertion direction") +".",
         gain:"Chamfers, self-location or top-down access would remove much of "+r2(r.fittingSec)+" s."});
     }
@@ -735,18 +1159,52 @@ function findings(){
   sorted.forEach(({pt,c})=>{
     if(cp.partsTotal>0 && c.extended/cp.partsTotal > 0.25){
       out.push({sev:"neutral", part:pt.name, title:"Cost concentration — "+r1(c.extended/cp.partsTotal*100)+"% of part cost",
-        why:"A single part carries a quarter or more of the product's part cost, so it is where process and material alternatives pay off most.",
+        why:"A single part carries a quarter or more of the product's part cost, so it is where process and material alternatives pay off most."+
+            (c.massExtended? " It is also "+r1(c.massExtended)+" g, "+(cp.massG? r1(c.massExtended/cp.massG*100)+"% of product mass":"")+"." : ""),
         gain:"Re-cost it against another process before optimising anything else."});
     }
   });
 
+  // mass budget
+  if(num(S.meta.massTargetG)>0 && cp.massG>0){
+    const over = cp.massG - num(S.meta.massTargetG);
+    if(over > 0){
+      const heavy = cp.rows.filter(x=>!dfaPart(x.pt).essential)
+                           .reduce((a,x)=>a+x.c.massExtended,0);
+      out.unshift({sev:"risk", part:"— Product", title:"Over mass budget by "+r1(over)+" g",
+        why:"Roll-up is "+r1(cp.massG)+" g against a target of "+fmt0(S.meta.massTargetG)+" g"+
+            (cp.unknownMass? " — and "+cp.unknownMass+" part(s) have no mass recorded, so the real figure is higher." : "."),
+        gain: heavy>0 ? "The parts failing the minimum-part-count tests carry "+r1(heavy)+" g between them — consolidation is the cheapest gram."
+                      : "Every part is functionally essential, so the mass has to come out of material or wall thickness, not part count."});
+    }
+  }
+  // field deployment budget
+  if(num(S.meta.fieldDeployTargetSec)>0 && d.fieldSec > num(S.meta.fieldDeployTargetSec)){
+    out.unshift({sev:"risk", part:"— Product", title:"Field deployment "+r2(d.fieldSec)+" s over the "+num(S.meta.fieldDeployTargetSec)+" s target",
+      why:d.fieldParts+" part(s) are fitted in the field"+(d.fieldToolParts? ", "+d.fieldToolParts+" of them needing a tool" : "")+".",
+      gain:"Deployment time is a spec, not an internal metric — shave it in the joints the operator actually makes."});
+  }
   if(d.designEff < T.designEff && d.nTotal>0){
     out.unshift({sev:"risk", part:"— Product", title:"Design efficiency "+d.designEff+"% (target ≥"+T.designEff+"%)",
       why:d.nRedundant+" of "+d.nTotal+" parts fail the minimum-part-count tests.",
       gain:"The theoretical minimum for this product is "+d.nEss+" parts."});
   }
   const order = {risk:0, warn:1, neutral:2};
-  return out.sort((a,b)=>order[a.sev]-order[b.sev]);
+  out.sort((a,b)=>(order[a.sev]-order[b.sev]) || (b.weight||0)-(a.weight||0));
+
+  // Everything at "act" level is shown. Reviews are capped, worst first, so a
+  // 300-part BOM does not bury the four things that actually matter.
+  const CAP = 12;
+  const warns = out.filter(x=>x.sev==="warn");
+  if(warns.length > CAP){
+    const keep = new Set(warns.slice(0, CAP));
+    const trimmed = out.filter(x=>x.sev!=="warn" || keep.has(x));
+    trimmed.push({sev:"neutral", part:"— Review queue", title:(warns.length-CAP)+" more parts breach a target",
+      why:"Only the "+CAP+" costliest in assembly time are listed. Export the results CSV for the full set, or tighten the targets in the Library tab to change what qualifies.",
+      gain:"Work the listed ones first — they carry the most seconds."});
+    return trimmed;
+  }
+  return out;
 }
 
 /* ============================================================
@@ -824,6 +1282,8 @@ function viewSetup(){
       fText("meta.analyst","Analyst")+
       fText("meta.date","Date")+
       fNum("meta.annualVolume","Annual volume",{min:0,step:1,hint:"Drives batch economics on the machining side."})+
+      fNum("meta.massTargetG","Mass budget (g)",{min:0,step:1,hint:"All-up target for what this analysis covers. 0 = no budget check."})+
+      fNum("meta.fieldDeployTargetSec","Field deployment target (s)",{min:0,step:1,hint:"Time to assemble from the transport case. 0 = not tracked."})+
       fSel("settings.basis","Default cost basis",{vendor:"Vendor should-cost (with overhead + margin)",inhouse:"In-house shop cost (no margin)"},
         {hint:"Any part can override this on its own cost tab."})+
     '</div>'+
@@ -861,8 +1321,24 @@ function kpiRow(d,c){
     kpi("Feeding ratio", d.feedingRatio, "target ≤ "+T.handling, Math.min(100,d.feedingRatio/3*100), cls(d.feedingRatio,T.handling,true))+
     kpi("Fitting ratio", d.fittingRatio, "target ≤ "+T.fitting, Math.min(100,d.fittingRatio/3*100), cls(d.fittingRatio,T.fitting,true))+
     kpi("Product cost", CUR+fmt(c.total), "parts "+CUR+fmt(c.partsTotal)+" + assembly "+CUR+fmt(c.assemblyLabour))+
-    kpi("Annual spend", CUR+fmt0(c.total*num(S.meta.annualVolume)), "at "+fmt0(S.meta.annualVolume)+" units/yr")+
+    massKpi(c)+
+    (d.fieldParts ? kpi("Field deployment", d.fieldMin+'<small>min</small>',
+        d.fieldParts+" part"+(d.fieldParts===1?"":"s")+" fitted in the field"+(d.fieldToolParts? ", "+d.fieldToolParts+" needing a tool":", all tool-free"),
+        num(S.meta.fieldDeployTargetSec)>0 ? Math.min(100, d.fieldSec/num(S.meta.fieldDeployTargetSec)*100) : undefined,
+        num(S.meta.fieldDeployTargetSec)>0 ? (d.fieldSec<=num(S.meta.fieldDeployTargetSec)?"ok":"risk") : "")
+      : kpi("Annual spend", CUR+fmt0(c.total*num(S.meta.annualVolume)), "at "+fmt0(S.meta.annualVolume)+" units/yr"))+
   '</div>';
+}
+function massKpi(c){
+  const target = num(S.meta.massTargetG);
+  const miss = c.unknownMass ? c.unknownMass+" part(s) with no mass recorded" : "";
+  if(target>0){
+    const pct = c.massG/target*100;
+    return kpi("Mass", r1(c.massG)+'<small>g</small>',
+      "of "+fmt0(target)+" g budget"+(miss?" · "+miss:""),
+      Math.min(100,pct), pct<=90?"ok":pct<=100?"warn":"risk");
+  }
+  return kpi("Mass", r1(c.massG)+'<small>g</small>', miss || "no budget set — add one on Setup");
 }
 function kpi(k,v,m,pct,cls){
   return '<div class="kpi"><div class="k">'+h(k)+'</div><div class="v">'+v+'</div>'+
@@ -916,6 +1392,14 @@ function partEditor(pt){
     '<fieldset><legend>Identity</legend><div class="grid g3">'+
       fText(P+".name","Part name")+ fText(P+".partNo","Part number")+
       fNum(P+".qty","Quantity per product",{min:0,step:1})+
+      fText(P+".module","Module / subassembly",{hint:"e.g. Wing LH, Boom, Avionics bay, Payload"})+
+      fNum(P+".massG","Mass override (g)",{min:0,step:0.1,
+        hint: c.massSource==="calculated" ? "0 = use the calculated "+r1(c.massG)+" g"
+            : c.massSource==="unknown" ? "No geometry to calculate from — enter it" : "Entered value in use"})+
+    '</div>'+
+    '<div class="grid g2" style="margin-top:10px">'+
+      fChk(P+".fieldAssembly","Fitted by the operator in the field, not in the factory")+
+      fChk(P+".toolFree","Tool-free — no spanner, driver or torque wrench needed")+
     '</div></fieldset>'+
 
     '<fieldset><legend>Minimum part count test</legend>'+
@@ -942,7 +1426,9 @@ function partEditor(pt){
     '</div></fieldset>'+
 
     '<fieldset><legend>Cost</legend><div class="grid g2">'+
-      fSel(P+".cost.process","Process",{machining:"CNC machining / drilling", fdm:"3D printing – FDM", powder:"3D printing – SLS / MJF", purchased:"Purchased / catalogue"})+
+      fSel(P+".cost.process","Process",{machining:"CNC machining / drilling", fdm:"3D printing – FDM",
+        powder:"3D printing – SLS / MJF", composite:"Composite layup", foam:"Foam", harness:"Wire harness",
+        purchased:"Purchased / catalogue"})+
       fSel(P+".cost.basis","Cost basis",{inherit:"Inherit from project ("+(S.settings.basis==="vendor"?"vendor should-cost":"in-house")+")", vendor:"Vendor should-cost", inhouse:"In-house shop cost"})+
     '</div>'+ processFields(pt,P) +
       costBreakdown(c)+
@@ -1000,6 +1486,69 @@ function processFields(pt,P){
       fNum(C+".supportPct","Support volume (% of part)",{min:0,step:1})+
       fNum(C+".surfaceArea","Surface area (mm²)",{min:0,hint:"0 = estimate from the bounding box. Real area from CAD gives a better shell volume."})+
     '</div>';
+  }
+  if(p==="harness"){
+    const c = pt.cost.harness, C = P+".cost.harness";
+    return '<div class="grid g3" style="margin-top:12px">'+
+      fSel(C+".wireId","Wire type", matsOf("wire"))+
+      fNum(C+".lengthMm","Route length (mm)",{min:0,hint:"Longest run, tip to tip."})+
+      fNum(C+".cores","Conductors",{min:1,step:1})+
+    '</div><div class="grid g4" style="margin-top:10px">'+
+      fNum(C+".connAPins","Connector A pins",{min:0,step:1})+
+      fNum(C+".connAPrice","Connector A price ("+CUR+")",{min:0})+
+      fNum(C+".connBPins","Connector B pins",{min:0,step:1})+
+      fNum(C+".connBPrice","Connector B price ("+CUR+")",{min:0})+
+    '</div><div class="grid g4" style="margin-top:10px">'+
+      fNum(C+".branches","Branches",{min:1,step:1,hint:"1 = point to point."})+
+      fNum(C+".splices","Splices",{min:0,step:1})+
+      fNum(C+".contactsOverride","Contacts override",{min:0,step:1,hint:"0 = pins A + pins B + splices."})+
+      fNum(C+".sleevingMm","Sleeving / braid (mm)",{min:0})+
+    '</div><div class="grid g4" style="margin-top:10px">'+
+      fNum(C+".heatshrink","Heatshrink pieces",{min:0,step:1})+
+      fNum(C+".labels","Labels",{min:0,step:1})+
+      fNum(C+".ties","Ties / clamps",{min:0,step:1})+
+      fNum(C+".testMin","Continuity test (min)",{min:0,step:0.5,hint:"0 = library default."})+
+    '</div>';
+  }
+  if(p==="composite"){
+    const c = pt.cost.composite, C = P+".cost.composite";
+    const cores = Object.assign({"":"None"}, matsOf("foam"));
+    return '<div class="grid g3" style="margin-top:12px">'+
+      fSel(C+".materialId","Fabric / prepreg", matsOf("composite"))+
+      fSel(C+".machineId","Cure", machOf("cure"))+
+      fNum(C+".areaMm2","Laminate area (mm²)",{min:0,hint:"One face, both sides of a sandwich counted separately."})+
+    '</div><div class="grid g4" style="margin-top:10px">'+
+      fNum(C+".plies","Ply count",{min:1,step:1})+
+      fNum(C+".debulks","Debulk cycles",{min:0,step:1})+
+      fNum(C+".cureHr","Cure time (hr)",{min:0,step:0.25})+
+      fNum(C+".partsPerCure","Parts per cure cycle",{min:1,step:1})+
+    '</div><div class="grid g4" style="margin-top:10px">'+
+      fSel(C+".coreId","Core material", cores)+
+      fNum(C+".coreThickness","Core thickness (mm)",{min:0,step:0.5})+
+      fNum(C+".trimMin","Trim + finish (min)",{min:0,hint:"0 = library default."})+
+      fNum(C+".ndtMin","Inspection / NDT (min)",{min:0,hint:"0 = library default."})+
+    '</div><div class="grid g2" style="margin-top:10px">'+
+      fNum(C+".toolCost","Mould cost ("+CUR+")",{min:0})+
+      fNum(C+".toolLife","Mould life (parts)",{min:1,step:1,hint:"Tooling is amortised over this."})+
+    '</div>';
+  }
+  if(p==="foam"){
+    const c = pt.cost.foam, C = P+".cost.foam";
+    const moulded = c.method==="moulded";
+    return '<div class="grid g3" style="margin-top:12px">'+
+      fSel(C+".materialId","Foam", matsOf("foam"))+
+      fSel(C+".method","Method",{cnc:"CNC / hot-wire from block", moulded:"Bead moulded (EPP / EPO)"})+
+      fSel(C+".machineId","Machine", machOf("foam"))+
+    '</div><div class="grid g4" style="margin-top:10px">'+
+      fNum(C+".bx","Bounding X (mm)",{min:0})+ fNum(C+".by","Bounding Y (mm)",{min:0})+
+      fNum(C+".bz","Bounding Z (mm)",{min:0})+ fNum(C+".partVolume","Part volume (mm³)",{min:0})+
+    '</div>'+ (moulded ?
+      '<div class="grid g4" style="margin-top:10px">'+
+        fNum(C+".toolCost","Tool cost ("+CUR+")",{min:0})+
+        fNum(C+".toolLife","Tool life (parts)",{min:1,step:1})+
+        fNum(C+".cavities","Cavities",{min:1,step:1})+
+        fNum(C+".cycleSec","Cycle time (s)",{min:0,hint:"0 = machine default."})+
+      '</div>' : '');
   }
   const C = P+".cost.powder";
   return '<div class="grid g3" style="margin-top:12px">'+
@@ -1060,6 +1609,8 @@ function viewAnalysis(){
       '<td>'+h(procLabel(pt.cost.process))+'</td>'+
       '<td class="n">'+CUR+fmt(cc.unit)+'</td>'+
       '<td class="n">'+CUR+fmt(cc.extended)+'</td>'+
+      '<td class="n"'+(cc.massSource==="unknown"?' style="color:var(--steel)"':'')+'>'+
+        (cc.massExtended? r1(cc.massExtended) : "—")+'</td>'+
       '<td class="n">'+(c.partsTotal? r1(cc.extended/c.partsTotal*100):0)+'%</td></tr>';
   }).join("");
 
@@ -1076,8 +1627,9 @@ function viewAnalysis(){
     '<div class="card"><h2>Part-by-part</h2><p class="sub">Class A parts pass at least one minimum-part-count test. Red indices breach the targets.</p>'+
       '<div class="tablewrap"><table><thead><tr><th>Part</th><th>Class</th><th class="n">Qty</th>'+
       '<th class="n">Handling</th><th class="n">Fitting</th><th class="n">Assy s</th><th>Process</th>'+
-      '<th class="n">Unit</th><th class="n">Extended</th><th class="n">Share</th></tr></thead><tbody>'+
-      (partRows||'<tr><td colspan="10" class="note">No parts yet.</td></tr>')+'</tbody></table></div></div>'+
+      '<th class="n">Unit</th><th class="n">Extended</th><th class="n">Mass g</th><th class="n">Share</th></tr></thead><tbody>'+
+      (partRows||'<tr><td colspan="11" class="note">No parts yet.</td></tr>')+'</tbody></table></div></div>'+
+      moduleCard(c)+ fieldCard(c)+
 
     '<div class="card"><h2>Where the money and the minutes are</h2>'+
       '<div class="tablewrap"><table><thead><tr><th>Element</th><th class="n">Cost</th><th class="n">Share</th></tr></thead><tbody>'+
@@ -1085,6 +1637,9 @@ function viewAnalysis(){
         '<tr><td>Assembly labour ('+d.totalSec+' s @ '+CUR+num(S.lib.rates.assemblyLabourPerHour)+'/hr)</td><td class="n">'+CUR+fmt(c.assemblyLabour)+'</td><td class="n">'+(c.total?r1(c.assemblyLabour/c.total*100):0)+'%</td></tr>'+
         '<tr><td><b style="color:var(--ink)">Total product cost</b></td><td class="n"><b style="color:var(--ink)">'+CUR+fmt(c.total)+'</b></td><td class="n">100%</td></tr>'+
         '<tr><td>Annual, at '+fmt0(S.meta.annualVolume)+' units</td><td class="n">'+CUR+fmt0(c.total*num(S.meta.annualVolume))+'</td><td class="n"></td></tr>'+
+        (c.massG? '<tr><td>Mass roll-up'+(c.unknownMass? ' — '+c.unknownMass+' part(s) not yet weighed':'')+'</td><td class="n">'+r1(c.massG)+' g</td>'+
+          '<td class="n">'+(num(S.meta.massTargetG)>0? r1(c.massG/num(S.meta.massTargetG)*100)+'% of budget':'')+'</td></tr>'+
+          '<tr><td>Cost per gram</td><td class="n">'+CUR+fmt(c.total/c.massG)+'/g</td><td class="n"></td></tr>' : '')+
       '</tbody></table></div></div>'+
 
     '<div class="card"><h2>What to change</h2><p class="sub">Ranked by impact. Consolidation first — a part removed costs nothing to make, handle, fit or stock.</p>'+
@@ -1094,7 +1649,48 @@ function viewAnalysis(){
       '<div class="rowact"><button class="btn primary" onclick="window.print()">Print / save as PDF</button>'+
       '<button class="btn" id="btnCsvOut">Export results as CSV</button></div></div>';
 }
-function procLabel(p){ return {machining:"CNC", fdm:"FDM", powder:"SLS/MJF", purchased:"Purchased"}[p]||p; }
+function moduleCard(c){
+  if(c.modules.length<2) return "";
+  const rows = c.modules.map(g=>
+    '<tr><td><b>'+h(g.name)+'</b></td><td class="n">'+g.parts+'</td>'+
+    '<td class="n'+(g.designEff<S.lib.dfa.targets.designEff?' over':'')+'">'+g.designEff+'%</td>'+
+    '<td class="n">'+r1(g.massG)+'</td>'+
+    '<td class="n">'+(c.massG? r1(g.massG/c.massG*100):0)+'%</td>'+
+    '<td class="n">'+r2(g.sec)+'</td>'+
+    '<td class="n">'+CUR+fmt(g.cost)+'</td>'+
+    '<td class="n">'+(c.partsTotal? r1(g.cost/c.partsTotal*100):0)+'%</td></tr>').join("");
+  return '<div class="card"><h2>By module</h2>'+
+    '<p class="sub">Sorted by cost. A module below the design-efficiency target is where a consolidation review pays best.</p>'+
+    '<div class="tablewrap"><table><thead><tr><th>Module</th><th class="n">Parts</th><th class="n">Design eff.</th>'+
+    '<th class="n">Mass g</th><th class="n">Mass %</th><th class="n">Assy s</th><th class="n">Cost</th><th class="n">Cost %</th>'+
+    '</tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+}
+
+function fieldCard(c){
+  const d = c.dfa;
+  if(!d.fieldParts) return "";
+  const target = num(S.meta.fieldDeployTargetSec);
+  const rows = c.rows.filter(x=>x.pt.fieldAssembly).map(({pt})=>{
+    const r = dfaPart(pt);
+    return '<tr><td><b>'+h(pt.name)+'</b></td>'+
+      '<td>'+(pt.toolFree?'<span class="chip ok">tool-free</span>':'<span class="chip risk">needs a tool</span>')+'</td>'+
+      '<td>'+h((S.lib.dfa.fFix[pt.dfa.fix]||{label:pt.dfa.fix}).label)+'</td>'+
+      '<td class="n">'+r.qty+'</td><td class="n">'+r.totalSec+'</td>'+
+      '<td class="n">'+(d.fieldSec? r1(r.totalSec/d.fieldSec*100):0)+'%</td></tr>';
+  }).join("");
+  return '<div class="card"><h2>Field deployment</h2>'+
+    '<p class="sub">Only the joints the operator makes on site, estimated from the same handling and fitting answers as the factory build. '+
+    'Tool-free assembly is a product promise — the parts marked otherwise are the ones that break it.</p>'+
+    '<div class="tablewrap"><table><thead><tr><th>Part</th><th>Tooling</th><th>Fixing</th>'+
+    '<th class="n">Qty</th><th class="n">Seconds</th><th class="n">Share</th></tr></thead><tbody>'+rows+
+    '<tr><td colspan="4"><b style="color:var(--ink)">Total deployment</b></td>'+
+    '<td class="n"><b style="color:var(--ink)">'+d.fieldSec+'</b></td>'+
+    '<td class="n">'+(target? (d.fieldSec<=target?'<span class="chip ok">within '+target+' s</span>':'<span class="chip risk">over '+target+' s</span>') : '')+'</td></tr>'+
+    '</tbody></table></div></div>';
+}
+
+function procLabel(p){ return {machining:"CNC", fdm:"FDM", powder:"SLS/MJF", composite:"Composite",
+  foam:"Foam", harness:"Harness", purchased:"Purchased"}[p]||p; }
 
 /* ---- Library ---- */
 function viewLibrary(){
@@ -1121,24 +1717,37 @@ function viewLibrary(){
     '</div></div>';
   }
   else if(ui.libTab==="materials"){
-    const rows = S.lib.materials.map((m,i)=>{
-      const M="lib.materials."+i;
-      return '<tr><td>'+h(m.name)+'<br><span class="note mono">'+h(m.id)+' · '+h(m.group)+'</span></td>'+
-        '<td><input type="number" data-p="'+M+'.density" value="'+num(m.density)+'" step="0.01"></td>'+
-        '<td><input type="number" data-p="'+M+'.pricePerKg" value="'+num(m.pricePerKg)+'" step="1"></td>'+
-        '<td>'+(m.group==="machining"?'<input type="number" data-p="'+M+'.scrapPerKg" value="'+num(m.scrapPerKg)+'" step="1">':'<span class="note">—</span>')+'</td>'+
-        '<td>'+(m.group==="machining"?'<input type="number" data-p="'+M+'.mrr" value="'+num(m.mrr)+'" step="100">':'<span class="note">—</span>')+'</td>'+
-        '<td>'+(m.group==="machining"?'<input type="number" data-p="'+M+'.vc" value="'+num(m.vc)+'" step="1">':
-               m.group==="powder"?'<input type="number" data-p="'+M+'.bulkDensity" value="'+num(m.bulkDensity)+'" step="0.01">':'<span class="note">—</span>')+'</td>'+
-        '<td class="right"><button class="btn sm danger" data-delmat="'+i+'">Remove</button></td></tr>';
-    }).join("");
-    body = '<div class="card"><h2>Materials</h2>'+
-      '<p class="sub">Density in g/cm³. MRR is the material removal rate in mm³/min, Vc the cutting speed in m/min. '+
-      'Last column is Vc for machining stock and bulk density for powders.</p>'+
-      '<div class="tablewrap"><table><thead><tr><th>Material</th><th>Density</th><th>'+CUR+'/kg</th><th>Scrap '+CUR+'/kg</th><th>MRR</th><th>Vc / bulk</th><th></th></tr></thead>'+
-      '<tbody>'+rows+'</tbody></table></div>'+
-      '<div class="rowact" style="margin-top:10px"><button class="btn sm" data-addmat="machining">Add machining stock</button>'+
-      '<button class="btn sm" data-addmat="fdm">Add filament</button><button class="btn sm" data-addmat="powder">Add powder</button></div></div>';
+    /* Each material group is priced differently - stock by the kilo, wire by
+       the metre, fabric by areal weight - so each gets its own table. */
+    const SPECS = {
+      machining:{title:"Machining stock", note:"Density g/cm³. MRR is material removal rate in mm³/min, Vc the cutting speed in m/min.",
+        cols:[["Density","density",0.01],[CUR+"/kg","pricePerKg",1],["Scrap "+CUR+"/kg","scrapPerKg",1],["MRR","mrr",100],["Vc","vc",1],["Feed/rev","fpr",0.01]]},
+      fdm:{title:"FDM filament", note:"Density g/cm³.",
+        cols:[["Density","density",0.01],[CUR+"/kg","pricePerKg",10]]},
+      powder:{title:"Powder", note:"Bulk density is the loose powder density and drives the cake cost.",
+        cols:[["Density","density",0.01],["Bulk density","bulkDensity",0.01],[CUR+"/kg","pricePerKg",10]]},
+      wire:{title:"Wire", note:"Priced and weighed per metre, per conductor.",
+        cols:[[CUR+"/m","pricePerM",1],["g/m","gramsPerM",0.1]]},
+      composite:{title:"Fabric and prepreg", note:"gsm is the fabric areal weight; density is the cured laminate in g/cm³. Prepreg carries its own resin, dry fabric adds resin at the ratio set on the Cost model tab.",
+        cols:[["gsm","gsm",10],[CUR+"/kg","pricePerKg",50],["Cured density","density",0.01]]},
+      foam:{title:"Foam and core", note:"Density in kg/m³ - the whole point of these materials.",
+        cols:[["Density kg/m³","density",1],[CUR+"/kg","pricePerKg",10]]}
+    };
+    body = '<div class="card"><h2>Materials</h2><p class="sub">Prices should come from your last three purchase orders, not from a list price.</p></div>';
+    for(const g in SPECS){
+      const spec = SPECS[g];
+      const rows = S.lib.materials.map((m,i)=>({m,i})).filter(x=>x.m.group===g).map(({m,i})=>{
+        const M = "lib.materials."+i;
+        return '<tr><td>'+h(m.name)+'<br><span class="note mono">'+h(m.id)+'</span></td>'+
+          spec.cols.map(([lab,key,step])=>'<td><input type="number" data-p="'+M+'.'+key+'" value="'+num(m[key])+'" step="'+step+'"></td>').join("")+
+          '<td class="right"><button class="btn sm danger" data-delmat="'+i+'">Remove</button></td></tr>';
+      }).join("");
+      body += '<div class="card"><h2>'+h(spec.title)+'</h2><p class="sub">'+h(spec.note)+'</p>'+
+        '<div class="tablewrap"><table><thead><tr><th>Material</th>'+
+        spec.cols.map(c=>'<th>'+h(c[0])+'</th>').join("")+'<th></th></tr></thead><tbody>'+
+        (rows||'<tr><td class="note" colspan="'+(spec.cols.length+2)+'">None defined.</td></tr>')+'</tbody></table></div>'+
+        '<button class="btn sm" data-addmat="'+g+'" style="margin-top:10px">Add</button></div>';
+    }
   }
   else if(ui.libTab==="machines"){
     const rows = S.lib.machines.map((k,i)=>{
@@ -1146,6 +1755,7 @@ function viewLibrary(){
       if(k.group==="machining") extra.push(["Max rpm",M+".maxRpm"],["Tool change s",M+".toolChangeSec"]);
       if(k.group==="fdm") extra.push(["Print speed mm/s",M+".printSpeed"],["Warm-up min",M+".warmupMin"]);
       if(k.group==="powder") extra.push(["Layer time s",M+".layerTimeSec"],["Cool-down min",M+".cooldownMin"]);
+      if(k.group==="foam") extra.push(["Cycle s",M+".cycleSec"],["MRR mm³/min",M+".mrr"]);
       return '<tr><td>'+h(k.name)+'<br><span class="note mono">'+h(k.group)+'</span></td>'+
         '<td><input type="number" data-p="'+M+'.ratePerHour" value="'+num(k.ratePerHour)+'" step="10"></td>'+
         extra.map(([lab,p])=>'<td><span class="note">'+lab+'</span><input type="number" data-p="'+p+'" value="'+num(getPath(p))+'" step="0.1"></td>').join("")+
@@ -1188,6 +1798,41 @@ function viewLibrary(){
       fNum("lib.cost.powder.recyclePct","Cake powder recycled (%)",{min:0,max:100})+
       fNum("lib.cost.powder.depowderMinPerPart","Depowdering (min/part)",{min:0,step:0.5})+
       fNum("lib.cost.powder.postProcessMinPerPart","Finishing (min/part)",{min:0,step:0.5})+
+    '</div></div>'+
+    '<div class="card"><h2>Wire harness model</h2><p class="sub">Bench times per operation. Time a real harness build and overwrite these first — harness cost is almost all labour.</p><div class="grid g4">'+
+      fNum("lib.harness.cutStripSecPerEnd","Cut + strip (s/end)",{min:0})+
+      fNum("lib.harness.crimpSecPerContact","Crimp (s/contact)",{min:0})+
+      fNum("lib.harness.connectorAssySec","Connector assembly (s each)",{min:0})+
+      fNum("lib.harness.sleevingSecPerM","Sleeving (s/m)",{min:0})+
+      fNum("lib.harness.heatshrinkSecEach","Heatshrink (s each)",{min:0})+
+      fNum("lib.harness.labelSecEach","Label (s each)",{min:0})+
+      fNum("lib.harness.tieSecEach","Tie / clamp (s each)",{min:0})+
+      fNum("lib.harness.continuityTestMin","Continuity test (min)",{min:0,step:0.5})+
+      fNum("lib.harness.contactPriceEach","Contact price ("+CUR+")",{min:0,step:0.5})+
+      fNum("lib.harness.sleevingPricePerM","Sleeving ("+CUR+"/m)",{min:0})+
+      fNum("lib.harness.heatshrinkPriceEach","Heatshrink ("+CUR+" each)",{min:0,step:0.5})+
+      fNum("lib.harness.tiePriceEach","Tie ("+CUR+" each)",{min:0,step:0.5})+
+      fNum("lib.harness.labelPriceEach","Label ("+CUR+" each)",{min:0,step:0.5})+
+      fNum("lib.harness.wireWastePct","Wire waste (%)",{min:0})+
+      fNum("lib.harness.connectorGramsEach","Connector mass (g each)",{min:0,step:0.5})+
+    '</div></div>'+
+    '<div class="card"><h2>Composite layup model</h2><p class="sub">Layup rate is the number that decides composite cost. Measure it on one real part: minutes per ply per square metre, including cutting and positioning.</p><div class="grid g4">'+
+      fNum("lib.composite.layupMinPerPlyPerM2","Layup (min/ply/m²)",{min:0,step:0.5})+
+      fNum("lib.composite.prepMin","Mould prep (min)",{min:0})+
+      fNum("lib.composite.debulkMinEach","Debulk (min each)",{min:0})+
+      fNum("lib.composite.baggingMinPerM2","Bagging (min/m²)",{min:0})+
+      fNum("lib.composite.consumablePricePerM2","Consumables ("+CUR+"/m²)",{min:0,hint:"Bag film, breather, peel ply, release."})+
+      fNum("lib.composite.resinRatio","Resin ratio (wet layup)",{min:0,step:0.01,hint:"Resin mass ÷ fabric mass."})+
+      fNum("lib.composite.resinPricePerKg","Resin ("+CUR+"/kg)",{min:0})+
+      fNum("lib.composite.fabricWastePct","Fabric waste (%)",{min:0,hint:"Offcuts from nesting plies."})+
+      fNum("lib.composite.trimFinishMin","Trim + finish (min)",{min:0})+
+      fNum("lib.composite.ndtMin","Inspection / NDT (min)",{min:0})+
+      fNum("lib.composite.scrapPct","Scrap allowance (%)",{min:0,hint:"Composites scrap far higher than machining."})+
+    '</div></div>'+
+    '<div class="card"><h2>Foam model</h2><div class="grid g3">'+
+      fNum("lib.foamProc.blockMarginMm","Block margin (mm/side)",{min:0,step:0.5,hint:"Oversize on the blank before cutting."})+
+      fNum("lib.foamProc.trimMin","Trim / dress (min)",{min:0,step:0.5})+
+      fNum("lib.foamProc.wastePct","Bead waste (%)",{min:0})+
     '</div></div>'+
     '<div class="card"><h2>Tolerance and finish multipliers</h2><p class="sub">Applied to machining cutting time.</p>'+
       '<div class="grid g2"><div>'+Object.keys(C.tolerance).map(k=>fNum("lib.cost.tolerance."+k+".mult",C.tolerance[k].label,{min:1,step:0.01})).join("")+'</div>'+
@@ -1256,6 +1901,10 @@ const CSV_COLUMNS = [
   ["Identity","name","Part name","any text — the only column that really must be filled"],
   ["Identity","partNo","Part number","any text"],
   ["Identity","qty","Quantity per product","number"],
+  ["Identity","module","Module / subassembly this part belongs to","any text — e.g. Wing LH, Boom, Avionics bay"],
+  ["Identity","massG","Mass in grams. Blank or 0 = calculated from geometry where possible","number"],
+  ["Identity","fieldAssembly","Fitted by the operator in the field, not the factory","yes / no"],
+  ["Identity","toolFree","No tool needed to fit or remove it","yes / no"],
   ["Min part count","moves","Moves relative to parts already assembled?","yes / no"],
   ["Min part count","material_diff","Must be a different material or isolated?","yes / no"],
   ["Min part count","service","Must be separate for assembly or service?","yes / no"],
@@ -1265,9 +1914,10 @@ const CSV_COLUMNS = [
   ["Handling","h_nests / h_flexible / h_delicate / h_sticky / h_sharp / h_slippery / h_twoHands / h_toolNeeded / h_magnification","Handling difficulty flags, one column each","yes / no"],
   ["Fitting","dir","Insertion direction","topDown, side, underneath"],
   ["Fitting","f_notSelfLocating / f_holdDown / f_resistance / f_obstructed / f_restrictedVision / f_reorient / f_adjust / f_testStep","Fitting difficulty flags, one column each","yes / no"],
+  ["Fitting","f_connectorMate / f_routing / f_torqueSpec / f_threadlock / f_esd / f_calibrate / f_traceability","Airframe and avionics build steps, one column each","yes / no"],
   ["Fitting","fix","Fixing method","none, snap, clip, screw, screwHand, rivet, weld, adhesive, solder, press"],
   ["Fitting","fixCount","Number of fixings (4 screws = 4)","number"],
-  ["Cost","process","Which cost model to use","machining, fdm, powder, purchased"],
+  ["Cost","process","Which cost model to use","machining, fdm, powder, composite, foam, harness, purchased"],
   ["Cost","basis","Cost basis for this part","inherit, vendor, inhouse"],
   ["Cost","material","Material id from the library","al6061, ms1018, ss304, brass, delrin, pla, petg, abs, pa12cf, pa12, pa11, pa12gb"],
   ["Cost","machine","Machine id from the library","vmc, drill, lathe, fdm1, fdmInd, sls1, mjf1"],
@@ -1295,14 +1945,38 @@ const CSV_COLUMNS = [
   ["FDM","supportPct","Support volume as % of part volume","number"],
   ["FDM","partsPerPlate","Parts printed per plate","number"],
   ["SLS / MJF","partsPerBuild","Parts per build. Blank or 0 = calculate from packing density","number"],
-  ["SLS / MJF","packingOverride","Packing density override, %. Blank or 0 = library default","number"]
+  ["SLS / MJF","packingOverride","Packing density override, %. Blank or 0 = library default","number"],
+  ["Composite","areaMm2","Laminate area, mm² (one face)","number"],
+  ["Composite","plies","Ply count","number"],
+  ["Composite","debulks","Debulk cycles","number"],
+  ["Composite","cureHr","Cure time, hours","number"],
+  ["Composite","partsPerCure","Parts sharing one cure cycle","number"],
+  ["Composite","coreId","Core material id, if a sandwich","epp60, xps35, nomex3 … or blank"],
+  ["Composite","coreThickness","Core thickness, mm","number"],
+  ["Composite","toolCost / toolLife","Mould cost and its life in parts","number"],
+  ["Composite","trimMin / ndtMin","Trim and inspection minutes. Blank = library default","number"],
+  ["Foam","foamMethod","How the foam part is made","cnc, moulded"],
+  ["Foam","cavities","Cavities in the mould (moulded only)","number"],
+  ["Foam","cycleSec","Moulding cycle, seconds. Blank = machine default","number"],
+  ["Harness","wireId","Wire type id","w24, w22, w20, w18, w14, w12, wstp, wcoax"],
+  ["Harness","lengthMm","Route length, mm","number"],
+  ["Harness","cores","Number of conductors","number"],
+  ["Harness","branches","Branches. 1 = point to point","number"],
+  ["Harness","connAPins / connBPins","Pins in connector A and B","number"],
+  ["Harness","connAPrice / connBPrice","Price of each connector","number"],
+  ["Harness","splices","Number of splices","number"],
+  ["Harness","sleevingMm","Sleeving or braid length, mm","number"],
+  ["Harness","heatshrink / labels / ties","Piece counts","number"],
+  ["Harness","testMin","Continuity test minutes. Blank = library default","number"]
 ];
 
 /* Column names accepted by the importer. Anything else in the file is ignored,
    and any column left out keeps the default, so a two-column name,qty sheet
    imports fine. See input-template.xlsx for the full sheet. */
 const CSV_HANDLING_FLAGS = ["nests","flexible","delicate","sticky","sharp","slippery","twoHands","toolNeeded","magnification"];
-const CSV_FITTING_FLAGS  = ["notSelfLocating","holdDown","resistance","obstructed","restrictedVision","reorient","adjust","testStep"];
+const CSV_FITTING_FLAGS  = ["notSelfLocating","holdDown","resistance","obstructed","restrictedVision",
+                            "reorient","adjust","testStep","connectorMate","routing","torqueSpec",
+                            "threadlock","esd","calibrate","traceability"];
 
 function importCsv(text){
   const rows = parseCsv(text);
@@ -1323,6 +1997,10 @@ function importCsv(text){
     pt.name = g("name") || "Imported part";
     pt.partNo = g("partno");
     if(has("qty")) pt.qty = nOf("qty",1);
+    if(has("module")) pt.module = g("module");
+    if(has("massg")) pt.massG = nOf("massg",0);
+    if(has("fieldassembly")) pt.fieldAssembly = yes(g("fieldassembly"));
+    if(has("toolfree")) pt.toolFree = yes(g("toolfree"));
 
     /* ---- minimum part count test ---- */
     pt.dfa.moveRelative       = yes(g("moves"));
@@ -1344,7 +2022,7 @@ function importCsv(text){
     /* ---- cost: common ---- */
     const proc = g("process").toLowerCase();
     if(proc){
-      if(["machining","fdm","powder","purchased"].indexOf(proc)>=0) pt.cost.process = proc;
+      if(["machining","fdm","powder","composite","foam","harness","purchased"].indexOf(proc)>=0) pt.cost.process = proc;
       else warn.push(rowRef+": process “"+proc+"” not recognised");
     }
     const basis = g("basis").toLowerCase();
@@ -1355,10 +2033,10 @@ function importCsv(text){
     if(has("price")) pt.cost.purchasedPrice = nOf("price",0);
 
     const vol = nOf("volume",0), bx = nOf("bx",0), by = nOf("by",0), bz = nOf("bz",0);
-    if(vol) ["machining","fdm","powder"].forEach(k=>{ pt.cost[k].partVolume = vol; });
-    if(bx){ pt.cost.fdm.bx=bx; pt.cost.powder.bx=bx; pt.cost.machining.L=bx; }
-    if(by){ pt.cost.fdm.by=by; pt.cost.powder.by=by; pt.cost.machining.W=by; }
-    if(bz){ pt.cost.fdm.bz=bz; pt.cost.powder.bz=bz; pt.cost.machining.H=bz; }
+    if(vol) ["machining","fdm","powder","foam"].forEach(k=>{ pt.cost[k].partVolume = vol; });
+    if(bx){ pt.cost.fdm.bx=bx; pt.cost.powder.bx=bx; pt.cost.foam.bx=bx; pt.cost.machining.L=bx; }
+    if(by){ pt.cost.fdm.by=by; pt.cost.powder.by=by; pt.cost.foam.by=by; pt.cost.machining.W=by; }
+    if(bz){ pt.cost.fdm.bz=bz; pt.cost.powder.bz=bz; pt.cost.foam.bz=bz; pt.cost.machining.H=bz; }
     if(has("surfacearea")){ const a=nOf("surfacearea",0); pt.cost.machining.surfaceArea=a; pt.cost.fdm.surfaceArea=a; }
 
     const mid = g("material");
@@ -1368,6 +2046,9 @@ function importCsv(text){
         if(m.group==="machining") pt.cost.machining.materialId=mid;
         if(m.group==="fdm")       pt.cost.fdm.materialId=mid;
         if(m.group==="powder")    pt.cost.powder.materialId=mid;
+        if(m.group==="composite") pt.cost.composite.materialId=mid;
+        if(m.group==="foam")      pt.cost.foam.materialId=mid;
+        if(m.group==="wire")      pt.cost.harness.wireId=mid;
       } else warn.push(rowRef+": material “"+mid+"” is not in the library");
     }
     const kid = g("machine");
@@ -1377,6 +2058,9 @@ function importCsv(text){
         if(k.group==="machining") pt.cost.machining.machineId=kid;
         if(k.group==="fdm")       pt.cost.fdm.machineId=kid;
         if(k.group==="powder")    pt.cost.powder.machineId=kid;
+        if(k.group==="cure")      pt.cost.composite.machineId=kid;
+        if(k.group==="foam")      pt.cost.foam.machineId=kid;
+        if(k.group==="harness")   pt.cost.harness.machineId=kid;
       } else warn.push(rowRef+": machine “"+kid+"” is not in the library");
     }
 
@@ -1416,6 +2100,54 @@ function importCsv(text){
     if(has("partsperbuild"))    pc.partsPerBuild    = nOf("partsperbuild",0);
     if(has("packingoverride"))  pc.packingOverride  = nOf("packingoverride",0);
 
+    /* ---- cost: composite ---- */
+    const cc = pt.cost.composite;
+    if(has("areamm2"))      cc.areaMm2       = nOf("areamm2",0);
+    if(has("plies"))        cc.plies         = nOf("plies",1);
+    if(has("debulks"))      cc.debulks       = nOf("debulks",0);
+    if(has("curehr"))       cc.cureHr        = nOf("curehr",0);
+    if(has("partspercure")) cc.partsPerCure  = nOf("partspercure",1);
+    if(has("corethickness"))cc.coreThickness = nOf("corethickness",0);
+    if(has("toolcost"))     cc.toolCost      = nOf("toolcost",0);
+    if(has("toollife"))     cc.toolLife      = nOf("toollife",1);
+    if(has("trimmin"))      cc.trimMin       = nOf("trimmin",0);
+    if(has("ndtmin"))       cc.ndtMin        = nOf("ndtmin",0);
+    if(has("coreid")){
+      const core = S.lib.materials.find(x=>x.id===g("coreid"));
+      if(core) cc.coreId = g("coreid"); else if(g("coreid")) warn.push(rowRef+": coreId “"+g("coreid")+"” is not in the library");
+    }
+
+    /* ---- cost: foam ---- */
+    const fo = pt.cost.foam;
+    if(has("foammethod")){
+      const fm = g("foammethod").toLowerCase();
+      if(fm==="cnc"||fm==="moulded") fo.method = fm; else warn.push(rowRef+": foamMethod “"+fm+"” not recognised");
+    }
+    if(has("cavities")) fo.cavities = nOf("cavities",1);
+    if(has("cyclesec")) fo.cycleSec = nOf("cyclesec",0);
+    if(has("toolcost") && proc==="foam") fo.toolCost = nOf("toolcost",0);
+    if(has("toollife") && proc==="foam") fo.toolLife = nOf("toollife",1);
+
+    /* ---- cost: harness ---- */
+    const hc = pt.cost.harness;
+    if(has("wireid")){
+      const w = S.lib.materials.find(x=>x.id===g("wireid"));
+      if(w && w.group==="wire") hc.wireId = g("wireid"); else warn.push(rowRef+": wireId “"+g("wireid")+"” is not a wire in the library");
+    }
+    if(has("lengthmm"))   hc.lengthMm   = nOf("lengthmm",0);
+    if(has("cores"))      hc.cores      = nOf("cores",1);
+    if(has("branches"))   hc.branches   = nOf("branches",1);
+    if(has("connapins"))  hc.connAPins  = nOf("connapins",0);
+    if(has("connaprice")) hc.connAPrice = nOf("connaprice",0);
+    if(has("connbpins"))  hc.connBPins  = nOf("connbpins",0);
+    if(has("connbprice")) hc.connBPrice = nOf("connbprice",0);
+    if(has("splices"))    hc.splices    = nOf("splices",0);
+    if(has("sleevingmm")) hc.sleevingMm = nOf("sleevingmm",0);
+    if(has("heatshrink")) hc.heatshrink = nOf("heatshrink",0);
+    if(has("labels"))     hc.labels     = nOf("labels",0);
+    if(has("ties"))       hc.ties       = nOf("ties",0);
+    if(has("testmin"))    hc.testMin    = nOf("testmin",0);
+
     S.parts.push(pt); added++;
   });
 
@@ -1427,14 +2159,17 @@ function importCsv(text){
 
 function csvOut(){
   const c = costProduct();
-  const head = ["Part","Part no","Qty","Class","Handling index","Fitting index","Handling s","Fitting s","Assembly s (ext)",
-                "Process","Basis","Material cost","Conversion","Unit cost","Extended","Justification"];
+  const head = ["Part","Part no","Module","Qty","Class","Handling index","Fitting index","Handling s","Fitting s","Assembly s (ext)",
+                "Process","Basis","Material cost","Conversion","Unit cost","Extended","Mass g (unit)","Mass g (ext)","Mass source",
+                "Field assembly","Tool free","Justification"];
   const lines = [head];
   c.rows.forEach(({pt,c:cc})=>{
     const r = dfaPart(pt);
-    lines.push([pt.name, pt.partNo, r.qty, r.essential?"A":"B", r.handlingIndex, r.fittingIndex,
+    lines.push([pt.name, pt.partNo, pt.module||"", r.qty, r.essential?"A":"B", r.handlingIndex, r.fittingIndex,
       r.handlingSec, r.fittingSec, r.totalSec, procLabel(pt.cost.process), cc.basis,
-      r2(cc.material), r2(cc.conversion), r2(cc.unit), r2(cc.extended), pt.dfa.reason||""]);
+      r2(cc.material), r2(cc.conversion), r2(cc.unit), r2(cc.extended),
+      r2(cc.massG), r2(cc.massExtended), cc.massSource,
+      pt.fieldAssembly?"yes":"no", pt.toolFree?"yes":"no", pt.dfa.reason||""]);
   });
   const d = c.dfa;
   lines.push([]);
@@ -1447,6 +2182,14 @@ function csvOut(){
   lines.push(["Parts cost", r2(c.partsTotal)]);
   lines.push(["Assembly labour", r2(c.assemblyLabour)]);
   lines.push(["Total product cost", r2(c.total)]);
+  lines.push(["Mass roll-up g", r1(c.massG)]);
+  lines.push(["Mass budget g", num(S.meta.massTargetG)]);
+  lines.push(["Parts with no mass recorded", c.unknownMass]);
+  lines.push(["Field deployment s", d.fieldSec]);
+  lines.push(["Field parts / needing a tool", d.fieldParts, d.fieldToolParts]);
+  lines.push([]);
+  lines.push(["Module","Parts","Design eff %","Mass g","Assembly s","Cost"]);
+  c.modules.forEach(g=>lines.push([g.name, g.parts, g.designEff, r1(g.massG), r2(g.sec), r2(g.cost)]));
   const body = lines.map(r=>r.map(v=>{
     const s = String(v==null?"":v);
     return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s;
@@ -1505,6 +2248,9 @@ document.addEventListener("click", e=>{
     const g=d.addmat, id="m"+Math.random().toString(36).slice(2,6);
     const base = g==="machining" ? {density:7.8,pricePerKg:100,scrapPerKg:30,mrr:9000,vc:90,fpr:0.12}
                : g==="powder"    ? {density:1.0,bulkDensity:0.45,pricePerKg:4000}
+               : g==="wire"      ? {pricePerM:30,gramsPerM:4}
+               : g==="composite" ? {gsm:200,pricePerKg:2500,density:1.55,prepreg:false}
+               : g==="foam"      ? {density:60,pricePerKg:450}
                :                   {density:1.24,pricePerKg:1200};
     S.lib.materials.push(Object.assign({id,name:"New "+g+" material",group:g},base));
     save(); render(); return;

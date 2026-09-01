@@ -71,6 +71,35 @@ Sanity check afterwards: pick a product you have never analysed, predict its
 assembly time, then time the real build. Within ±20% on the total is a working
 model. Iterate once if you are outside that.
 
+## 4b. Airframe process coefficients
+
+Three models were added for composite, foam and harness work. Each has one
+coefficient that dominates it — measure that one first and the rest can wait.
+
+| Process | The number that decides it | How to get it |
+|---|---|---|
+| **Harness** | Crimp seconds per contact, and connector assembly seconds | Time one real harness build end to end, then divide by the contact and connector counts. Harness cost is almost entirely labour, so nothing else matters as much |
+| **Composite** | Layup minutes per ply per m² | Time one real part: cutting, positioning and consolidating each ply. Include the debulks. This single number moves composite cost more than material price does |
+| **Foam** | Block margin, for CNC parts | Measure the blank you actually buy against the finished part. The yield figure the tool reports should match what you see on the floor |
+
+Two more worth an early look:
+
+- **Composite scrap rate.** Use your own reject rate, not the 8% placeholder.
+  Composites scrap far higher than machining and the number is very shop-specific.
+- **Powder-bed and cure-cycle loading.** `partsPerCure` and `partsPerBuild`
+  divide the most expensive line in each of those models. Getting the loading
+  wrong by a factor of two moves the part cost by the same factor.
+
+## 4c. Mass
+
+The mass roll-up is only as complete as your purchased-part entries. Machined,
+printed, composite, foam and harness parts compute their own mass; **bought-in
+items cannot**, and the analysis tells you how many are still missing.
+
+Weigh them rather than trusting datasheets — connectors, fasteners and cable
+account for more grams than anyone expects, and a datasheet mass rarely includes
+the pigtail, the backshell or the mounting hardware.
+
 ## 5. Process model coefficients
 
 - **Machining** — operator attendance % (what fraction of cycle time the
