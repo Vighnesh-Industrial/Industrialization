@@ -71,6 +71,18 @@ Sanity check afterwards: pick a product you have never analysed, predict its
 assembly time, then time the real build. Within ±20% on the total is a working
 model. Iterate once if you are outside that.
 
+### 4a. Assembly operations
+
+Operations — grease, adhesive, solder, a test step — are timed separately from
+parts, and their default seconds in Library are the crudest numbers in the file.
+They are also the easiest to measure, because an operation is a single
+observable act with a clear start and end. Time the five you use most and
+overwrite them; nothing else in the DFA model repays a stopwatch as quickly.
+
+Watch for operations that are really several: "apply adhesive" on a large
+bonded joint is mix, apply, position, clamp and wipe. Enter it as the total or
+split it into separate rows, but do not enter the bead time alone.
+
 ## 4b. Airframe process coefficients
 
 Three models were added for composite, foam and harness work. Each has one
@@ -135,6 +147,17 @@ take a family of similar parts quoted at different tolerances and read the
 ratio straight off the prices.
 
 ---
+
+## 7. Fastener library
+
+The fastener prices and masses in Library → Fasteners are catalogue-order
+figures for stainless socket screws. Replace them with your own purchase prices
+at your own order quantity: fastener cost is small per piece and large in
+aggregate, and a DFA study that recommends designing out eighteen screws should
+be able to say exactly what those screws cost.
+
+Mass matters more than price on an airborne product. Weigh a bag of a hundred
+and divide.
 
 ## Validating the whole thing
 

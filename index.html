@@ -167,10 +167,47 @@ details.calc summary{cursor:pointer;font-family:var(--f-mono);font-size:11px;let
 details.calc table{margin-top:10px;font-size:12px}
 .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--ink);color:var(--ground);
   font-family:var(--f-mono);font-size:12px;padding:9px 16px;border-radius:2px;z-index:100;box-shadow:var(--shadow)}
+
+/* ---- structure tree ---- */
+.tree{list-style:none;margin:0;padding:6px 0}
+.tree li{margin:0}
+.tnode{display:flex;align-items:baseline;gap:8px;padding:5px 14px;cursor:pointer;border-left:3px solid transparent;font-size:13px}
+.tnode:hover{background:var(--surface-2)}
+.tnode.sel{background:var(--accent-soft);border-left-color:var(--accent)}
+.tnode .tname{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tnode .tmeta{font-family:var(--f-mono);font-size:10.5px;color:var(--steel);font-variant-numeric:tabular-nums;white-space:nowrap}
+.tglyph{font-family:var(--f-mono);font-size:10px;color:var(--steel);width:1.2em;flex:none;text-align:center}
+.tnode.op .tname{color:var(--steel);font-style:italic}
+.tnode.sub .tname{font-weight:600}
+
+/* ---- charts ---- */
+.chart{border:1px solid var(--rule);background:var(--surface);padding:14px 16px;margin-top:14px}
+.chart-t{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--steel);margin-bottom:12px}
+.chart-legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:8px;font-size:11.5px;color:var(--ink-2)}
+.chart-legend .lg{display:inline-flex;align-items:center;gap:6px}
+.chart-legend .lg i{width:11px;height:3px;display:inline-block}
+.linechart{width:100%;height:auto;max-height:280px;display:block}
+.linechart .ax{font-family:var(--f-mono);font-size:9.5px;fill:var(--steel)}
+.barrow{display:grid;grid-template-columns:minmax(90px,1.1fr) 3fr minmax(70px,auto);gap:10px;align-items:center;margin-bottom:6px}
+.barlab{font-size:12px;color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bartrack{background:var(--surface-2);height:14px;position:relative;display:block}
+.bartrack i{position:absolute;left:0;top:0;bottom:0;display:block}
+.barval{font-family:var(--f-mono);font-size:11.5px;text-align:right;font-variant-numeric:tabular-nums;color:var(--ink)}
+@media(max-width:560px){ .barrow{grid-template-columns:1fr 2fr auto} }
+
+/* ---- design options ---- */
+.optcard{border:1px solid var(--rule);background:var(--surface);padding:14px 16px;display:flex;gap:12px;align-items:flex-start;margin-bottom:10px}
+.optcard.active{border-color:var(--accent);box-shadow:inset 3px 0 0 var(--accent)}
+.optcard .ob{flex:1 1 auto;min-width:0}
+.optcard h3{font-size:14px;margin:0 0 3px}
+.delta.up{color:var(--risk)} .delta.down{color:var(--ok)} .delta.flat{color:var(--steel)}
+.rep h3{font-size:13px;margin:18px 0 6px;font-family:var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+
 @media print{
   .topbar,.topact,.noprint{display:none!important}
   body{background:#fff}
   .card,.panel{box-shadow:none;break-inside:avoid}
+  .chart{break-inside:avoid}
 }
 </style>
 </head>
@@ -345,10 +382,47 @@ const DEFAULT_LIB = {
       cableTie: {label:"Cable tie / lacing",                 idx:0.3, sec:12.0},
       velcro:   {label:"Hook-and-loop strap",                idx:0.2, sec:5.0},
       quickRel: {label:"Quick-release / captive latch",      idx:0.1, sec:2.5},
-      lockwire: {label:"Lockwired fastener",                 idx:0.9, sec:70.0}
+      lockwire: {label:"Lockwired fastener",                 idx:0.9, sec:70.0},
+      thread:   {label:"Screwed on (own thread, e.g. a cap)",idx:0.3, sec:4.0},
+      later:    {label:"Secured later, by a part fitted after it", idx:0.1, sec:0.8}
     },
     targets:{handling:1.5, fitting:1.5, designEff:60}
   },
+
+  /* Assembly operations that consume time but add no part: adhesive, solder,
+     lubricant, test. They sit in the structure chart like parts do, and count
+     towards assembly time but never towards part count. */
+  operations: [
+    {id:"grease",  name:"Apply grease / lubricant", kind:"material", sec:25,  cost:4},
+    {id:"adhesive",name:"Apply adhesive or sealant", kind:"material", sec:45, cost:12},
+    {id:"threadlk",name:"Apply threadlocker",        kind:"material", sec:15, cost:3},
+    {id:"solder",  name:"Solder joint",              kind:"joining",  sec:55, cost:2},
+    {id:"weld",    name:"Weld / braze joint",        kind:"joining",  sec:90, cost:18},
+    {id:"crimp",   name:"Crimp termination",         kind:"joining",  sec:22, cost:6},
+    {id:"reorient",name:"Re-orient the assembly",    kind:"handling", sec:12, cost:0},
+    {id:"adjust",  name:"Adjust / align",            kind:"adjust",   sec:60, cost:0},
+    {id:"test",    name:"In-process test",           kind:"test",     sec:120,cost:0},
+    {id:"label",   name:"Apply label / marking",     kind:"other",    sec:20, cost:4},
+    {id:"clean",   name:"Clean / degrease",          kind:"other",    sec:40, cost:2}
+  ],
+
+  /* Standard fasteners, ready to drop into the structure chart. Sized, priced
+     and weighed here rather than costed from geometry — the same reason the
+     commercial tools ship a fastener library. */
+  fasteners: [
+    {id:"m3x8",  name:"M3×8 socket cap screw",  price:2.2, massG:1.1, fix:"screw",   size:"small",  dir:"topDown"},
+    {id:"m3x12", name:"M3×12 socket cap screw", price:2.6, massG:1.5, fix:"screw",   size:"small",  dir:"topDown"},
+    {id:"m4x10", name:"M4×10 socket cap screw", price:3.1, massG:2.4, fix:"screw",   size:"small",  dir:"topDown"},
+    {id:"m4x16", name:"M4×16 socket cap screw", price:3.8, massG:3.2, fix:"screw",   size:"small",  dir:"topDown"},
+    {id:"m5x16", name:"M5×16 socket cap screw", price:5.0, massG:5.4, fix:"screw",   size:"normal", dir:"topDown"},
+    {id:"m3nut", name:"M3 nyloc nut",           price:1.8, massG:0.8, fix:"screwHand",size:"small", dir:"underneath"},
+    {id:"m4nut", name:"M4 nyloc nut",           price:2.2, massG:1.4, fix:"screwHand",size:"small", dir:"underneath"},
+    {id:"m3wash",name:"M3 plain washer",        price:0.5, massG:0.2, fix:"none",    size:"verySmall", dir:"topDown"},
+    {id:"m4wash",name:"M4 plain washer",        price:0.6, massG:0.4, fix:"none",    size:"verySmall", dir:"topDown"},
+    {id:"riv32", name:"3.2 mm blind rivet",     price:1.4, massG:0.5, fix:"rivet",   size:"small",  dir:"topDown"},
+    {id:"circ8", name:"8 mm circlip",           price:2.0, massG:0.3, fix:"clip",    size:"verySmall", dir:"side"},
+    {id:"tie100",name:"100 mm cable tie",       price:0.8, massG:0.3, fix:"cableTie",size:"small",  dir:"side"}
+  ],
 
   /* Airframe-specific process coefficients. Same rule as everything else:
      starting points, to be replaced with your own measured values. */
@@ -427,8 +501,14 @@ function samplePart(over){
   return Object.assign({
     id: uid(), name:"New part", partNo:"", qty:1, notes:"",
     module:"", massG:0, fieldAssembly:false, toolFree:false, domain:"mech",
+    /* Structure chart: every item is a part, a sub-assembly that holds other
+       items, or an assembly operation that takes time but adds no part.
+       `parent` is the id of the sub-assembly it sits under, "" for top level. */
+    itemType:"part", parent:"",
+    op:{ sec:0, cost:0, kind:"other" },
     service:{ cls:"none", removalsPerLife:0, accessDepth:0, destructive:false, solderJoints:0, reworkMin:0 },
     dfa:{
+      isBase:false, bCat:"other",
       moveRelative:false, differentMaterial:false, separateForService:false, reason:"",
       size:"normal", sym:"oneWay", hFlags:{},
       dir:"topDown", fFlags:{}, fix:"none", fixCount:1
@@ -586,8 +666,37 @@ function sampleProject(){
       {process:"purchased", price:6}, {qty:18, massG:2.1})
   ];
 
+  /* Structure chart for the sample: the avionics tray is the base part
+     everything else is built onto, and the boom items hang off a sub-assembly
+     so the tree has something to show. */
+  const byName = n => parts.find(p=>p.name===n);
+  const tray = byName("Avionics tray");
+  if(tray) tray.dfa.isBase = true;
+  const screw = byName("M4 × 12 cap screw");
+  if(screw) screw.dfa.bCat = "fastener";
+
+  const boomSub = samplePart();
+  boomSub.name = "Boom LH assembly"; boomSub.module = "Boom LH";
+  boomSub.itemType = "subassembly"; boomSub.cost.process = "purchased";
+  Object.assign(boomSub.dfa, {separateForService:true,
+    reason:"Built off the aircraft and fitted to the fuselage as one unit.",
+    size:"large", sym:"oneWay", dir:"side", fix:"screw", fixCount:4});
+  parts.splice(parts.indexOf(byName("Boom, CFRP tube")), 0, boomSub);
+  ["Boom, CFRP tube","VTOL motor mount","VTOL motor","ESC to motor harness"]
+    .forEach(n=>{ const p=byName(n); if(p) p.parent = boomSub.id; });
+
+  const lube = samplePart();
+  lube.name = "Apply threadlocker – motor screws"; lube.module = "Boom LH";
+  lube.itemType = "operation"; lube.parent = boomSub.id;
+  lube.op = {kind:"material", sec:15, cost:3};
+  parts.push(lube);
+
   return {
-    schema:1,
+    schema:2,
+    variants:[{id:"v1", name:"Original design",
+               note:"As it is built today. Every option is measured against this.",
+               parts}],
+    active:"v1",
     meta:{name:"Sample – VTOL airframe", rev:"A", analyst:"",
           date:new Date().toISOString().slice(0,10),
           annualVolume:500, massTargetG:10000, fieldDeployTargetSec:300,
@@ -611,19 +720,106 @@ function uid(){ return "p"+Math.random().toString(36).slice(2,9); }
 function load(){
   try{
     const raw = localStorage.getItem(LSKEY);
-    if(raw){ const o = JSON.parse(raw); if(o && o.parts){ return migrate(o); } }
+    if(raw){ const o = JSON.parse(raw); if(o && (o.parts || o.variants)){ return migrate(o); } }
   }catch(e){ /* storage blocked or corrupt - fall through to sample */ }
   return sampleProject();
 }
+/* S.parts is a live reference into the active variant, so writing both would
+   store every part twice. The variants are the record; S.parts is rebuilt from
+   them on load. */
+function projectJson(indent){
+  const out = {};
+  for(const k in S) if(k!=="parts") out[k] = S[k];
+  return JSON.stringify(out, null, indent||0);
+}
 function save(){
-  try{ localStorage.setItem(LSKEY, JSON.stringify(S)); }catch(e){ /* non-fatal */ }
+  try{ localStorage.setItem(LSKEY, projectJson()); }catch(e){ /* non-fatal */ }
 }
 function migrate(o){
   // fill in any library keys added after the file was saved
   o.lib = deepDefault(o.lib||{}, DEFAULT_LIB);
   o.settings = o.settings||{basis:"vendor"};
-  o.parts.forEach(pt=>{ const base = samplePart(); pt.dfa=deepDefault(pt.dfa||{},base.dfa); pt.cost=deepDefault(pt.cost||{},base.cost); });
+
+  /* Files written before design options existed hold a single flat part list.
+     Wrap it as the first variant; from here on the variant owns the array and
+     S.parts is a live reference to it, never a copy. */
+  if(!Array.isArray(o.variants) || !o.variants.length){
+    o.variants = [{id:"v1", name:"Original design", note:"", parts:o.parts||[]}];
+    o.active = "v1";
+  }
+  o.variants.forEach((v,i)=>{
+    v.id = v.id || ("v"+(i+1));
+    v.name = v.name || ("Option "+i);
+    if(!Array.isArray(v.parts)) v.parts = [];
+    v.parts.forEach(normalisePart);
+  });
+  if(!o.variants.some(v=>v.id===o.active)) o.active = o.variants[0].id;
+  o.parts = o.variants.find(v=>v.id===o.active).parts;
+  o.schema = 2;
   return o;
+}
+/* Fill in fields added after a file was written, without disturbing the ones
+   already there. */
+function normalisePart(pt){
+  const base = samplePart();
+  pt.dfa  = deepDefault(pt.dfa||{},  base.dfa);
+  pt.cost = deepDefault(pt.cost||{}, base.cost);
+  pt.op   = deepDefault(pt.op||{},   base.op);
+  pt.service = deepDefault(pt.service||{}, base.service);
+  if(!pt.itemType) pt.itemType = "part";
+  if(pt.parent===undefined) pt.parent = "";
+  return pt;
+}
+
+/* ---- Design options (variants) ----------------------------------------
+   A DFMA study is a comparison: the design as it stands, then options that
+   change materials, processes or the assembly itself. Each option is a full
+   copy of the part list, analysed by the same engine, so any two can be put
+   side by side. S.parts always points at the active option's array. */
+function variant(id){ return S.variants.find(v=>v.id===(id||S.active)) || S.variants[0]; }
+function setParts(arr){ variant().parts = arr; S.parts = arr; }
+function useVariant(id){
+  const v = S.variants.find(x=>x.id===id); if(!v) return;
+  S.active = id; S.parts = v.parts; ui.selPart = null;
+}
+function addVariant(fromId, name, note){
+  const src = S.variants.find(v=>v.id===fromId);
+  const copy = JSON.parse(JSON.stringify(src ? src.parts : []));
+  /* New ids, but the parent links must follow the copy, not the original. */
+  const remap = {};
+  copy.forEach(p=>{ const old=p.id; p.id=uid(); remap[old]=p.id; });
+  copy.forEach(p=>{ if(p.parent && remap[p.parent]) p.parent = remap[p.parent]; });
+  const v = {id:"v"+Math.random().toString(36).slice(2,7), name:name||"New option", note:note||"", parts:copy};
+  S.variants.push(v);
+  return v;
+}
+/* Run an analysis function against another option without disturbing the
+   active one. Everything downstream reads S.parts, so this is the seam. */
+function withVariant(v, fn){
+  const keep = S.parts, keepActive = S.active;
+  S.parts = v.parts; S.active = v.id;
+  try { return fn(); } finally { S.parts = keep; S.active = keepActive; }
+}
+/* Add an item to the structure. If a sub-assembly is selected it goes inside
+   it; if a part inside one is selected it joins that sub-assembly, which is
+   what you nearly always mean. */
+function addItem(pt){
+  const sel = S.parts.find(x=>x.id===ui.selPart);
+  if(sel) pt.parent = sel.itemType==="subassembly" ? sel.id : sel.parent;
+  S.parts.push(pt);
+  ui.selPart = pt.id;
+  save(); render();
+}
+
+function variantSummary(v){
+  return withVariant(v, ()=>{
+    const c = costProduct();
+    return { id:v.id, name:v.name, note:v.note,
+      parts:c.dfa.nTotal, ess:c.dfa.nEss, designEff:c.dfa.designEff,
+      sec:c.dfa.totalSec, eff:c.dfa.efficiency, massG:c.massG,
+      partsCost:c.partsTotal, labour:c.assemblyLabour, total:c.total,
+      service:c.svc.lifetimeCost, ops:c.dfa.nOps };
+  });
 }
 function deepDefault(target, defaults){
   if(Array.isArray(defaults)) return (target && target.length!==undefined) ? target : JSON.parse(JSON.stringify(defaults));
@@ -636,8 +832,45 @@ function deepDefault(target, defaults){
 /* ============================================================
    4. DFA ENGINE
    ============================================================ */
+/* The seven Boothroyd-style minimum-part-count categories. The first four sit
+   above the line: a part in one of them earns its place and must not be
+   consolidated away. The last three sit below it and are always candidates. */
+const MIN_PART_CATS = {
+  base:     {label:"Base part — the platform everything else is built on", essential:true},
+  movement: {label:"Movement — must move relative to the parts beneath it", essential:true},
+  material: {label:"Material — must be a different material, or isolated",  essential:true},
+  assembly: {label:"Assembly / service — must be separate for access",      essential:true},
+  fastener: {label:"Fastener — screw, nut, rivet, tie",                     essential:false},
+  connector:{label:"Connector — joins parts, no function of its own",       essential:false},
+  other:    {label:"Other — no separating reason found",                    essential:false}
+};
+/* Which category a part falls into, from the answers already recorded. The
+   three yes/no tests stay the source of truth; the category is how the result
+   reads in a report. */
+function minPartCat(pt){
+  const d = pt.dfa;
+  if(d.isBase) return "base";
+  if(d.moveRelative) return "movement";
+  if(d.differentMaterial) return "material";
+  if(d.separateForService) return "assembly";
+  const b = d.bCat;
+  return (b==="fastener"||b==="connector") ? b : "other";
+}
+
 function dfaPart(pt){
   const T = S.lib.dfa, d = pt.dfa;
+
+  /* An operation is not a part: it has no handling or fitting index and never
+     counts towards the part count, but its time is real assembly time. */
+  if(pt.itemType==="operation"){
+    const sec = Math.max(0, num(pt.op && pt.op.sec, 0));
+    const n   = Math.max(0, num(pt.qty,1));
+    return { isOp:true, essential:true, cat:"operation", qty:n,
+      handlingIndex:0, fittingIndex:0, partIndex:0,
+      handlingSec:0, fittingSec:r2(sec), unitSec:r2(sec), totalSec:r2(sec*n),
+      hUsed:[], fUsed:[], overHandling:false, overFitting:false };
+  }
+
   const size = T.hSize[d.size]||T.hSize.normal;
   const sym  = T.hSym[d.sym]||T.hSym.oneWay;
 
@@ -656,11 +889,12 @@ function dfaPart(pt){
   fSec += fix.sec * (d.fix==="none" ? 0 : nFix);
   if(d.fix!=="none") fUsed.push(nFix+"× "+fix.label);
 
-  const essential = !!(d.moveRelative || d.differentMaterial || d.separateForService);
+  const cat = minPartCat(pt);
+  const essential = MIN_PART_CATS[cat].essential;
   const qty = Math.max(0, num(pt.qty,1));
 
   return {
-    essential, qty,
+    isOp:false, cat, essential, qty,
     handlingIndex:r2(hIdx), fittingIndex:r2(fIdx), partIndex:r2(hIdx+fIdx),
     handlingSec:r2(hSec), fittingSec:r2(fSec), unitSec:r2(hSec+fSec),
     totalSec:r2((hSec+fSec)*qty),
@@ -672,11 +906,13 @@ function dfaPart(pt){
 
 function dfaProduct(){
   const rows = S.parts.map(pt=>({pt, r:dfaPart(pt)}));
-  let nTotal=0, nEss=0, totalSec=0, sumH=0, sumF=0;
-  rows.forEach(({r})=>{
+  let nTotal=0, nEss=0, totalSec=0, sumH=0, sumF=0, opSec=0, nOps=0, nSub=0;
+  rows.forEach(({pt,r})=>{
+    totalSec += r.totalSec;
+    if(r.isOp){ opSec += r.totalSec; nOps += r.qty; return; }
+    if(pt.itemType==="subassembly") nSub += 1;
     nTotal += r.qty;
     if(r.essential) nEss += r.qty;
-    totalSec += r.totalSec;
     sumH += r.handlingIndex * r.qty;
     sumF += r.fittingIndex * r.qty;
   });
@@ -700,7 +936,7 @@ function dfaProduct(){
     totalSec:r2(totalSec), totalMin:r2(totalSec/60),
     designEff:r1(designEff), efficiency:r1(efficiency),
     feedingRatio:r2(sumH/denom), fittingRatio:r2(sumF/denom),
-    labourCost,
+    labourCost, opSec:r2(opSec), nOps, nSub,
     fieldSec:r2(fieldSec), fieldMin:r2(fieldSec/60), fieldParts, fieldToolParts
   };
 }
@@ -1105,6 +1341,18 @@ function servicePart(pt, unitCost){
 }
 
 function costPart(pt){
+  /* An operation carries only its consumable cost — grease, solder, adhesive.
+     Its labour is already counted as assembly time, so it is not added twice. */
+  if(pt.itemType==="operation"){
+    const c = Math.max(0, num(pt.op && pt.op.cost, 0));
+    const n = Math.max(0, num(pt.qty,1));
+    const o = { lines:[{k:"Consumable", v:c, d:"per operation"}], conversion:0, material:c,
+      detail:[["Source","Assembly operation — labour counted as assembly time"]],
+      basis:"inhouse", direct:c, scrap:0, overhead:0, margin:0, freight:0,
+      massG:0, massSource:"entered", massExtended:0, unit:c, extended:c*n };
+    o.service = servicePart(pt, c);
+    return o;
+  }
   const proc = pt.cost.process;
   let base;
   if(proc==="machining") base = costMachining(pt);
@@ -1209,15 +1457,21 @@ function findings(){
   cp.rows.forEach(({pt,c})=>{
     const r = dfaPart(pt);
     const grams = c.massExtended ? ", "+r1(c.massExtended)+" g" : "";
-    if(!r.essential && pt.cost.process!=="purchased"){
-      out.push({sev:"risk", part:pt.name, title:"Consolidation candidate",
-        why:"Fails all three minimum-part-count tests — it does not move relative to its neighbours, needs no material separation, and is not required for service access.",
+    if(!r.isOp && !r.essential){
+      /* The category says what kind of argument to make. A fastener and a
+         bought-in bracket both fail the tests, but they are designed out in
+         entirely different ways. */
+      const cat = r.cat;
+      const title = cat==="fastener"  ? "Separate fastener"
+                  : cat==="connector" ? "Connector with no function of its own"
+                  :                     "Consolidation candidate";
+      const why = cat==="fastener"
+        ? "Fasteners are pure assembly cost and dead weight. Design the joint as a snap, press or integral feature and the part, its mass and its fitting time all disappear."
+        : cat==="connector"
+        ? "It joins two parts but does nothing else. Either the joint becomes an integral feature of one of them, or the two parts become one."
+        : "Fails all three minimum-part-count tests — it does not move relative to its neighbours, needs no material separation, and is not required for assembly or service access.";
+      out.push({sev:"risk", part:pt.name, title, why,
         gain:"Removing it saves "+CUR+fmt(c.extended)+grams+" and "+r2(r.totalSec)+" s of assembly."});
-    }
-    if(!r.essential && pt.cost.process==="purchased"){
-      out.push({sev:"risk", part:pt.name, title:"Separate fastener",
-        why:"Fasteners are pure assembly cost and dead weight. Design the joint as a snap, press or integral feature and the part, its mass and its fitting time all disappear.",
-        gain:"Saves "+CUR+fmt(c.extended)+grams+" and "+r2(r.totalSec)+" s per product."});
     }
     const sv = c.service;
     if(sv.serviceable && sv.solder > 0){
@@ -1385,7 +1639,137 @@ function toast(msg){
 /* ============================================================
    8. VIEWS
    ============================================================ */
-const TABS = [["setup","Setup"],["parts","Parts"],["analysis","Analysis"],["library","Library"],["data","Data"]];
+const TABS = [["setup","Setup"],["parts","Parts"],["analysis","Analysis"],
+              ["options","Options"],["reports","Reports"],["library","Library"],["data","Data"]];
+
+/* ============================================================
+   7b. STRUCTURE CHART
+   The part list is a tree: sub-assemblies hold parts and operations, and the
+   base part sits first. Everything is stored flat with a `parent` id, so the
+   tree is derived rather than kept in sync.
+   ============================================================ */
+const ITEM_TYPES = {part:"Part", subassembly:"Sub-assembly", operation:"Operation"};
+
+/* Depth-first walk in list order. Orphans — a parent that was deleted, or a
+   link that would close a loop — are shown at the top level rather than
+   silently dropped. */
+function treeRows(parts){
+  parts = parts || S.parts;
+  const byId = new Map(parts.map(p=>[p.id,p]));
+  const kids = new Map();
+  const roots = [];
+  const parentOf = p=>{
+    let q = p.parent && byId.get(p.parent);
+    // break any cycle: walk up, and if we meet ourselves, treat as a root
+    const seen = new Set([p.id]);
+    let probe = q;
+    while(probe){ if(seen.has(probe.id)) return null; seen.add(probe.id); probe = probe.parent && byId.get(probe.parent); }
+    return q || null;
+  };
+  parts.forEach(p=>{
+    const par = parentOf(p);
+    if(par){ if(!kids.has(par.id)) kids.set(par.id,[]); kids.get(par.id).push(p); }
+    else roots.push(p);
+  });
+  const out = [];
+  const walk = (list, depth)=>{
+    list.forEach(p=>{ out.push({pt:p, depth}); walk(kids.get(p.id)||[], depth+1); });
+  };
+  /* Base part first, as the commercial tools insist on — it is the platform
+     the rest of the sequence is written against. */
+  roots.sort((a,b)=> (b.dfa && b.dfa.isBase?1:0) - (a.dfa && a.dfa.isBase?1:0));
+  walk(roots, 0);
+  return out;
+}
+/* Candidate parents for a given item: sub-assemblies only, minus itself and
+   anything already beneath it. */
+function parentOptions(pt){
+  const out = {"":"— top level —"};
+  const banned = new Set([pt.id]);
+  let grew = true;
+  while(grew){
+    grew = false;
+    S.parts.forEach(p=>{ if(p.parent && banned.has(p.parent) && !banned.has(p.id)){ banned.add(p.id); grew = true; } });
+  }
+  S.parts.forEach(p=>{ if(p.itemType==="subassembly" && !banned.has(p.id)) out[p.id] = p.name; });
+  return out;
+}
+function descendants(id){
+  const out = [];
+  const walk = pid => S.parts.forEach(p=>{ if(p.parent===pid){ out.push(p); walk(p.id); } });
+  walk(id);
+  return out;
+}
+
+/* ============================================================
+   7c. CHARTS
+   Plain inline SVG — no library, no network, and it prints. Colours come from
+   the same tokens as the rest of the page, so both themes work.
+   ============================================================ */
+const SERIES = ["var(--accent)","var(--ok)","var(--steel)","var(--warn)","var(--risk)"];
+
+/* Bars are one colour unless the caller asks otherwise. Cycling colours across
+   rows of the same measure would imply a meaning they do not carry, and on this
+   page amber and red already mean "over target". */
+function svgBars(title, rows, unit, fmtFn){
+  if(!rows.length) return "";
+  const f = fmtFn || (v=>fmt(v));
+  const max = Math.max(...rows.map(r=>Math.abs(r.v)), 1);
+  const bars = rows.map(r=>{
+    const w = Math.max(0.5, Math.abs(r.v)/max*100);
+    return '<div class="barrow"><span class="barlab">'+h(r.k)+'</span>'+
+      '<span class="bartrack"><i style="width:'+w+'%;background:'+(r.c||"var(--accent)")+'"></i></span>'+
+      '<span class="barval">'+f(r.v)+(unit||"")+'</span></div>';
+  }).join("");
+  return '<div class="chart"><div class="chart-t">'+h(title)+'</div>'+bars+'</div>';
+}
+
+/* A line chart of one or more series sharing an x axis. Used for cost against
+   life volume, which is the whole argument for tooling: the curve, not a
+   single number at one quantity. */
+function svgLines(title, xs, series, xLabel, yLabel, fmtY){
+  if(!xs.length || !series.length) return "";
+  const W=560, H=240, L=62, R=14, Tp=14, B=42;
+  const pw = W-L-R, ph = H-Tp-B;
+  const all = series.reduce((a,s)=>a.concat(s.ys),[]).filter(v=>isFinite(v));
+  const yMax = Math.max(...all, 0) * 1.08 || 1;
+  const xMin = Math.log10(Math.max(1,xs[0])), xMax = Math.log10(Math.max(10,xs[xs.length-1]));
+  const px = v => L + (Math.log10(Math.max(1,v))-xMin)/Math.max(1e-9,(xMax-xMin))*pw;
+  const py = v => Tp + ph - (v/yMax)*ph;
+  const fy = fmtY || (v=>fmt0(v));
+
+  let grid = "", i;
+  for(i=0;i<=4;i++){
+    const v = yMax*i/4, y = py(v);
+    grid += '<line x1="'+L+'" y1="'+y.toFixed(1)+'" x2="'+(W-R)+'" y2="'+y.toFixed(1)+'" stroke="var(--rule)" stroke-width="1"/>'+
+            '<text x="'+(L-8)+'" y="'+(y+3.5).toFixed(1)+'" text-anchor="end" class="ax">'+h(fy(v))+'</text>';
+  }
+  xs.forEach(x=>{
+    grid += '<text x="'+px(x).toFixed(1)+'" y="'+(H-B+16)+'" text-anchor="middle" class="ax">'+h(fmt0(x))+'</text>'+
+            '<line x1="'+px(x).toFixed(1)+'" y1="'+(Tp+ph)+'" x2="'+px(x).toFixed(1)+'" y2="'+(Tp+ph+4)+'" stroke="var(--rule-strong)"/>';
+  });
+
+  const paths = series.map((s,si)=>{
+    const col = s.c || SERIES[si%SERIES.length];
+    const d = s.ys.map((y,j)=> (j?"L":"M")+px(xs[j]).toFixed(1)+" "+py(y).toFixed(1)).join(" ");
+    const dots = s.ys.map((y,j)=>'<circle cx="'+px(xs[j]).toFixed(1)+'" cy="'+py(y).toFixed(1)+'" r="2.6" fill="'+col+'"/>').join("");
+    return '<path d="'+d+'" fill="none" stroke="'+col+'" stroke-width="2"/>'+dots;
+  }).join("");
+
+  const legend = series.map((s,si)=>
+    '<span class="lg"><i style="background:'+(s.c||SERIES[si%SERIES.length])+'"></i>'+h(s.k)+'</span>').join("");
+
+  return '<div class="chart"><div class="chart-t">'+h(title)+'</div>'+
+    '<div class="chart-legend">'+legend+'</div>'+
+    '<svg viewBox="0 0 '+W+' '+H+'" class="linechart" role="img" aria-label="'+h(title)+'">'+
+      grid+
+      '<line x1="'+L+'" y1="'+Tp+'" x2="'+L+'" y2="'+(Tp+ph)+'" stroke="var(--rule-strong)"/>'+
+      '<line x1="'+L+'" y1="'+(Tp+ph)+'" x2="'+(W-R)+'" y2="'+(Tp+ph)+'" stroke="var(--rule-strong)"/>'+
+      paths+
+      '<text x="'+(L+pw/2)+'" y="'+(H-4)+'" text-anchor="middle" class="ax">'+h(xLabel)+'</text>'+
+      '<text x="12" y="'+(Tp+ph/2)+'" text-anchor="middle" transform="rotate(-90 12 '+(Tp+ph/2)+')" class="ax">'+h(yLabel)+'</text>'+
+    '</svg></div>';
+}
 
 function render(){
   document.getElementById("tabs").innerHTML = TABS.map(([k,l])=>
@@ -1395,6 +1779,8 @@ function render(){
       ui.tab==="setup"    ? viewSetup()
     : ui.tab==="parts"    ? viewParts()
     : ui.tab==="analysis" ? viewAnalysis()
+    : ui.tab==="options"  ? viewOptions()
+    : ui.tab==="reports"  ? viewReports()
     : ui.tab==="library"  ? viewLibrary()
     :                       viewData();
 }
@@ -1481,20 +1867,37 @@ function kpi(k,v,m,pct,cls){
 /* ---- Parts ---- */
 function viewParts(){
   if(!ui.selPart && S.parts.length) ui.selPart = S.parts[0].id;
-  const list = S.parts.map(pt=>{
+
+  const nodes = treeRows().map(({pt,depth})=>{
     const r = dfaPart(pt), c = costPart(pt);
-    return '<tr class="clickable'+(pt.id===ui.selPart?" sel":"")+'" data-sel="'+pt.id+'">'+
-      '<td><b>'+h(pt.name)+'</b>'+(pt.partNo?'<br><span class="note mono">'+h(pt.partNo)+'</span>':'')+'</td>'+
-      '<td class="n">'+r.qty+'</td>'+
-      '<td>'+(r.essential?'<span class="chip ok">A</span>':'<span class="chip risk">B</span>')+'</td>'+
-      '<td class="n">'+CUR+fmt(c.extended)+'</td></tr>';
+    const glyph = pt.itemType==="subassembly" ? "▣" : pt.itemType==="operation" ? "◦" : "▪";
+    const meta = r.isOp ? r.totalSec+"s"
+      : (r.essential?'<span class="chip ok">A</span>':'<span class="chip risk">B</span>')+
+        ' ×'+r.qty+' · '+CUR+fmt0(c.extended);
+    const cls = pt.itemType==="operation" ? "op" : pt.itemType==="subassembly" ? "sub" : "part";
+    return '<li><div class="tnode '+cls+(pt.id===ui.selPart?" sel":"")+
+      '" data-sel="'+pt.id+'" style="padding-left:'+(14+depth*16)+'px">'+
+      '<span class="tglyph">'+glyph+'</span>'+
+      '<span class="tname">'+h(pt.name)+(pt.dfa.isBase?' <span class="chip acc">base</span>':'')+'</span>'+
+      '<span class="tmeta">'+meta+'</span></div></li>';
   }).join("");
 
-  const left = '<div class="panel"><header><h2>Parts</h2>'+
-      '<button class="btn sm primary" id="btnAddPart">Add part</button>'+
-      '<button class="btn sm" id="btnImportCsv">Import CSV</button></header>'+
-    (S.parts.length? '<div class="tablewrap"><table><thead><tr><th>Part</th><th class="n">Qty</th><th>Class</th><th class="n">Extended</th></tr></thead><tbody>'+list+'</tbody></table></div>'
-                   : '<div class="empty">No parts yet. Add one, or import a BOM as CSV.</div>')+
+  const fastOpts = S.lib.fasteners.map(f=>'<option value="'+h(f.id)+'">'+h(f.name)+'</option>').join("");
+  const opOpts = S.lib.operations.map(o=>'<option value="'+h(o.id)+'">'+h(o.name)+'</option>').join("");
+
+  const left = '<div class="panel"><header><h2>Structure</h2>'+
+      '<button class="btn sm primary" id="btnAddPart">Part</button>'+
+      '<button class="btn sm" id="btnAddSub">Sub-assembly</button>'+
+      '<button class="btn sm" id="btnImportCsv">CSV</button></header>'+
+    '<div style="padding:10px 14px;border-bottom:1px solid var(--rule);display:grid;gap:8px">'+
+      '<div class="rowact"><select id="selFastener" style="flex:1 1 160px">'+fastOpts+'</select>'+
+        '<button class="btn sm" id="btnAddFastener">Add fastener</button></div>'+
+      '<div class="rowact"><select id="selOperation" style="flex:1 1 160px">'+opOpts+'</select>'+
+        '<button class="btn sm" id="btnAddOperation">Add operation</button></div>'+
+      '<p class="note" style="margin:0">New items are added under whatever is selected, if that is a sub-assembly.</p>'+
+    '</div>'+
+    (S.parts.length? '<ul class="tree">'+nodes+'</ul>'
+                   : '<div class="empty">Nothing here yet. Add a part, or import a BOM as CSV.</div>')+
   '</div>';
 
   const pt = S.parts.find(x=>x.id===ui.selPart);
@@ -1508,7 +1911,7 @@ function partEditor(pt){
   const T = S.lib.dfa;
 
   const live = '<div class="livebar">'+
-    '<div><b>Class</b>'+(r.essential?"A – essential":"B – candidate")+'</div>'+
+    '<div><b>Class</b>'+(r.isOp?"Operation":r.essential?"A – essential":"B – candidate")+'</div>'+
     '<div><b>Handling</b>'+r.handlingIndex+(r.overHandling?' ⚠':'')+'</div>'+
     '<div><b>Fitting</b>'+r.fittingIndex+(r.overFitting?' ⚠':'')+'</div>'+
     '<div><b>Assembly</b>'+r.unitSec+' s ×'+r.qty+'</div>'+
@@ -1516,10 +1919,28 @@ function partEditor(pt){
     '<div><b>Extended</b>'+CUR+fmt(c.extended)+'</div>'+
   '</div>';
 
+  /* An operation has no geometry, no material and no part count, so almost
+     none of the part form applies to it. */
+  if(pt.itemType==="operation") return operationEditor(pt, P, live);
+
   return '<div class="panel"><header><h2>'+h(pt.name)+'</h2>'+
       '<button class="btn sm" data-dup="'+pt.id+'">Duplicate</button>'+
       '<button class="btn sm danger" data-del="'+pt.id+'">Delete</button></header><div class="body">'+
     live+
+    '<fieldset><legend>Structure</legend>'+
+      '<p class="note" style="margin-bottom:10px">Where this item sits in the assembly. The base part is the platform the '+
+      'rest is built onto — name it before anything else, because every other part is assembled against it.</p>'+
+      '<div class="grid g3">'+
+        fSel(P+".itemType","Item type",{part:"Part", subassembly:"Sub-assembly"},
+          {hint:"A sub-assembly is built off the line and fitted as one unit."})+
+        fSel(P+".parent","Sits under", parentOptions(pt),
+          {hint:"Which sub-assembly it belongs to."})+
+        '<div style="align-self:end">'+fChk(P+".dfa.isBase","This is the base part")+'</div>'+
+      '</div>'+
+      (descendants(pt.id).length? '<p class="note" style="margin-top:10px">Holds '+descendants(pt.id).length+
+        ' item(s). Deleting it lifts them to this item’s own level rather than removing them.</p>':'')+
+    '</fieldset>'+
+
     '<fieldset><legend>Identity</legend><div class="grid g3">'+
       fText(P+".name","Part name")+ fText(P+".partNo","Part number")+
       fNum(P+".qty","Quantity per product",{min:0,step:1})+
@@ -1558,10 +1979,20 @@ function partEditor(pt){
     '</fieldset>'+
 
     '<fieldset><legend>Minimum part count test</legend>'+
-      '<p class="note" style="margin-bottom:8px">A part earns its place only if at least one answer is yes. Answer for the part as it sits against the parts already assembled beneath it.</p>'+
+      '<p class="note" style="margin-bottom:8px">A part earns its place only if at least one answer is yes, or it is the base part. '+
+      'Answer for the part as it sits against the parts already assembled beneath it.</p>'+
       fChk(P+".dfa.moveRelative","Must it move relative to the parts already assembled?")+
       fChk(P+".dfa.differentMaterial","Must it be a different material, or electrically / thermally isolated from them?")+
       fChk(P+".dfa.separateForService","Must it be separate to allow assembly or service of other parts?")+
+      (r.essential ? '' :
+        '<div class="grid g2" style="margin-top:10px">'+
+          fSel(P+".dfa.bCat","If it can go, what is it?",
+            {fastener:"Fastener — screw, nut, rivet, tie", connector:"Connector — joins parts, no function of its own",
+             other:"Other — no separating reason found"},
+            {hint:"Only asked for parts that fail all three tests. It sharpens the redesign suggestion."})+
+        '</div>')+
+      '<p class="note" style="margin-top:10px">Verdict: <b>'+h(MIN_PART_CATS[r.cat].label)+'</b> — '+
+        (r.essential?"keeps its place.":"a candidate for elimination or consolidation.")+'</p>'+
       '<div style="margin-top:10px">'+fTextarea(P+".dfa.reason","Justification (carries into the report)")+'</div>'+
     '</fieldset>'+
 
@@ -1590,7 +2021,130 @@ function partEditor(pt){
     '</div>'+ processFields(pt,P) +
       costBreakdown(c)+
     '</fieldset>'+
+
+    whatIfCard(pt)+
   '</div></div>';
+}
+
+/* ---- Operation editor -------------------------------------------------
+   Grease, solder, a test step: time and a consumable, nothing else. */
+function operationEditor(pt, P, live){
+  const lib = S.lib.operations.map(o=>'<option value="'+h(o.id)+'"'+(o.id===pt.op.kindId?" selected":"")+'>'+h(o.name)+'</option>').join("");
+  return '<div class="panel"><header><h2>'+h(pt.name)+'</h2>'+
+      '<span class="chip neutral">operation</span>'+
+      '<button class="btn sm" data-dup="'+pt.id+'">Duplicate</button>'+
+      '<button class="btn sm danger" data-del="'+pt.id+'">Delete</button></header><div class="body">'+
+    live+
+    '<p class="note" style="margin-bottom:14px">An operation adds assembly time but no part. It is never counted in the '+
+    'part count or the minimum-part-count test, so it cannot flatter the design efficiency — but its seconds are real and '+
+    'they show up in the assembly time and the labour cost.</p>'+
+    '<fieldset><legend>Structure</legend><div class="grid g2">'+
+      fText(P+".name","Description")+
+      fSel(P+".parent","Sits under", parentOptions(pt))+
+    '</div></fieldset>'+
+    '<fieldset><legend>Operation</legend><div class="grid g3">'+
+      fSel(P+".op.kind","Category",{material:"Material application (grease, adhesive, sealant)",
+        joining:"Joining (solder, weld, crimp)", handling:"Handling (re-orient, reposition)",
+        adjust:"Adjustment / alignment", test:"In-process test", other:"Other"})+
+      fNum(P+".op.sec","Time (s)",{min:0,step:1,hint:"Per occurrence."})+
+      fNum(P+".qty","Occurrences per product",{min:0,step:1})+
+      fNum(P+".op.cost","Consumable cost ("+CUR+")",{min:0,step:0.1,
+        hint:"Material only. The labour is already in the time above."})+
+      fText(P+".module","Module")+
+      fSel(P+".domain","Domain", DOMAINS)+
+    '</div>'+
+    '<div style="margin-top:10px">'+fChk(P+".fieldAssembly","Performed in the field, not in the factory")+'</div>'+
+    '</fieldset>'+
+    '<fieldset><legend>Notes</legend>'+fTextarea(P+".notes","Notes")+'</fieldset>'+
+  '</div></div>';
+}
+
+/* ---- What-if: material, process and life volume ------------------------
+   The reason to have a cost model at all is to ask what a different material
+   or a different process would cost, and how the answer moves with volume.
+   Everything here re-runs the same estimator on a throwaway copy of the part,
+   so what you see is the model's own answer, not a shortcut. */
+function volumeSweep(){
+  const v = Math.max(1, num(S.meta.annualVolume, 100));
+  const base = [1,10,100,1000,10000,100000];
+  if(base.indexOf(v)<0){ base.push(v); base.sort((a,b)=>a-b); }
+  return base;
+}
+/* One unit cost for the same part under a changed material, process or life
+   volume. Every chart in the what-if card goes through here, so all of them
+   sit on the same basis — a comparison on two different batch sizes is worse
+   than no comparison at all.
+
+   Only the costs that amortise — machine setup and tooling — move with volume;
+   material and cycle time do not. */
+function costOf(pt, opt){
+  opt = opt || {};
+  const cp = JSON.parse(JSON.stringify(pt));
+  cp.id = pt.id;
+  if(opt.process) cp.cost.process = opt.process;
+  const proc = cp.cost.process;
+  if(opt.material && cp.cost[proc]) cp.cost[proc].materialId = opt.material;
+  if(opt.volume){
+    const v = Math.max(1, opt.volume);
+    if(cp.cost.machining) cp.cost.machining.batchSize = v;
+    if(cp.cost.foam && cp.cost.foam.method==="moulded")
+      cp.cost.foam.toolLife = Math.min(Math.max(1,num(cp.cost.foam.toolLife,1)), v);
+    if(cp.cost.composite)
+      cp.cost.composite.toolLife = Math.min(Math.max(1,num(cp.cost.composite.toolLife,1)), v);
+  }
+  return costPart(cp).unit;
+}
+const PROC_GROUP = {machining:"machining", fdm:"fdm", powder:"powder", foam:"foam",
+                    harness:"wire", composite:"composite"};
+
+function whatIfCard(pt){
+  const proc = pt.cost.process;
+  if(proc==="purchased"){
+    return '<fieldset><legend>What-if</legend><p class="note">This part is bought in at a quoted price, so there is '+
+      'nothing for the cost model to vary. Change the process to machining, printing or foam to compare materials and volumes.</p></fieldset>';
+  }
+  const xs = volumeSweep();
+  const V = Math.max(1, num(S.meta.annualVolume, 100));
+  const at = fmt0(V)+" off";
+
+  /* Cost against life volume — the shape of this curve is the whole tooling
+     argument, and it is invisible in a single number at one quantity. */
+  const curve = svgLines("Unit cost against life volume", xs,
+    [{k:procLabel(proc)+" · "+mat((pt.cost[proc]||{}).materialId).name,
+      ys: xs.map(v=>costOf(pt,{volume:v}))}],
+    "Life volume (parts)", "Unit cost ("+CUR+")", v=>CUR+fmt0(v));
+
+  const flat = Math.abs(costOf(pt,{volume:1}) - costOf(pt,{volume:100000})) < 0.005;
+
+  /* Same part, every material the process can take. */
+  const group = PROC_GROUP[proc];
+  const mats = S.lib.materials.filter(m=>m.group===group);
+  const matBars = mats.length>1 ? svgBars("Unit cost by material, at "+at,
+    mats.map(m=>({k:m.name, v:costOf(pt,{material:m.id, volume:V}),
+      c: m.id===(pt.cost[proc]||{}).materialId ? "var(--accent)" : "var(--steel)"})),
+    "", v=>CUR+fmt(v)) : "";
+
+  /* Same part, every process that has inputs stored for it. */
+  const procs = ["machining","fdm","powder","foam"].filter(p=>p!==proc && pt.cost[p] && num(pt.cost[p].partVolume)>0);
+  const procBars = procs.length ? svgBars("Unit cost by process, at "+at,
+    [{k:procLabel(proc)+" (current)", v:costOf(pt,{volume:V}), c:"var(--accent)"}]
+      .concat(procs.map(p=>({k:procLabel(p), v:costOf(pt,{process:p, volume:V}), c:"var(--steel)"}))),
+    "", v=>CUR+fmt(v)) : "";
+
+  return '<fieldset><legend>What-if</legend>'+
+    '<p class="note">The same part, re-costed at '+h(at)+'. Nothing here is saved — it is the estimator answering a question.</p>'+
+    curve+
+    '<p class="note" style="margin-top:8px">'+(flat
+      ? "This process carries no setup or tooling to amortise, so the unit cost does not move with volume. That is the finding: volume will not save you here, only a change of material, geometry or process will."
+      : "At "+fmt0(xs[0])+" off the part costs "+CUR+fmt(costOf(pt,{volume:xs[0]}))+"; at "+fmt0(xs[xs.length-1])+
+        " it costs "+CUR+fmt(costOf(pt,{volume:xs[xs.length-1]}))+". The gap is setup and tooling being spread thinner.")+
+      ' The bars below all hold the life volume at '+h(at)+', so the comparison is like for like'+
+      (proc==="machining" ? ' — the batch size of '+fmt0(num((pt.cost.machining||{}).batchSize,0))+
+        ' stored on the part is overridden for these charts only' : '')+'.</p>'+
+    matBars + procBars +
+    (procs.length? '' : '<p class="note" style="margin-top:8px">Only one process has geometry entered for this part. '+
+      'Fill in the inputs for another process and it will appear here for comparison.</p>')+
+  '</fieldset>';
 }
 
 function serviceReadout(sv, unitCost){
@@ -1921,8 +2475,370 @@ function procLabel(p){ return {machining:"CNC", fdm:"FDM", powder:"SLS/MJF", com
   foam:"Foam", harness:"Harness", purchased:"Purchased"}[p]||p; }
 
 /* ---- Library ---- */
+/* ---- Reports ----------------------------------------------------------
+   The six outputs a DFMA study is expected to produce: an executive summary
+   of the assembly analysis, one of the whole thing including cost, a product
+   worksheet listing every item with its answers, the structure chart, the
+   analysis totals, and the redesign suggestions. Print to PDF gives you the
+   report pack. */
+const REPORTS = [
+  ["execDfa","Executive summary — DFA"],
+  ["execDfma","Executive summary — DFMA"],
+  ["worksheet","Product worksheet"],
+  ["structure","Structure chart"],
+  ["totals","Analysis totals"],
+  ["redesign","Suggestions for redesign"]
+];
+
+function viewReports(){
+  const which = ui.report || "execDfa";
+  const nav = '<div class="rowact noprint" style="margin-bottom:16px">'+
+    REPORTS.map(([k,l])=>'<button class="btn sm'+(k===which?" primary":"")+'" data-report="'+k+'">'+h(l)+'</button>').join("")+
+    '</div>';
+  const head = '<div class="card"><p class="eyebrow">'+h(S.meta.name||"Untitled")+' · rev '+h(S.meta.rev||"—")+
+    ' · '+h(variant().name)+'</p><h2>'+h((REPORTS.find(r=>r[0]===which)||[,""])[1])+'</h2>'+
+    '<p class="sub">'+h(S.meta.analyst? S.meta.analyst+" · " : "")+h(S.meta.date||"")+'</p>'+ nav +
+    '<div class="rowact noprint"><button class="btn primary" onclick="window.print()">Print / save as PDF</button>'+
+    '<button class="btn" id="btnCsvOut2r">Export results as CSV</button></div></div>';
+
+  const body =
+      which==="execDfa"   ? repExecDfa()
+    : which==="execDfma"  ? repExecDfma()
+    : which==="worksheet" ? repWorksheet()
+    : which==="structure" ? repStructure()
+    : which==="totals"    ? repTotals()
+    :                       repRedesign();
+  return head + body;
+}
+
+function repExecDfa(){
+  const c = costProduct(), d = c.dfa;
+  const T = S.lib.dfa.targets;
+  const cands = c.rows.filter(({pt})=>!dfaPart(pt).isOp && !dfaPart(pt).essential);
+  const candSec = cands.reduce((a,{pt})=>a+dfaPart(pt).totalSec,0);
+  const candCost = cands.reduce((a,x)=>a+x.c.extended,0);
+  const candMass = cands.reduce((a,x)=>a+x.c.massExtended,0);
+
+  return '<div class="card rep">'+
+    kpiRow(d,c)+
+    '<h3>What the analysis says</h3>'+
+    '<p class="note">The product is built from <b>'+d.nTotal+' parts</b>'+
+      (d.nSub? ' across '+d.nSub+' sub-assembl'+(d.nSub===1?"y":"ies") : '')+
+      (d.nOps? ' plus '+d.nOps+' assembly operation'+(d.nOps===1?"":"s") : '')+
+      '. Of those, <b>'+d.nEss+'</b> pass at least one minimum-part-count test and must stay separate. '+
+      'The remaining <b>'+d.nRedundant+'</b> are candidates for elimination or consolidation, giving a design '+
+      'efficiency of <b>'+d.designEff+'%</b> against a target of '+T.designEff+'%.</p>'+
+    '<p class="note">Assembly takes <b>'+r2(d.totalMin)+' minutes</b> per product'+
+      (d.opSec? ', of which '+r2(d.opSec/60)+' min is assembly operations rather than fitting parts' : '')+
+      ', costing '+CUR+fmt(c.assemblyLabour)+' in labour at '+CUR+num(S.lib.rates.assemblyLabourPerHour)+'/hr. '+
+      'Against an ideal of '+num(S.lib.rates.idealAssemblySec)+' s per essential part, that is an assembly efficiency '+
+      'of <b>'+d.efficiency+'%</b>.</p>'+
+    '<h3>The prize</h3>'+
+    '<p class="note">'+(cands.length===0
+      ? "Every part passes a minimum-part-count test, so there is nothing left to consolidate. Either the design is already tight, or the tests were answered generously — a 100% design efficiency is worth a second look before it goes in front of a reviewer."
+      : "Eliminating every part that fails all three tests would remove <b>"+cands.length+
+        "</b> part record"+(cands.length===1?"":"s")+" worth "+CUR+fmt(candCost)+", "+r1(candMass)+" g and "+
+        r2(candSec/60)+" min of assembly. In practice you will not get all of it — but it is the size of the argument.")+'</p>'+
+    svgBars("Assembly time by module", c.modules.map(m=>({k:m.name, v:m.sec})), " s", v=>fmt0(v))+
+    svgBars("Design efficiency by module", c.modules.map(m=>({k:m.name, v:m.designEff})), "%", v=>r1(v))+
+  '</div>';
+}
+
+function repExecDfma(){
+  const c = costProduct(), d = c.dfa;
+  const rows = [
+    ["Parts in the product", d.nTotal],
+    ["Theoretical minimum part count", d.nEss],
+    ["Consolidation candidates", d.nRedundant],
+    ["Sub-assemblies", d.nSub],
+    ["Assembly operations", d.nOps],
+    ["Design efficiency", d.designEff+" %"],
+    ["Assembly efficiency", d.efficiency+" %"],
+    ["Total assembly time", r2(d.totalMin)+" min"],
+    ["Assembly labour cost", CUR+fmt(c.assemblyLabour)],
+    ["Parts cost", CUR+fmt(c.partsTotal)],
+    ["Total product cost", CUR+fmt(c.total)],
+    ["Product mass", r1(c.massG)+" g"+(num(S.meta.massTargetG)>0? " of a "+fmt0(S.meta.massTargetG)+" g budget":"")],
+    ["Cost per gram", c.massG? CUR+fmt(c.total/c.massG)+"/g" : "—"],
+    ["Annual spend at "+fmt0(S.meta.annualVolume)+" units", CUR+fmt0(c.total*num(S.meta.annualVolume))],
+    ["Lifetime service cost", CUR+fmt0(c.svc.lifetimeCost)]
+  ];
+  const procMap = new Map();
+  c.rows.forEach(({pt,c:cc})=>{
+    const k = pt.itemType==="operation" ? "Assembly operations" : procLabel(pt.cost.process);
+    procMap.set(k, (procMap.get(k)||0) + cc.extended);
+  });
+  const procRows = Array.from(procMap.entries()).sort((a,b)=>b[1]-a[1]).map(([k,v])=>({k, v}));
+
+  return '<div class="card rep">'+
+    '<div class="tablewrap"><table><tbody>'+
+      rows.map(([k,v])=>'<tr><td>'+h(k)+'</td><td class="n mono">'+h(String(v))+'</td></tr>').join("")+
+    '</tbody></table></div>'+
+    svgBars("Cost by process", procRows, "", v=>CUR+fmt0(v))+
+    svgBars("Cost by module", c.modules.map(m=>({k:m.name, v:m.cost})), "", v=>CUR+fmt0(v))+
+    svgBars("Mass by module", c.modules.map(m=>({k:m.name, v:m.massG})), " g", v=>r1(v))+
+    '<h3>Basis</h3>'+
+    '<p class="note">Costs are '+(S.settings.basis==="vendor"
+      ? "vendor should-cost: direct cost plus scrap, factory overhead, supplier margin and freight. This is a target price to negotiate against, not a shop rate."
+      : "in-house shop cost: direct cost only, no margin. Use it for make-versus-buy, not for a supplier conversation.")+
+      ' Individual parts may override that. Assembly labour is at '+CUR+num(S.lib.rates.assemblyLabourPerHour)+'/hr.</p>'+
+  '</div>';
+}
+
+function repWorksheet(){
+  const rows = treeRows().map(({pt,depth})=>{
+    const r = dfaPart(pt), cc = costPart(pt);
+    const pad = 'style="padding-left:'+(10+depth*16)+'px"';
+    if(r.isOp) return '<tr><td '+pad+'><i>'+h(pt.name)+'</i></td><td><span class="chip neutral">op</span></td>'+
+      '<td class="n">'+r.qty+'</td><td colspan="4" class="note">Operation — no part count</td>'+
+      '<td class="n">'+r.totalSec+'</td><td class="n">'+CUR+fmt(cc.extended)+'</td></tr>';
+    return '<tr><td '+pad+'>'+(pt.itemType==="subassembly"?'<b>':'')+h(pt.name)+(pt.itemType==="subassembly"?'</b>':'')+
+      (pt.partNo? '<br><span class="note mono">'+h(pt.partNo)+'</span>':'')+'</td>'+
+      '<td>'+(r.essential?'<span class="chip ok">A</span>':'<span class="chip risk">B</span>')+'</td>'+
+      '<td class="n">'+r.qty+'</td>'+
+      '<td>'+h(MIN_PART_CATS[r.cat].label.split(" — ")[0])+'</td>'+
+      '<td class="n'+(r.overHandling?' over':'')+'">'+r.handlingIndex+'</td>'+
+      '<td class="n'+(r.overFitting?' over':'')+'">'+r.fittingIndex+'</td>'+
+      '<td>'+h((S.lib.dfa.fFix[pt.dfa.fix]||{label:"—"}).label)+(num(pt.dfa.fixCount)>1?' ×'+num(pt.dfa.fixCount):'')+'</td>'+
+      '<td class="n">'+r.totalSec+'</td>'+
+      '<td class="n">'+CUR+fmt(cc.extended)+'</td></tr>';
+  }).join("");
+
+  return '<div class="card rep">'+
+    '<p class="sub">Every item in assembly order, with the answers it was scored on.</p>'+
+    '<div class="tablewrap"><table><thead><tr><th>Item</th><th>Class</th><th class="n">Qty</th>'+
+    '<th>Minimum-part category</th><th class="n">Handling</th><th class="n">Fitting</th><th>Securing</th>'+
+    '<th class="n">Assy s</th><th class="n">Extended</th></tr></thead><tbody>'+
+    (rows||'<tr><td colspan="9" class="note">Nothing entered yet.</td></tr>')+'</tbody></table></div>'+
+    '<h3>Justifications</h3>'+
+    '<div class="tablewrap"><table><tbody>'+
+      (S.parts.filter(p=>p.dfa && p.dfa.reason && p.itemType!=="operation")
+        .map(p=>'<tr><td><b>'+h(p.name)+'</b></td><td>'+h(p.dfa.reason)+'</td></tr>').join("")
+       || '<tr><td class="note">No justifications recorded. Every class A part should carry one — it is what makes the analysis reviewable.</td></tr>')+
+    '</tbody></table></div>'+
+  '</div>';
+}
+
+function repStructure(){
+  const rows = treeRows();
+  const lines = rows.map(({pt,depth})=>{
+    const r = dfaPart(pt);
+    const glyph = pt.itemType==="subassembly" ? "▣" : pt.itemType==="operation" ? "◦" : "▪";
+    const tag = r.isOp ? '<span class="chip neutral">operation</span>'
+      : (pt.dfa.isBase? '<span class="chip acc">base part</span> ' : '')+
+        (r.essential? '<span class="chip ok">A</span>' : '<span class="chip risk">B</span>')+
+        ' <span class="note">'+h(MIN_PART_CATS[r.cat].label.split(" — ")[0])+'</span>';
+    return '<div style="display:flex;gap:10px;align-items:baseline;padding:4px 0;border-bottom:1px solid var(--rule);'+
+      'margin-left:'+(depth*22)+'px">'+
+      '<span class="tglyph">'+glyph+'</span>'+
+      '<span style="flex:1 1 auto">'+h(pt.name)+(r.qty>1? ' <span class="note">× '+r.qty+'</span>':'')+'</span>'+
+      tag+'</div>';
+  }).join("");
+
+  const orphans = S.parts.filter(p=>p.parent && !S.parts.some(q=>q.id===p.parent));
+  return '<div class="card rep">'+
+    '<p class="sub">Assembly order, base part first. Indentation is containment: an indented item is fitted into the '+
+    'sub-assembly above it.</p>'+
+    (lines || '<div class="empty">Nothing entered yet.</div>')+
+    (orphans.length? '<p class="note" style="margin-top:12px">'+orphans.length+
+      ' item(s) point at a sub-assembly that no longer exists and are shown at the top level.</p>':'')+
+  '</div>';
+}
+
+function repTotals(){
+  const c = costProduct(), d = c.dfa;
+  const money = v=>CUR+fmt(v);
+  const sec = c.rows.reduce((a,{pt})=>a+dfaPart(pt).handlingSec*dfaPart(pt).qty,0);
+  const fsec = c.rows.reduce((a,{pt})=>a+dfaPart(pt).fittingSec*dfaPart(pt).qty,0);
+
+  const blocks = [
+    ["Assembly", [
+      ["Handling time", r2(sec)+" s"],
+      ["Fitting time", r2(fsec)+" s"],
+      ["Operations", r2(d.opSec)+" s"],
+      ["Total assembly time", r2(d.totalSec)+" s  ("+r2(d.totalMin)+" min)"],
+      ["Assembly labour", money(c.assemblyLabour)],
+      ["Feeding ratio", d.feedingRatio],
+      ["Fitting ratio", d.fittingRatio]
+    ]],
+    ["Part count", [
+      ["Parts", d.nTotal],
+      ["Essential (theoretical minimum)", d.nEss],
+      ["Candidates for elimination", d.nRedundant],
+      ["Sub-assemblies", d.nSub],
+      ["Operations", d.nOps],
+      ["Design efficiency", d.designEff+" %"],
+      ["Assembly efficiency", d.efficiency+" %"]
+    ]],
+    ["Cost", [
+      ["Parts, direct", money(c.rows.reduce((a,x)=>a+x.c.direct*Math.max(0,num(x.pt.qty,1)),0))],
+      ["Parts, delivered", money(c.partsTotal)],
+      ["Assembly labour", money(c.assemblyLabour)],
+      ["Total product cost", money(c.total)],
+      ["Annual, at "+fmt0(S.meta.annualVolume)+" units", CUR+fmt0(c.total*num(S.meta.annualVolume))]
+    ]],
+    ["Mass", [
+      ["Product mass", r1(c.massG)+" g"],
+      ["Budget", num(S.meta.massTargetG)>0? fmt0(S.meta.massTargetG)+" g" : "not set"],
+      ["Margin", num(S.meta.massTargetG)>0? r1(num(S.meta.massTargetG)-c.massG)+" g" : "—"],
+      ["In consolidation candidates", r1(c.rows.filter(({pt})=>!dfaPart(pt).essential && !dfaPart(pt).isOp)
+          .reduce((a,x)=>a+x.c.massExtended,0))+" g"],
+      ["Not yet weighed", c.unknownMass+" item(s)"]
+    ]]
+  ];
+
+  return '<div class="card rep">'+ blocks.map(([title, rows])=>
+    '<h3>'+h(title)+'</h3><div class="tablewrap"><table><tbody>'+
+    rows.map(([k,v])=>'<tr><td>'+h(k)+'</td><td class="n mono">'+h(String(v))+'</td></tr>').join("")+
+    '</tbody></table></div>').join("") +
+    '<h3>By module</h3><div class="tablewrap"><table><thead><tr><th>Module</th><th class="n">Parts</th>'+
+    '<th class="n">Design eff.</th><th class="n">Assy s</th><th class="n">Mass g</th><th class="n">Cost</th></tr></thead><tbody>'+
+    c.modules.map(m=>'<tr><td>'+h(m.name)+'</td><td class="n">'+m.parts+'</td><td class="n">'+m.designEff+'%</td>'+
+      '<td class="n">'+r2(m.sec)+'</td><td class="n">'+r1(m.massG)+'</td><td class="n">'+CUR+fmt0(m.cost)+'</td></tr>').join("")+
+    '</tbody></table></div>'+
+  '</div>';
+}
+
+function repRedesign(){
+  const f = findings();
+  const byPart = new Map();
+  f.forEach(x=>{ if(!byPart.has(x.part)) byPart.set(x.part,[]); byPart.get(x.part).push(x); });
+  const blocks = Array.from(byPart.entries()).map(([part, items])=>
+    '<h3>'+h(part)+'</h3>'+
+    '<ul class="flags">'+items.map(x=>
+      '<li><span class="chip '+(x.sev==="risk"?"risk":x.sev==="warn"?"warn":"neutral")+'">'+
+      (x.sev==="risk"?"act":x.sev==="warn"?"review":"note")+'</span>'+
+      '<div><b>'+h(x.title)+'</b><br>'+h(x.why)+'<br><span class="note">'+h(x.gain)+'</span></div></li>').join("")+
+    '</ul>').join("");
+
+  return '<div class="card rep">'+
+    '<p class="sub">Grouped by item, ranked within each. '+f.length+' finding'+(f.length===1?"":"s")+'.</p>'+
+    (blocks || '<div class="empty">Nothing breaches the targets. Tighten them in the Library tab if that looks too easy.</div>')+
+    '<h3>How to use this</h3>'+
+    '<p class="note">Work consolidation first: a part that is not there costs nothing to make, handle, fit, stock or '+
+    'inspect, and it cannot fail. Then the joining method — screws are the most expensive way to hold two things '+
+    'together and the easiest to design out. Process and material changes come last: they move the unit cost, but they '+
+    'rarely move the assembly time, and assembly time is what a DFA study is for.</p>'+
+    '<p class="note">Take each accepted change into a cloned option on the Options tab, so the improvement is measured '+
+    'rather than asserted.</p>'+
+  '</div>';
+}
+
+/* ---- Design options ---------------------------------------------------
+   A DFMA study is a comparison. You hold the original, then propose options —
+   conventionally one for materials, one for processes, one for the assembly
+   itself — and justify the improvement in each. This is that view. */
+function viewOptions(){
+  const sums = S.variants.map(variantSummary);
+  const baseSum = sums[0];
+
+  const cards = S.variants.map((v,i)=>{
+    const s = sums[i], isActive = v.id===S.active;
+    const d = (cur, ref, inv)=>{
+      if(i===0 || !ref) return '<span class="delta flat">baseline</span>';
+      const pct = ref? (cur-ref)/ref*100 : 0;
+      const better = inv ? pct>0 : pct<0;
+      const cls = Math.abs(pct)<0.05 ? "flat" : better ? "down" : "up";
+      return '<span class="delta '+cls+'">'+(pct>0?"+":"")+r1(pct)+'%</span>';
+    };
+    return '<div class="optcard'+(isActive?" active":"")+'">'+
+      '<div class="ob">'+
+        '<h3>'+h(v.name)+(isActive?' <span class="chip acc">editing</span>':'')+'</h3>'+
+        (v.note? '<p class="note" style="margin:0 0 8px">'+h(v.note)+'</p>':'')+
+        '<div class="livebar" style="margin:0">'+
+          '<div><b>Parts</b>'+s.parts+' ('+s.ess+' essential)</div>'+
+          '<div><b>Design eff.</b>'+s.designEff+'% '+d(s.designEff, baseSum.designEff, true)+'</div>'+
+          '<div><b>Assembly</b>'+r2(s.sec/60)+' min '+d(s.sec, baseSum.sec)+'</div>'+
+          '<div><b>Mass</b>'+r1(s.massG)+' g '+d(s.massG, baseSum.massG)+'</div>'+
+          '<div><b>Cost</b>'+CUR+fmt0(s.total)+' '+d(s.total, baseSum.total)+'</div>'+
+        '</div>'+
+      '</div>'+
+      '<div class="rowact" style="flex-direction:column;flex:none">'+
+        (isActive? '<span class="chip ok">active</span>'
+                 : '<button class="btn sm primary" data-usevar="'+v.id+'">Edit this</button>')+
+        '<button class="btn sm" data-clonevar="'+v.id+'">Clone</button>'+
+        (i===0? '' : '<button class="btn sm danger" data-delvar="'+v.id+'">Delete</button>')+
+      '</div>'+
+    '</div>';
+  }).join("");
+
+  const cmp = sums.length>1 ? compareCard(sums) :
+    '<div class="card"><h2>Nothing to compare yet</h2>'+
+    '<p class="sub">One option is a costing. Two or more is a design study.</p>'+
+    '<p class="note">Clone the original, change something substantial — a material, a process, a joint that removes four '+
+    'screws — and this page will show you what it bought you. The three that earn their keep, in order: consolidate parts, '+
+    'change the joining method, change the process. Materials usually move mass more than cost.</p></div>';
+
+  return '<div class="card"><p class="eyebrow">'+h(S.meta.name)+'</p><h2>Design options</h2>'+
+      '<p class="sub">Each option is a complete part list, analysed by the same engine. Percentages are against the first option.</p>'+
+      cards+
+      '<div class="rowact" style="margin-top:12px">'+
+        '<button class="btn primary" id="btnNewVariant">Clone the active option</button>'+
+        '<button class="btn" id="btnStdOptions">Add the three standard options</button>'+
+      '</div>'+
+      '<p class="note" style="margin-top:10px">Everything you edit on the Parts tab belongs to the option marked '+
+      '<b>editing</b>. Switch before you start changing things.</p>'+
+    '</div>'+ cmp;
+}
+
+function compareCard(sums){
+  const base = sums[0];
+  const pct = (cur,ref)=> ref? r1((cur-ref)/ref*100) : 0;
+  const cell = (cur, ref, i, unit, inv)=>{
+    if(i===0) return '<td class="n">'+unit(cur)+'</td>';
+    const p = pct(cur,ref), better = inv? p>0 : p<0;
+    const cls = Math.abs(p)<0.05?"flat":better?"down":"up";
+    return '<td class="n">'+unit(cur)+'<br><span class="delta '+cls+'" style="font-size:11px">'+(p>0?"+":"")+p+'%</span></td>';
+  };
+  const money = v=>CUR+fmt0(v), grams = v=>r1(v)+" g", mins = v=>r2(v/60)+" min",
+        pctU = v=>r1(v)+"%", plain = v=>fmt0(v);
+
+  const metrics = [
+    ["Parts in the product", s=>s.parts, plain, false],
+    ["Theoretical minimum", s=>s.ess, plain, false],
+    ["Design efficiency", s=>s.designEff, pctU, true],
+    ["Assembly efficiency", s=>s.eff, pctU, true],
+    ["Assembly time", s=>s.sec, mins, false],
+    ["Assembly operations", s=>s.ops, plain, false],
+    ["Mass", s=>s.massG, grams, false],
+    ["Parts cost", s=>s.partsCost, money, false],
+    ["Assembly labour", s=>s.labour, money, false],
+    ["Product cost", s=>s.total, money, false],
+    ["Lifetime service cost", s=>s.service, money, false]
+  ];
+
+  const rows = metrics.map(([label, get, unit, inv])=>
+    '<tr><td>'+h(label)+'</td>'+
+    sums.map((s,i)=>cell(get(s), get(base), i, unit, inv)).join("")+'</tr>').join("");
+
+  /* One colour for the options and a duller one for the baseline. Colour here
+     would only imply a meaning it does not have — the label says which option
+     each bar is, and the length says the rest. */
+  const bar = get => sums.map((s,i)=>({k:s.name, v:get(s), c: i===0 ? "var(--steel)" : "var(--accent)"}));
+  const charts =
+    svgBars("Assembly time", bar(s=>s.sec), " s", v=>fmt0(v))+
+    svgBars("Product cost", bar(s=>s.total), "", v=>CUR+fmt0(v))+
+    svgBars("Mass", bar(s=>s.massG), " g", v=>r1(v))+
+    svgBars("Design efficiency", bar(s=>s.designEff), "%", v=>r1(v));
+
+  const best = sums.slice().sort((a,b)=>a.total-b.total)[0];
+  const quickest = sums.slice().sort((a,b)=>a.sec-b.sec)[0];
+  const lightest = sums.slice().sort((a,b)=>a.massG-b.massG)[0];
+
+  return '<div class="card"><h2>Side by side</h2>'+
+    '<p class="sub">Green is an improvement on the first option, red is worse.</p>'+
+    '<div class="tablewrap"><table><thead><tr><th>Metric</th>'+
+      sums.map(s=>'<th class="n">'+h(s.name)+'</th>').join("")+'</tr></thead><tbody>'+rows+'</tbody></table></div>'+
+    charts+
+    '<p class="note" style="margin-top:14px">Cheapest to build: <b>'+h(best.name)+'</b> at '+CUR+fmt0(best.total)+
+    '. Quickest to assemble: <b>'+h(quickest.name)+'</b> at '+r2(quickest.sec/60)+' min. Lightest: <b>'+h(lightest.name)+
+    '</b> at '+r1(lightest.massG)+' g. Those are rarely the same option, which is the argument the review is actually for.</p>'+
+  '</div>';
+}
+
 function viewLibrary(){
-  const sub = [["rates","Rates"],["materials","Materials"],["machines","Machines"],["dfa","DFA tables"],["cost","Cost model"]];
+  const sub = [["rates","Rates"],["materials","Materials"],["machines","Machines"],
+               ["fasteners","Fasteners"],["operations","Operations"],["dfa","DFA tables"],["cost","Cost model"]];
   const nav = '<nav class="tabs" style="margin-bottom:16px">'+sub.map(([k,l])=>
     '<button data-libtab="'+k+'"'+(ui.libTab===k?' aria-current="page"':'')+'>'+l+'</button>').join("")+'</nav>';
 
@@ -1976,6 +2892,52 @@ function viewLibrary(){
         (rows||'<tr><td class="note" colspan="'+(spec.cols.length+2)+'">None defined.</td></tr>')+'</tbody></table></div>'+
         '<button class="btn sm" data-addmat="'+g+'" style="margin-top:10px">Add</button></div>';
     }
+  }
+  else if(ui.libTab==="fasteners"){
+    const rows = S.lib.fasteners.map((f,i)=>{
+      const F = "lib.fasteners."+i;
+      return '<tr><td><input type="text" data-p="'+F+'.name" value="'+h(f.name)+'"></td>'+
+        '<td><input type="number" data-p="'+F+'.price" value="'+num(f.price)+'" step="0.1"></td>'+
+        '<td><input type="number" data-p="'+F+'.massG" value="'+num(f.massG)+'" step="0.1"></td>'+
+        '<td><select data-p="'+F+'.fix">'+Object.keys(S.lib.dfa.fFix).map(k=>
+          '<option value="'+h(k)+'"'+(k===f.fix?" selected":"")+'>'+h(S.lib.dfa.fFix[k].label)+'</option>').join("")+'</select></td>'+
+        '<td><select data-p="'+F+'.size">'+Object.keys(S.lib.dfa.hSize).map(k=>
+          '<option value="'+h(k)+'"'+(k===f.size?" selected":"")+'>'+h(S.lib.dfa.hSize[k].label)+'</option>').join("")+'</select></td>'+
+        '<td class="right"><button class="btn sm danger" data-delfast="'+i+'">Remove</button></td></tr>';
+    }).join("");
+    body = '<div class="card"><h2>Fasteners</h2>'+
+      '<p class="sub">Standard parts you add from the Parts tab in one click, already priced, weighed and scored.</p>'+
+      '<div class="tablewrap"><table><thead><tr><th>Name</th><th>Price ('+CUR+')</th><th>Mass (g)</th>'+
+      '<th>Fixing method</th><th>Size class</th><th></th></tr></thead><tbody>'+
+      (rows||'<tr><td colspan="6" class="note">None defined.</td></tr>')+'</tbody></table></div>'+
+      '<button class="btn sm" id="btnAddFastLib" style="margin-top:10px">Add</button>'+
+      '<p class="note" style="margin-top:10px">Prices are catalogue-order figures for stainless socket screws. '+
+      'Replace them with your own purchase prices at your own order quantity — fastener cost is small per piece '+
+      'and large in aggregate, and a study that recommends designing out eighteen screws should be able to say what they cost.</p>'+
+    '</div>';
+  }
+  else if(ui.libTab==="operations"){
+    const rows = S.lib.operations.map((o,i)=>{
+      const O = "lib.operations."+i;
+      return '<tr><td><input type="text" data-p="'+O+'.name" value="'+h(o.name)+'"></td>'+
+        '<td><select data-p="'+O+'.kind">'+
+          Object.entries({material:"Material application", joining:"Joining", handling:"Handling",
+                          adjust:"Adjustment", test:"Test", other:"Other"}).map(([k,l])=>
+          '<option value="'+h(k)+'"'+(k===o.kind?" selected":"")+'>'+h(l)+'</option>').join("")+'</select></td>'+
+        '<td><input type="number" data-p="'+O+'.sec" value="'+num(o.sec)+'" step="1" min="0"></td>'+
+        '<td><input type="number" data-p="'+O+'.cost" value="'+num(o.cost)+'" step="0.5" min="0"></td>'+
+        '<td class="right"><button class="btn sm danger" data-delop="'+i+'">Remove</button></td></tr>';
+    }).join("");
+    body = '<div class="card"><h2>Assembly operations</h2>'+
+      '<p class="sub">Things that take time on the line but add no part. Their seconds count towards assembly time; '+
+      'they never count towards part count.</p>'+
+      '<div class="tablewrap"><table><thead><tr><th>Operation</th><th>Category</th><th>Time (s)</th>'+
+      '<th>Consumable ('+CUR+')</th><th></th></tr></thead><tbody>'+
+      (rows||'<tr><td colspan="5" class="note">None defined.</td></tr>')+'</tbody></table></div>'+
+      '<button class="btn sm" id="btnAddOpLib" style="margin-top:10px">Add</button>'+
+      '<p class="note" style="margin-top:10px">These defaults are the crudest numbers in the file, and the easiest to fix: '+
+      'an operation is a single observable act with a clear start and end. Time the five you use most and overwrite them.</p>'+
+    '</div>';
   }
   else if(ui.libTab==="machines"){
     const rows = S.lib.machines.map((k,i)=>{
@@ -2148,9 +3110,16 @@ const CSV_COLUMNS = [
   ["Identity","domain","Which engineering domain the part belongs to","mech, elec, electromech, wiring"],
   ["Identity","fieldAssembly","Fitted by the operator in the field, not the factory","yes / no"],
   ["Identity","toolFree","No tool needed to fit or remove it","yes / no"],
+  ["Structure","itemType","What the row is","part, subassembly, operation"],
+  ["Structure","parent","Name of the sub-assembly this item sits under. Blank = top level","must match another row's name exactly"],
+  ["Structure","opSec","Operation time in seconds — operations only","number"],
+  ["Structure","opCost","Operation consumable cost — operations only","number"],
+  ["Structure","opKind","What kind of operation it is","material, joining, handling, adjust, test, other"],
+  ["Min part count","isBase","Is this the base part everything is assembled onto?","yes / no"],
   ["Min part count","moves","Moves relative to parts already assembled?","yes / no"],
   ["Min part count","material_diff","Must be a different material or isolated?","yes / no"],
   ["Min part count","service","Must be separate for assembly or service?","yes / no"],
+  ["Min part count","bCat","If it fails all three tests, what kind of part is it?","fastener, connector, other"],
   ["Min part count","reason","Justification, carried into the report","any text"],
   ["Handling","size","Size / weight class","normal, small, verySmall, large, heavy"],
   ["Handling","sym","Orientation effort","symmetric, oneWay, twoWay, nonObvious"],
@@ -2267,10 +3236,33 @@ function importCsv(text){
     if(has("damageriskpct"))      pt.service.damageRiskPct   = nOf("damageriskpct",0);
     if(has("destructiveremoval")) pt.service.destructive     = yes(g("destructiveremoval"));
 
+    /* ---- structure ---- */
+    if(has("itemtype")){
+      const it = g("itemtype").toLowerCase();
+      if(ITEM_TYPES[it]) pt.itemType = it;
+      else warn.push(rowRef+": itemType “"+g("itemtype")+"” not recognised");
+    }
+    /* The parent is named, not identified — a spreadsheet has no ids. Resolved
+       against the names below, once every row has been read. */
+    if(has("parent")) pt.parent = "@name:"+g("parent");
+    if(has("opsec"))  pt.op.sec  = nOf("opsec",0);
+    if(has("opcost")) pt.op.cost = nOf("opcost",0);
+    if(has("opkind")){
+      const ok = g("opkind").toLowerCase();
+      if(["material","joining","handling","adjust","test","other"].indexOf(ok)>=0) pt.op.kind = ok;
+      else warn.push(rowRef+": opKind “"+g("opkind")+"” not recognised");
+    }
+
     /* ---- minimum part count test ---- */
+    pt.dfa.isBase             = yes(g("isbase"));
     pt.dfa.moveRelative       = yes(g("moves"));
     pt.dfa.differentMaterial  = yes(g("material_diff"));
     pt.dfa.separateForService = yes(g("service"));
+    if(has("bcat")){
+      const bc = g("bcat").toLowerCase();
+      if(["fastener","connector","other"].indexOf(bc)>=0) pt.dfa.bCat = bc;
+      else warn.push(rowRef+": bCat “"+g("bcat")+"” not recognised");
+    }
     if(has("reason")) pt.dfa.reason = g("reason");
 
     /* ---- handling ---- */
@@ -2416,6 +3408,21 @@ function importCsv(text){
     S.parts.push(pt); added++;
   });
 
+  /* Resolve the named parent links now that every row exists. A name that
+     matches nothing, or matches something that is not a sub-assembly, is
+     reported rather than silently dropping the item out of the tree. */
+  S.parts.forEach(pt=>{
+    if(typeof pt.parent !== "string" || pt.parent.indexOf("@name:")!==0) return;
+    const wanted = pt.parent.slice(6);
+    const target = S.parts.find(q=>q!==pt && q.name.trim().toLowerCase()===wanted.trim().toLowerCase());
+    if(!target){ pt.parent=""; warn.push("“"+pt.name+"”: parent “"+wanted+"” not found — left at the top level"); return; }
+    if(target.itemType!=="subassembly"){
+      target.itemType = "subassembly";
+      warn.push("“"+target.name+"” was named as a parent, so it has been made a sub-assembly");
+    }
+    pt.parent = target.id;
+  });
+
   save(); render();
   toast(added+" part"+(added===1?"":"s")+" imported"+(warn.length?" · "+warn.length+" warning"+(warn.length===1?"":"s"):""));
   if(warn.length) alert("Imported "+added+" part"+(added===1?"":"s")+", but some values were not recognised and the defaults were kept:\n\n"+
@@ -2424,14 +3431,18 @@ function importCsv(text){
 
 function csvOut(){
   const c = costProduct();
-  const head = ["Part","Part no","Module","Qty","Class","Handling index","Fitting index","Handling s","Fitting s","Assembly s (ext)",
+  const parentName = id => { const q = S.parts.find(x=>x.id===id); return q? q.name : ""; };
+  const head = ["Part","Part no","Module","Item type","Parent","Min part category","Qty","Class",
+                "Handling index","Fitting index","Handling s","Fitting s","Assembly s (ext)",
                 "Process","Basis","Material cost","Conversion","Unit cost","Extended","Mass g (unit)","Mass g (ext)","Mass source",
                 "Field assembly","Tool free","Domain","Service class","Solder joints","Access depth",
                 "Removals/life","Service event min","Service event cost","Lifetime service cost","Justification"];
   const lines = [head];
   c.rows.forEach(({pt,c:cc})=>{
     const r = dfaPart(pt);
-    lines.push([pt.name, pt.partNo, pt.module||"", r.qty, r.essential?"A":"B", r.handlingIndex, r.fittingIndex,
+    lines.push([pt.name, pt.partNo, pt.module||"", ITEM_TYPES[pt.itemType]||pt.itemType, parentName(pt.parent),
+      r.isOp ? "Operation" : MIN_PART_CATS[r.cat].label.split(" \u2014 ")[0],
+      r.qty, r.isOp?"op":r.essential?"A":"B", r.handlingIndex, r.fittingIndex,
       r.handlingSec, r.fittingSec, r.totalSec, procLabel(pt.cost.process), cc.basis,
       r2(cc.material), r2(cc.conversion), r2(cc.unit), r2(cc.extended),
       r2(cc.massG), r2(cc.massExtended), cc.massSource,
@@ -2445,6 +3456,9 @@ function csvOut(){
   lines.push(["Design efficiency %", d.designEff]);
   lines.push(["Parts total / essential", d.nTotal, d.nEss]);
   lines.push(["Assembly time s", d.totalSec]);
+  lines.push(["Of which operations s", d.opSec]);
+  lines.push(["Sub-assemblies / operations", d.nSub, d.nOps]);
+  lines.push(["Design option", variant().name]);
   lines.push(["Assembly efficiency %", d.efficiency]);
   lines.push(["Feeding ratio", d.feedingRatio]);
   lines.push(["Fitting ratio", d.fittingRatio]);
@@ -2491,7 +3505,29 @@ document.addEventListener("click", e=>{
   if(d.tab){ ui.tab=d.tab; render(); return; }
   if(d.libtab){ ui.libTab=d.libtab; render(); return; }
 
-  if(t.id==="btnAddPart"){ const p=samplePart(); S.parts.push(p); ui.selPart=p.id; save(); render(); return; }
+  if(t.id==="btnAddPart"){ addItem(samplePart()); return; }
+  if(t.id==="btnAddSub"){
+    const p = samplePart(); p.name="New sub-assembly"; p.itemType="subassembly"; p.cost.process="purchased";
+    addItem(p); return;
+  }
+  if(t.id==="btnAddOperation"){
+    const sel = document.getElementById("selOperation");
+    const o = S.lib.operations.find(x=>x.id===(sel&&sel.value)) || S.lib.operations[0];
+    const p = samplePart();
+    p.name = o.name; p.itemType="operation"; p.op = {kind:o.kind, sec:o.sec, cost:o.cost};
+    addItem(p); return;
+  }
+  if(t.id==="btnAddFastener"){
+    const sel = document.getElementById("selFastener");
+    const f = S.lib.fasteners.find(x=>x.id===(sel&&sel.value)) || S.lib.fasteners[0];
+    const p = samplePart();
+    p.name = f.name; p.massG = f.massG; p.module = "Fasteners";
+    p.cost.process = "purchased"; p.cost.purchasedPrice = f.price;
+    Object.assign(p.dfa, {bCat:"fastener", size:f.size, sym:"oneWay", dir:f.dir,
+      fix:f.fix, fixCount:1, hFlags:{nests:true},
+      reason:"Standard fastener from the library."});
+    addItem(p); return;
+  }
   if(d.dup){
     const src = S.parts.find(x=>x.id===d.dup);
     const cp = JSON.parse(JSON.stringify(src)); cp.id=uid(); cp.name=src.name+" (copy)";
@@ -2499,12 +3535,47 @@ document.addEventListener("click", e=>{
   }
   if(d.del){
     const src = S.parts.find(x=>x.id===d.del);
-    if(confirm("Delete “"+src.name+"”?")){
+    const kids = S.parts.filter(p=>p.parent===src.id);
+    const msg = kids.length
+      ? "Delete “"+src.name+"”? Its "+kids.length+" item(s) move up to sit alongside it rather than being deleted."
+      : "Delete “"+src.name+"”?";
+    if(confirm(msg)){
+      kids.forEach(k=>{ k.parent = src.parent; });
       S.parts.splice(S.parts.indexOf(src),1);
       ui.selPart = S.parts.length? S.parts[0].id : null; save(); render();
     }
     return;
   }
+
+  /* ---- design options ---- */
+  if(d.usevar){ useVariant(d.usevar); save(); render(); return; }
+  if(d.clonevar){
+    const src = S.variants.find(v=>v.id===d.clonevar);
+    const v = addVariant(d.clonevar, src.name+" (copy)", src.note);
+    useVariant(v.id); save(); render(); toast("Editing "+v.name); return;
+  }
+  if(d.delvar){
+    const v = S.variants.find(x=>x.id===d.delvar);
+    if(S.variants.length<2) return;
+    if(confirm("Delete the option “"+v.name+"” and its part list?")){
+      S.variants.splice(S.variants.indexOf(v),1);
+      if(S.active===v.id) useVariant(S.variants[0].id);
+      save(); render();
+    }
+    return;
+  }
+  if(t.id==="btnNewVariant"){
+    const v = addVariant(S.active, "Option "+S.variants.length, "");
+    useVariant(v.id); save(); render(); toast("Cloned — you are now editing "+v.name); return;
+  }
+  if(t.id==="btnStdOptions"){
+    if(!confirm("Add three options cloned from the one you are editing — materials, processes and assembly?")) return;
+    addVariant(S.active, "Option 1 — materials", "Same design, different materials.");
+    addVariant(S.active, "Option 2 — processes", "Same design and materials, different manufacturing processes.");
+    addVariant(S.active, "Option 3 — assembly",  "Parts consolidated and joints changed to cut assembly time.");
+    save(); render(); toast("Three options added — edit each in turn"); return;
+  }
+  if(d.report){ ui.report = d.report; render(); return; }
   if(t.id==="btnAddHole"){
     const pt = S.parts.find(x=>x.id===ui.selPart);
     pt.cost.machining.holes.push({count:1,dia:5,depth:10}); save(); render(); return;
@@ -2512,6 +3583,18 @@ document.addEventListener("click", e=>{
   if(d.delhole!==undefined){
     const pt = S.parts.find(x=>x.id===ui.selPart);
     pt.cost.machining.holes.splice(+d.delhole,1); save(); render(); return;
+  }
+  if(d.delfast!==undefined){ S.lib.fasteners.splice(+d.delfast,1); save(); render(); return; }
+  if(d.delop!==undefined){ S.lib.operations.splice(+d.delop,1); save(); render(); return; }
+  if(t.id==="btnAddFastLib"){
+    S.lib.fasteners.push({id:"f"+Math.random().toString(36).slice(2,6), name:"New fastener",
+      price:1, massG:1, fix:"screw", size:"small", dir:"topDown"});
+    save(); render(); return;
+  }
+  if(t.id==="btnAddOpLib"){
+    S.lib.operations.push({id:"o"+Math.random().toString(36).slice(2,6), name:"New operation",
+      kind:"other", sec:30, cost:0});
+    save(); render(); return;
   }
   if(d.delmat!==undefined){ S.lib.materials.splice(+d.delmat,1); save(); render(); return; }
   if(d.delmach!==undefined){ S.lib.machines.splice(+d.delmach,1); save(); render(); return; }
@@ -2528,19 +3611,19 @@ document.addEventListener("click", e=>{
   }
 
   if(t.id==="btnExport"||t.id==="btnExport2"){
-    download((S.meta.name||"analysis").replace(/[^\w-]+/g,"_")+".json", JSON.stringify(S,null,2));
+    download((S.meta.name||"analysis").replace(/[^\w-]+/g,"_")+".json", projectJson(2));
     toast("Exported"); return;
   }
   if(t.id==="btnImport"||t.id==="btnImport2"){ document.getElementById("fileImport").click(); return; }
   if(t.id==="btnImportCsv"||t.id==="btnImportCsv2"){ document.getElementById("fileCsv").click(); return; }
-  if(t.id==="btnCsvOut"||t.id==="btnCsvOut2"){ csvOut(); return; }
+  if(t.id==="btnCsvOut"||t.id==="btnCsvOut2"||t.id==="btnCsvOut2r"){ csvOut(); return; }
   if(t.id==="btnCsvTemplate"){
     const headers = CSV_COLUMNS.filter(c=>c[1].indexOf(" / ")<0).map(c=>c[1]);
     download("bom-template.csv", headers.join(",")+"\n", "text/csv");
     return;
   }
   if(t.id==="btnReset"){ if(confirm("Discard everything and reload the sample project?")){ S=sampleProject(); ui.selPart=null; save(); render(); } return; }
-  if(t.id==="btnClear"){ if(confirm("Delete all parts? The library and rates are kept.")){ S.parts=[]; ui.selPart=null; save(); render(); } return; }
+  if(t.id==="btnClear"){ if(confirm("Delete all parts? The library and rates are kept.")){ setParts([]); ui.selPart=null; save(); render(); } return; }
 });
 
 document.addEventListener("input", e=>{
@@ -2582,7 +3665,7 @@ document.getElementById("fileImport").addEventListener("change", e=>{
   rd.onload = ()=>{
     try{
       const o = JSON.parse(rd.result);
-      if(!o.parts) throw new Error("not a project file");
+      if(!o.parts && !o.variants) throw new Error("not a project file");
       S = migrate(o); ui.selPart=null; save(); render(); toast("Project loaded");
     }catch(err){ alert("Could not read that file: "+err.message); }
   };

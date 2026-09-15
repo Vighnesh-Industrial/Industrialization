@@ -1,6 +1,1 @@
-name,partNo,qty,process,price,volume,bx,by,bz,material,moves,material_diff,service,size,sym,fix,fixCount
-Base plate,BP-001,1,machining,,28000,60,40,20,al6061,no,no,yes,normal,oneWay,none,1
-Pivot arm,PA-002,1,machining,,18000,80,25,12,al6061,yes,no,no,normal,twoWay,none,1
-Bush,BU-003,2,machining,,900,12,12,10,brass,no,yes,yes,small,oneWay,press,1
-Cover,CV-004,1,fdm,,26000,62,42,15,petg,no,no,no,large,oneWay,screw,4
-M4 cap screw,STD-M4-12,4,purchased,4.50,,,,,,no,no,no,small,oneWay,screw,1
+name,partNo,qty,module,massG,domain,fieldAssembly,toolFree,itemType,parent,opSec,opCost,opKind,isBase,moves,material_diff,service,bCat,reason,size,sym,dir,fix,fixCount,process,basis,material,machine,price,volume,surfaceArea,stockForm,stock_D,setups,toolChanges,setupMin,batchSize,tolerance,finish,scrapCredit,layerHeight,nozzle,walls,infillPct,supportPct,partsPerPlate,partsPerBuild,packingOverride,areaMm2,plies,debulks,cureHr,partsPerCure,coreId,coreThickness,foamMethod,cavities,cycleSec,wireId,lengthMm,cores,branches,splices,sleevingMm,testMin,serviceClass,removalsPerLife,accessDepth,solderJoints,destructiveRemoval,damageRiskPct,reworkMin

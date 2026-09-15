@@ -60,10 +60,44 @@ Parts are tagged mechanical, electrical, wiring or electromechanical, and rolled
 up that way — so the interface between the mechanical and electrical sides, where
 most integration problems live, can be looked at on its own.
 
+**Structure chart**
+
+The part list is a tree, not a flat BOM. Every item is a **part**, a
+**sub-assembly** that holds other items, or an **operation** — grease, solder, a
+test step — which takes assembly time but adds no part and can never flatter the
+part count. One item is marked the **base part**: the platform everything else
+is built onto, and the row the whole assembly sequence is written against.
+
+A fastener library drops standard screws, nuts, washers, rivets and ties in
+already priced, weighed and scored, so the eighteen M4 screws take a few seconds
+to enter rather than eighteen forms.
+
+**Design options**
+
+A DFMA study is a comparison, not a costing. Hold the design as it stands, then
+clone it into options — conventionally one that changes materials, one that
+changes processes, one that changes the assembly itself — and the Options tab
+puts them side by side: part count, theoretical minimum, design efficiency,
+assembly time, mass, cost and lifetime service cost, each with the percentage
+against the baseline. Every option is a complete part list run through the same
+engine, so nothing is being compared on a different basis.
+
+**What-if, per part**
+
+For any part that is made rather than bought, the editor re-costs it under
+changed assumptions and charts the answer: unit cost against life volume from 1
+to 100,000, unit cost for every material the process can take, and unit cost for
+every process the part has geometry entered for. All three are computed at the
+same life volume, so the bars are comparable. When the curve is flat, that is
+itself the finding — the process carries no setup or tooling to amortise, and
+volume will not save you.
+
 **Assembly analysis (DFA)**
 
-- Tests every part against the three minimum-part-count criteria and classifies
-  it A (essential) or B (consolidation candidate)
+- Tests every part against the three minimum-part-count criteria plus the base
+  part, and classifies it A (essential) or B (consolidation candidate) with the
+  reason named: base part, movement, material, assembly access, fastener,
+  connector, or no reason found
 - Scores handling and fitting difficulty as Lucas-style penalty indices
 - Converts the same answers into assembly seconds and assembly labour cost
 - Reports design efficiency, theoretical minimum part count, feeding and
@@ -125,9 +159,11 @@ absolute values as indicative. See `CALIBRATION.md` for what to measure.
 | Tab | What lives there |
 |---|---|
 | **Setup** | Project identity, annual volume, default cost basis, live summary |
-| **Parts** | Part list and the editor: identity, minimum-part-count test, handling, fitting, cost |
+| **Parts** | The structure tree and the item editor: structure, identity, minimum-part-count test, handling, fitting, cost, what-if |
 | **Analysis** | KPIs, part-by-part table, per-module and per-domain rollups, serviceability, field deployment, cost split, ranked list of what to change, print-to-PDF |
-| **Library** | Rates, materials, machines, DFA method tables, cost model coefficients — all editable |
+| **Options** | Design options side by side, with deltas against the baseline |
+| **Reports** | Executive summary (DFA), executive summary (DFMA), product worksheet, structure chart, analysis totals, suggestions for redesign — print to PDF for the report pack |
+| **Library** | Rates, materials, machines, fasteners, operations, DFA method tables, cost model coefficients — all editable |
 | **Data** | Export/import project JSON, CSV BOM import, results CSV export, reset |
 
 ## Saving your work
@@ -139,7 +175,7 @@ anything you want to keep or share. Import restores it anywhere.
 
 ## Importing a BOM
 
-**`input-template.xlsx`** is the input specification: a Parts sheet with all 106
+**`input-template.xlsx`** is the input specification: a Parts sheet with all 113
 columns and dropdowns on every one that takes a fixed value, a field guide
 saying what each column means and where the answer comes from, the accepted
 values, and a sheet listing the inputs that live in the tool's Library rather
@@ -154,8 +190,13 @@ finish the analysis in the tool. Values that are not recognised are listed back
 to you on import rather than silently dropped. The Data tab documents every
 column too, and *Download blank template* gives you the header row alone.
 
-106 columns cover every process. Most analyses need 25–35 — delete the column
+113 columns cover every process. Most analyses need 25–35 — delete the column
 groups for processes you do not use.
+
+The structure is carried by two columns: `itemType` (`part`, `subassembly` or
+`operation`) and `parent`, which names the sub-assembly a row belongs to. Names
+are matched exactly; a name that matches nothing leaves the row at the top level
+and is reported back to you. Mark the base part with `isBase`.
 
 The bare minimum is `name`. For a DFA result you want `qty`, `module`, the three
 minimum-part-count answers, `size`, `sym`, `dir`, `fix` and `fixCount`; for a
@@ -175,16 +216,16 @@ plus the product-level summary for a spreadsheet or a supplier pack.
 
 Deliberately out of scope for v1, in rough order of value:
 
-1. **Design alternatives side by side** — clone a project, change it, and see
-   both costed in one view. This is the highest-value addition: DFA earns its
-   keep by comparing a redesign against the original.
-2. **STEP file import** for bounding box, volume and surface area, removing the
+1. **STEP file import** for bounding box, volume and surface area, removing the
    manual geometry entry. Feature recognition (holes, pockets, bends) is a much
    larger job and should stay manual until the rest is calibrated.
-3. **Assembly sequence** — the model currently treats parts as an unordered set.
-   A sequence would let re-orientation costs be attributed properly, and would
-   let the field-deployment estimate follow the actual deployment procedure
-   rather than summing the parts.
-4. **Sheet metal and injection moulding** process models, if the part mix moves
+2. **Assembly sequence within a level** — the structure chart fixes containment
+   and the base part, but items at the same level are still an unordered set.
+   A true sequence would let re-orientation costs be attributed to the step that
+   causes them, and would let the field-deployment estimate follow the actual
+   deployment procedure rather than summing the parts.
+3. **Sheet metal and injection moulding** process models, if the part mix moves
    that way.
-5. **Harness formboard length** from routed CAD rather than a typed length.
+4. **Harness formboard length** from routed CAD rather than a typed length.
+5. **Option diffing** — the Options tab compares totals; it does not yet say
+   *which parts changed* between two options.
