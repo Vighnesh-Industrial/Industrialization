@@ -1507,7 +1507,21 @@ function findings(){
         why:"Permanent or torque-dependent fixings do not belong on a joint the operator makes and breaks in the field.",
         gain:"A quick-release or captive latch would cut "+r2(r.fittingSec)+" s and remove a torque-control step from deployment."});
     }
-    if(c.massSource==="unknown" && c.massExtended===0){
+    /* Quantity on a sub-assembly multiplies only its own fitting time, not the
+       items inside it — so "4 of these arms" cannot be said this way, and the
+       part count it produces looks plausible while being wrong. Say so. */
+    if(pt.itemType==="subassembly" && r.qty>1 && S.parts.some(q=>q.parent===pt.id)){
+      out.unshift({sev:"risk", part:pt.name, title:"Quantity "+r.qty+" on a sub-assembly does not multiply what is inside it",
+        why:"Quantity here multiplies only this row's own fitting time. The "+descendants(pt.id).length+
+            " item(s) beneath it are still counted once each, so the part count, mass and cost are those of a single one.",
+        gain:"Either set the quantity on each item inside it, or analyse one of them and multiply the result by "+r.qty+
+             " outside the tool. Leave this row at 1."});
+    }
+
+    /* A sub-assembly that holds parts weighs what its parts weigh, and that
+       mass is already in the roll-up. Only a leaf with no geometry is a gap. */
+    if(c.massSource==="unknown" && c.massExtended===0 && !r.isOp &&
+       !(pt.itemType==="subassembly" && S.parts.some(q=>q.parent===pt.id))){
       out.push({sev:"neutral", part:pt.name, title:"No mass recorded",
         why:"Purchased and catalogue parts have no geometry to compute mass from, so the product mass roll-up is incomplete until you enter it.",
         gain:"Enter the mass in grams on the part's Identity section."});
@@ -1946,7 +1960,10 @@ function partEditor(pt){
 
     '<fieldset><legend>Identity</legend><div class="grid g3">'+
       fText(P+".name","Part name")+ fText(P+".partNo","Part number")+
-      fNum(P+".qty","Quantity per product",{min:0,step:1})+
+      fNum(P+".qty","Quantity per product",{min:0,step:1,
+        hint: pt.itemType==="subassembly" && descendants(pt.id).length
+          ? "Multiplies this row's fitting time only — NOT the "+descendants(pt.id).length+" items inside it. Keep it at 1."
+          : undefined})+
       fText(P+".module","Module / subassembly",{hint:"e.g. Wing LH, Boom, Avionics bay, Payload"})+
       fNum(P+".massG","Mass override (g)",{min:0,step:0.1,
         hint: c.massSource==="calculated" ? "0 = use the calculated "+r1(c.massG)+" g"
