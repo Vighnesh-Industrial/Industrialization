@@ -1415,15 +1415,18 @@ const DOMAINS = {
 };
 function domainRollup(rows){
   const map = new Map();
-  Object.keys(DOMAINS).forEach(k=>map.set(k,{key:k, name:DOMAINS[k], parts:0, ess:0, cost:0, massG:0, sec:0, svcCost:0, solder:0}));
+  Object.keys(DOMAINS).forEach(k=>map.set(k,{key:k, name:DOMAINS[k], parts:0, ess:0, ops:0, cost:0, massG:0, sec:0, svcCost:0, solder:0}));
   rows.forEach(({pt,c})=>{
     const g = map.get(pt.domain) || map.get("mech");
     const r = dfaPart(pt);
-    g.parts += r.qty; if(r.essential) g.ess += r.qty;
+    /* Operations carry time and consumable cost but are not parts, so they
+       must not reach the part count or the design efficiency here either. */
+    if(!r.isOp){ g.parts += r.qty; if(r.essential) g.ess += r.qty; }
+    else g.ops += r.qty;
     g.cost += c.extended; g.massG += c.massExtended; g.sec += r.totalSec;
     g.svcCost += c.service.lifetimeCost; g.solder += c.service.solder*r.qty;
   });
-  return Array.from(map.values()).filter(g=>g.parts>0)
+  return Array.from(map.values()).filter(g=>g.parts>0 || g.ops>0)
     .map(g=>Object.assign(g,{designEff: g.parts? r1(g.ess/g.parts*100):0}));
 }
 
@@ -1433,10 +1436,10 @@ function moduleRollup(rows){
   const map = new Map();
   rows.forEach(({pt,c})=>{
     const key = (pt.module||"").trim() || "Unassigned";
-    if(!map.has(key)) map.set(key, {name:key, parts:0, ess:0, cost:0, massG:0, sec:0, fieldSec:0});
+    if(!map.has(key)) map.set(key, {name:key, parts:0, ess:0, ops:0, cost:0, massG:0, sec:0, fieldSec:0});
     const g = map.get(key), r = dfaPart(pt);
-    g.parts += r.qty;
-    if(r.essential) g.ess += r.qty;
+    if(!r.isOp){ g.parts += r.qty; if(r.essential) g.ess += r.qty; }
+    else g.ops += r.qty;
     g.cost += c.extended;
     g.massG += c.massExtended;
     g.sec += r.totalSec;
@@ -2329,13 +2332,14 @@ function viewAnalysis(){
 
   const partRows = c.rows.map(({pt,c:cc})=>{
     const r = dfaPart(pt);
-    return '<tr><td><b>'+h(pt.name)+'</b></td>'+
-      '<td>'+(r.essential?'<span class="chip ok">A</span>':'<span class="chip risk">B</span>')+'</td>'+
+    return '<tr><td>'+(r.isOp?'<i>'+h(pt.name)+'</i>':'<b>'+h(pt.name)+'</b>')+'</td>'+
+      '<td>'+(r.isOp?'<span class="chip neutral">op</span>'
+                    :r.essential?'<span class="chip ok">A</span>':'<span class="chip risk">B</span>')+'</td>'+
       '<td class="n">'+r.qty+'</td>'+
-      '<td class="n'+(r.overHandling?' over':'')+'">'+r.handlingIndex+'</td>'+
-      '<td class="n'+(r.overFitting?' over':'')+'">'+r.fittingIndex+'</td>'+
+      '<td class="n'+(r.overHandling?' over':'')+'">'+(r.isOp?'—':r.handlingIndex)+'</td>'+
+      '<td class="n'+(r.overFitting?' over':'')+'">'+(r.isOp?'—':r.fittingIndex)+'</td>'+
       '<td class="n">'+r.totalSec+'</td>'+
-      '<td>'+h(procLabel(pt.cost.process))+'</td>'+
+      '<td>'+h(r.isOp?"Assembly operation":procLabel(pt.cost.process))+'</td>'+
       '<td class="n">'+CUR+fmt(cc.unit)+'</td>'+
       '<td class="n">'+CUR+fmt(cc.extended)+'</td>'+
       '<td class="n"'+(cc.massSource==="unknown"?' style="color:var(--steel)"':'')+'>'+
@@ -2381,8 +2385,9 @@ function viewAnalysis(){
 function moduleCard(c){
   if(c.modules.length<2) return "";
   const rows = c.modules.map(g=>
-    '<tr><td><b>'+h(g.name)+'</b></td><td class="n">'+g.parts+'</td>'+
-    '<td class="n'+(g.designEff<S.lib.dfa.targets.designEff?' over':'')+'">'+g.designEff+'%</td>'+
+    '<tr><td><b>'+h(g.name)+'</b></td>'+
+    '<td class="n">'+g.parts+(g.ops? ' <span class="note">+'+g.ops+' op</span>':'')+'</td>'+
+    '<td class="n'+(g.parts && g.designEff<S.lib.dfa.targets.designEff?' over':'')+'">'+(g.parts? g.designEff+'%':'—')+'</td>'+
     '<td class="n">'+r1(g.massG)+'</td>'+
     '<td class="n">'+(c.massG? r1(g.massG/c.massG*100):0)+'%</td>'+
     '<td class="n">'+r2(g.sec)+'</td>'+
@@ -2398,8 +2403,9 @@ function moduleCard(c){
 function domainCard(c){
   if(c.domains.length<2) return "";
   const rows = c.domains.map(g=>
-    '<tr><td><b>'+h(g.name)+'</b></td><td class="n">'+g.parts+'</td>'+
-    '<td class="n'+(g.designEff<S.lib.dfa.targets.designEff?' over':'')+'">'+g.designEff+'%</td>'+
+    '<tr><td><b>'+h(g.name)+'</b></td>'+
+    '<td class="n">'+g.parts+(g.ops? ' <span class="note">+'+g.ops+' op</span>':'')+'</td>'+
+    '<td class="n'+(g.parts && g.designEff<S.lib.dfa.targets.designEff?' over':'')+'">'+(g.parts? g.designEff+'%':'—')+'</td>'+
     '<td class="n">'+r1(g.massG)+'</td><td class="n">'+r2(g.sec)+'</td>'+
     '<td class="n">'+CUR+fmt(g.cost)+'</td>'+
     '<td class="n'+(g.solder?' over':'')+'">'+(g.solder||"—")+'</td>'+
@@ -2693,7 +2699,8 @@ function repTotals(){
     '</tbody></table></div>').join("") +
     '<h3>By module</h3><div class="tablewrap"><table><thead><tr><th>Module</th><th class="n">Parts</th>'+
     '<th class="n">Design eff.</th><th class="n">Assy s</th><th class="n">Mass g</th><th class="n">Cost</th></tr></thead><tbody>'+
-    c.modules.map(m=>'<tr><td>'+h(m.name)+'</td><td class="n">'+m.parts+'</td><td class="n">'+m.designEff+'%</td>'+
+    c.modules.map(m=>'<tr><td>'+h(m.name)+'</td><td class="n">'+m.parts+'</td>'+
+      '<td class="n">'+(m.parts? m.designEff+'%':'—')+'</td>'+
       '<td class="n">'+r2(m.sec)+'</td><td class="n">'+r1(m.massG)+'</td><td class="n">'+CUR+fmt0(m.cost)+'</td></tr>').join("")+
     '</tbody></table></div>'+
   '</div>';

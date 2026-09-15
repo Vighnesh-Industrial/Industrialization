@@ -1,0 +1,6 @@
+name,partNo,itemType,parent,qty,module,massG,isBase,moves,material_diff,service,bCat,reason,size,sym,dir,fix,fixCount,process,material,price,volume,bx,by,bz,batchSize,setupMin,opSec,opCost,opKind
+Piston,PA-002,part,,1,Piston assy,,no,yes,no,no,,Slides in the bore - it is the moving element,normal,twoWay,topDown,none,1,machining,ms1018,,22000,30,30,45,200,30,,,
+Spring,PA-003,part,,1,Piston assy,12,no,yes,no,no,,Compresses and extends in use,small,oneWay,topDown,none,1,purchased,,18,,,,,,,,,
+Cover,PA-004,part,,1,Piston assy,,no,no,no,yes,,Must come off to fit the piston and spring,normal,twoWay,topDown,screw,2,machining,al6061,,9000,60,60,6,200,25,,,
+M4 x 16 cap screw,STD-M4x16,part,,2,Fasteners,3.2,no,no,no,no,fastener,Standard fastener holding the cover down,small,oneWay,topDown,screw,1,purchased,,3.8,,,,,,,,,
+Apply oil to the bore,,operation,,1,Piston assy,,no,no,no,no,,,normal,oneWay,topDown,none,1,purchased,,,,,,,,,25,3,material
