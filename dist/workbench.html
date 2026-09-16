@@ -217,7 +217,7 @@ details.calc table{margin-top:10px;font-size:12px}
       <button class="btn sm" id="btnExport">Export</button>
       <button class="btn sm" id="btnImport">Import</button>
       <input type="file" id="fileImport" accept=".json" hidden>
-      <input type="file" id="fileCsv" accept=".csv,.txt" hidden>
+      <input type="file" id="fileCsv" accept=".csv,.txt,.json" hidden>
     </div>
   </div>
 </div>
@@ -1954,7 +1954,7 @@ function viewParts(){
   const left = '<div class="panel"><header><h2>Structure</h2>'+
       '<button class="btn sm primary" id="btnAddPart">Part</button>'+
       '<button class="btn sm" id="btnAddSub">Sub-assembly</button>'+
-      '<button class="btn sm" id="btnImportCsv">CSV</button></header>'+
+      '<button class="btn sm" id="btnImportCsv">BOM</button></header>'+
     '<div style="padding:10px 14px;border-bottom:1px solid var(--rule);display:grid;gap:8px">'+
       '<div class="rowact"><select id="selFastener" style="flex:1 1 160px">'+fastOpts+'</select>'+
         '<button class="btn sm" id="btnAddFastener">Add fastener</button></div>'+
@@ -3137,13 +3137,15 @@ function viewData(){
     '<button class="btn danger" id="btnClear">Clear all parts</button></div></div>'+
 
     '<div class="card"><h2>Import a BOM</h2>'+
-    '<p class="sub">CSV with a header row, in any column order. Unknown columns are ignored and missing ones keep their defaults, '+
-    'so a two-column <span class="mono">name,qty</span> file imports fine. Working in Excel? Fill in '+
-    '<span class="mono">input-template.xlsx</span> and save the Parts sheet as CSV.</p>'+
+    '<p class="sub">CSV with the column names on the first line, in any order — or the same table as JSON, an array of '+
+    'row objects keyed by column name. Unknown columns are ignored and missing ones keep their defaults, so a two-column '+
+    '<span class="mono">name,qty</span> file imports fine. Working in Excel? Fill in the Parts sheet of '+
+    '<span class="mono">dfma-input-workbook.xlsx</span> and save it as CSV. This adds parts to the option you are editing; '+
+    'to load a whole saved analysis, use <b>Import</b> in the header instead.</p>'+
     '<div class="tablewrap"><table><thead><tr><th>Group</th><th>Column</th><th>Meaning</th><th>Accepted values</th></tr></thead><tbody>'+
     CSV_COLUMNS.map(r=>'<tr><td class="note">'+h(r[0])+'</td><td class="mono">'+h(r[1])+'</td><td>'+h(r[2])+'</td><td class="note">'+h(r[3])+'</td></tr>').join("")+
     '</tbody></table></div>'+
-    '<div class="rowact" style="margin-top:12px"><button class="btn primary" id="btnImportCsv2">Choose CSV file</button>'+
+    '<div class="rowact" style="margin-top:12px"><button class="btn primary" id="btnImportCsv2">Choose a CSV or JSON file</button>'+
     '<button class="btn" id="btnCsvTemplate">Download blank template</button></div></div>'+
 
     '<div class="card"><h2>Storage</h2><p class="note">Key: <span class="mono">'+LSKEY+'</span>. '+
@@ -3816,9 +3818,37 @@ document.getElementById("fileImport").addEventListener("change", e=>{
 document.getElementById("fileCsv").addEventListener("change", e=>{
   const f = e.target.files[0]; if(!f) return;
   const rd = new FileReader();
-  rd.onload = ()=>{ try{ importCsv(rd.result); }catch(err){ alert("Could not read that CSV: "+err.message); } };
+  rd.onload = ()=>{
+    try{ importCsv(toRowText(rd.result)); }
+    catch(err){ alert("Could not read that file: "+err.message); }
+  };
   rd.readAsText(f); e.target.value="";
 });
+
+/* People convert the Parts sheet to JSON as often as to CSV, and an array of
+   row objects carries exactly the same information. Flatten it to CSV rather
+   than make them convert twice. Anything that is not such an array is passed
+   through untouched, so a real CSV is unaffected. */
+function toRowText(text){
+  const t = String(text).replace(/^\uFEFF/, "").trim();
+  if(t.charAt(0) !== "[") return text;
+  let rows;
+  try{ rows = JSON.parse(t); }catch(e){ return text; }
+  if(!Array.isArray(rows) || !rows.length) return text;
+  if(typeof rows[0] !== "object" || rows[0] === null || Array.isArray(rows[0]))
+    throw new Error("that JSON is a list, but not a list of rows — each entry needs to be one part, with the column names as its keys");
+  /* Union of every row's keys, first-seen order, so a row that omits a
+     trailing empty column does not shift the ones after it. */
+  const cols = [];
+  rows.forEach(r=>{ for(const k in r) if(cols.indexOf(k)<0) cols.push(k); });
+  const esc = v => {
+    const x = (v==null) ? "" : String(v);
+    return /[",\n\r]/.test(x) ? '"'+x.replace(/"/g,'""')+'"' : x;
+  };
+  return [cols.map(esc).join(",")]
+    .concat(rows.map(r=>cols.map(c=>esc(r[c])).join(",")))
+    .join("\n");
+}
 
 /* ---- boot ---- */
 S = load();
