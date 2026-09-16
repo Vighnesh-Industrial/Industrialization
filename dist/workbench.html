@@ -3774,7 +3774,22 @@ document.getElementById("fileImport").addEventListener("change", e=>{
     try{
       const o = JSON.parse(rd.result);
       if(!o.parts && !o.variants) throw new Error("not a project file");
-      S = migrate(o); ui.selPart=null; save(); render(); toast("Project loaded");
+      /* Loading a project replaces everything — parts, every design option, and
+         the whole Library. Reset and Clear both ask first; this is the one that
+         can lose the most, so it asks too. */
+      const items = S.variants.reduce((a,v)=>a+v.parts.length,0);
+      if(items > 0){
+        const incoming = (o.meta && o.meta.name) || "the imported project";
+        const ok = confirm(
+          "Replace “"+(S.meta.name||"this project")+"” with “"+incoming+"”?\n\n"+
+          "You would lose "+items+" item"+(items===1?"":"s")+" across "+S.variants.length+
+          " design option"+(S.variants.length===1?"":"s")+", and every rate and coefficient in the Library. "+
+          "This cannot be undone.\n\n"+
+          "Cancel first and use Export if you want to keep the current project.");
+        if(!ok){ toast("Import cancelled — nothing changed"); return; }
+      }
+      S = migrate(o); ui.selPart=null; save(); render();
+      toast("Loaded “"+(S.meta.name||"project")+"” — "+S.parts.length+" items, "+S.variants.length+" option(s)");
     }catch(err){ alert("Could not read that file: "+err.message); }
   };
   rd.readAsText(f); e.target.value="";
