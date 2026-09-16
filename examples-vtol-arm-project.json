@@ -1,0 +1,6954 @@
+{
+  "schema": 2,
+  "variants": [
+    {
+      "id": "v1",
+      "name": "Original design",
+      "note": "As it is built today.",
+      "parts": [
+        {
+          "id": "p38zlf9f",
+          "name": "Motor mount plate",
+          "partNo": "ARM-101",
+          "qty": 1,
+          "notes": "",
+          "module": "Arm structure",
+          "massG": 0,
+          "fieldAssembly": false,
+          "toolFree": false,
+          "domain": "mech",
+          "itemType": "part",
+          "parent": "",
+          "op": {
+            "sec": 0,
+            "cost": 0,
+            "kind": "other"
+          },
+          "service": {
+            "cls": "none",
+            "removalsPerLife": 0,
+            "accessDepth": 0,
+            "destructive": false,
+            "solderJoints": 0,
+            "reworkMin": 0
+          },
+          "dfa": {
+            "isBase": true,
+            "bCat": "other",
+            "moveRelative": false,
+            "differentMaterial": false,
+            "separateForService": false,
+            "reason": "Base part - the boom clamp, motor and ESC all mount to it.",
+            "size": "normal",
+            "sym": "twoWay",
+            "hFlags": {},
+            "dir": "topDown",
+            "fFlags": {},
+            "fix": "later",
+            "fixCount": 1
+          },
+          "cost": {
+            "process": "machining",
+            "basis": "inherit",
+            "purchasedPrice": 0,
+            "machining": {
+              "materialId": "al6061",
+              "machineId": "vmc",
+              "stockForm": "block",
+              "L": 72,
+              "W": 72,
+              "H": 8,
+              "D": 0,
+              "partVolume": 28000,
+              "surfaceArea": 0,
+              "holes": [
+                {
+                  "count": 4,
+                  "dia": 3.3,
+                  "depth": 8
+                },
+                {
+                  "count": 4,
+                  "dia": 4.5,
+                  "depth": 8
+                }
+              ],
+              "setups": 1,
+              "toolChanges": 4,
+              "setupMin": 35,
+              "batchSize": 200,
+              "tolerance": "medium",
+              "finish": "asMachined",
+              "scrapCredit": true
+            },
+            "fdm": {
+              "materialId": "petg",
+              "machineId": "fdm1",
+              "bx": 72,
+              "by": 72,
+              "bz": 8,
+              "partVolume": 28000,
+              "layerHeight": 0.2,
+              "nozzle": 0.4,
+              "infillPct": 25,
+              "walls": 3,
+              "supportPct": 12,
+              "partsPerPlate": 4,
+              "surfaceArea": 0
+            },
+            "powder": {
+              "materialId": "pa12",
+              "machineId": "mjf1",
+              "bx": 72,
+              "by": 72,
+              "bz": 8,
+              "partVolume": 28000,
+              "partsPerBuild": 0,
+              "packingOverride": 0
+            },
+            "harness": {
+              "wireId": "w22",
+              "lengthMm": 300,
+              "cores": 2,
+              "branches": 1,
+              "connAPins": 2,
+              "connAPrice": 35,
+              "connBPins": 2,
+              "connBPrice": 35,
+              "splices": 0,
+              "sleevingMm": 0,
+              "heatshrink": 2,
+              "labels": 2,
+              "ties": 3,
+              "contactsOverride": 0,
+              "testMin": 0
+            },
+            "composite": {
+              "materialId": "cf200p",
+              "machineId": "oven",
+              "coreId": "",
+              "coreThickness": 0,
+              "areaMm2": 120000,
+              "plies": 4,
+              "debulks": 1,
+              "cureHr": 4,
+              "partsPerCure": 2,
+              "toolCost": 180000,
+              "toolLife": 400,
+              "trimMin": 0,
+              "ndtMin": 0
+            },
+            "foam": {
+              "materialId": "epp60",
+              "machineId": "foamCnc",
+              "method": "cnc",
+              "bx": 72,
+              "by": 72,
+              "bz": 8,
+              "partVolume": 28000,
+              "toolCost": 0,
+              "toolLife": 1000,
+              "cavities": 1,
+              "cycleSec": 0,
+              "skinArea": 0
+            }
+          }
+        },
+        {
+          "id": "p07pfynp",
+          "name": "Boom clamp, upper half",
+          "partNo": "ARM-102",
+          "qty": 1,
+          "notes": "",
+          "module": "Arm structure",
+          "massG": 0,
+          "fieldAssembly": false,
+          "toolFree": false,
+          "domain": "mech",
+          "itemType": "part",
+          "parent": "",
+          "op": {
+            "sec": 0,
+            "cost": 0,
+            "kind": "other"
+          },
+          "service": {
+            "cls": "none",
+            "removalsPerLife": 0,
+            "accessDepth": 0,
+            "destructive": false,
+            "solderJoints": 0,
+            "reworkMin": 0
+          },
+          "dfa": {
+            "isBase": false,
+            "bCat": "other",
+            "moveRelative": false,
+            "differentMaterial": false,
+            "separateForService": true,
+            "reason": "Must be separate so the boom tube can be fitted into the clamp.",
+            "size": "normal",
+            "sym": "twoWay",
+            "hFlags": {},
+            "dir": "topDown",
+            "fFlags": {
+              "notSelfLocating": true,
+              "torqueSpec": true,
+              "threadlock": true
+            },
+            "fix": "screw",
+            "fixCount": 4
+          },
+          "cost": {
+            "process": "machining",
+            "basis": "inherit",
+            "purchasedPrice": 0,
+            "machining": {
+              "materialId": "al6061",
+              "machineId": "vmc",
+              "stockForm": "block",
+              "L": 60,
+              "W": 34,
+              "H": 16,
+              "D": 0,
+              "partVolume": 14000,
+              "surfaceArea": 0,
+              "holes": [
+                {
+                  "count": 4,
+                  "dia": 4.5,
+                  "depth": 16
+                }
+              ],
+              "setups": 2,
+              "toolChanges": 4,
+              "setupMin": 30,
+              "batchSize": 200,
+              "tolerance": "medium",
+              "finish": "asMachined",
+              "scrapCredit": true
+            },
+            "fdm": {
+              "materialId": "petg",
+              "machineId": "fdm1",
+              "bx": 60,
+              "by": 34,
+              "bz": 16,
+              "partVolume": 14000,
+              "layerHeight": 0.2,
+              "nozzle": 0.4,
+              "infillPct": 25,
+              "walls": 3,
+              "supportPct": 12,
+              "partsPerPlate": 4,
+              "surfaceArea": 0
+            },
+            "powder": {
+              "materialId": "pa12",
+              "machineId": "mjf1",
+              "bx": 60,
+              "by": 34,
+              "bz": 16,
+              "partVolume": 14000,
+              "partsPerBuild": 0,
+              "packingOverride": 0
+            },
+            "harness": {
+              "wireId": "w22",
+              "lengthMm": 300,
+              "cores": 2,
+              "branches": 1,
+              "connAPins": 2,
+              "connAPrice": 35,
+              "connBPins": 2,
+              "connBPrice": 35,
+              "splices": 0,
+              "sleevingMm": 0,
+              "heatshrink": 2,
+              "labels": 2,
+              "ties": 3,
+              "contactsOverride": 0,
+              "testMin": 0
+            },
+            "composite": {
+              "materialId": "cf200p",
+              "machineId": "oven",
+              "coreId": "",
+              "coreThickness": 0,
+              "areaMm2": 120000,
+              "plies": 4,
+              "debulks": 1,
+              "cureHr": 4,
+              "partsPerCure": 2,
+              "toolCost": 180000,
+              "toolLife": 400,
+              "trimMin": 0,
+              "ndtMin": 0
+            },
+            "foam": {
+              "materialId": "epp60",
+              "machineId": "foamCnc",
+              "method": "cnc",
+              "bx": 60,
+              "by": 34,
+              "bz": 16,
+              "partVolume": 14000,
+              "toolCost": 0,
+              "toolLife": 1000,
+              "cavities": 1,
+              "cycleSec": 0,
+              "skinArea": 0
+            }
+          }
+        },
+        {
+          "id": "pugfxgmv",
+          "name": "Boom clamp, lower half",
+          "partNo": "ARM-103",
+          "qty": 1,
+          "notes": "",
+          "module": "Arm structure",
+          "massG": 0,
+          "fieldAssembly": false,
+          "toolFree": false,
+          "domain": "mech",
+          "itemType": "part",
+          "parent": "",
+          "op": {
+            "sec": 0,
+            "cost": 0,
+            "kind": "other"
+          },
+          "service": {
+            "cls": "none",
+            "removalsPerLife": 0,
+            "accessDepth": 0,
+            "destructive": false,
+            "solderJoints": 0,
+            "reworkMin": 0
+          },
+          "dfa": {
+            "isBase": false,
+            "bCat": "other",
+            "moveRelative": false,
+            "differentMaterial": false,
+            "separateForService": false,
+            "reason": "Same material as the plate, does not move, nothing is fitted between the two.",
+            "size": "normal",
+            "sym": "twoWay",
+            "hFlags": {},
+            "dir": "topDown",
+            "fFlags": {
+              "notSelfLocating": true,
+              "holdDown": true
+            },
+            "fix": "none",
+            "fixCount": 1
+          },
+          "cost": {
+            "process": "machining",
+            "basis": "inherit",
+            "purchasedPrice": 0,
+            "machining": {
+              "materialId": "al6061",
+              "machineId": "vmc",
+              "stockForm": "block",
+              "L": 60,
+              "W": 34,
+              "H": 12,
+              "D": 0,
+              "partVolume": 11000,
+              "surfaceArea": 0,
+              "holes": [
+                {
+                  "count": 4,
+                  "dia": 3.3,
+                  "depth": 12
+                }
+              ],
+              "setups": 2,
+              "toolChanges": 4,
+              "setupMin": 30,
+              "batchSize": 200,
+              "tolerance": "medium",
+              "finish": "asMachined",
+              "scrapCredit": true
+            },
+            "fdm": {
+              "materialId": "petg",
+              "machineId": "fdm1",
+              "bx": 60,
+              "by": 34,
+              "bz": 12,
+              "partVolume": 11000,
+              "layerHeight": 0.2,
+              "nozzle": 0.4,
+              "infillPct": 25,
+              "walls": 3,
+              "supportPct": 12,
+              "partsPerPlate": 4,
+              "surfaceArea": 0
+            },
+            "powder": {
+              "materialId": "pa12",
+              "machineId": "mjf1",
+              "bx": 60,
+              "by": 34,
+              "bz": 12,
+              "partVolume": 11000,
+              "partsPerBuild": 0,
+              "packingOverride": 0
+            },
+            "harness": {
+              "wireId": "w22",
+              "lengthMm": 300,
+              "cores": 2,
+              "branches": 1,
+              "connAPins": 2,
+              "connAPrice": 35,
+              "connBPins": 2,
+              "connBPrice": 35,
+              "splices": 0,
+              "sleevingMm": 0,
+              "heatshrink": 2,
+              "labels": 2,
+              "ties": 3,
+              "contactsOverride": 0,
+              "testMin": 0
+            },
+            "composite": {
+              "materialId": "cf200p",
+              "machineId": "oven",
+              "coreId": "",
+              "coreThickness": 0,
+              "areaMm2": 120000,
+              "plies": 4,
+              "debulks": 1,
+              "cureHr": 4,
+              "partsPerCure": 2,
+              "toolCost": 180000,
+              "toolLife": 400,
+              "trimMin": 0,
+              "ndtMin": 0
+            },
+            "foam": {
+              "materialId": "epp60",
+              "machineId": "foamCnc",
+              "method": "cnc",
+              "bx": 60,
+              "by": 34,
+              "bz": 12,
+              "partVolume": 11000,
+              "toolCost": 0,
+              "toolLife": 1000,
+              "cavities": 1,
+              "cycleSec": 0,
+              "skinArea": 0
+            }
+          }
+        },
+        {
+          "id": "pm5dvex1",
+          "name": "M4 x 20 cap screw (clamp)",
+          "partNo": "STD-M4x20",
+          "qty": 4,
+          "notes": "",
+          "module": "Fasteners",
+          "massG": 4.1,
+          "fieldAssembly": false,
+          "toolFree": false,
+          "domain": "mech",
+          "itemType": "part",
+          "parent": "",
+          "op": {
+            "sec": 0,
+            "cost": 0,
+            "kind": "other"
+          },
+          "service": {
+            "cls": "none",
+            "removalsPerLife": 0,
+            "accessDepth": 0,
+            "destructive": false,
+            "solderJoints": 0,
+            "reworkMin": 0
+          },
+          "dfa": {
+            "isBase": false,
+            "bCat": "fastener",
+            "moveRelative": false,
+            "differentMaterial": false,
+            "separateForService": false,
+            "reason": "Standard fastener clamping the arm to the boom.",
+            "size": "small",
+            "sym": "oneWay",
+            "hFlags": {
+              "nests": true
+            },
+            "dir": "topDown",
+            "fFlags": {},
+            "fix": "screw",
+            "fixCount": 1
+          },
+          "cost": {
+            "process": "purchased",
+            "basis": "inherit",
+            "purchasedPrice": 4.2,
+            "machining": {
+              "materialId": "al6061",
+              "machineId": "vmc",
+              "stockForm": "block",
+              "L": 60,
+              "W": 40,
+              "H": 20,
+              "D": 0,
+              "partVolume": 28000,
+              "surfaceArea": 0,
+              "holes": [
+                {
+                  "count": 4,
+                  "dia": 5,
+                  "depth": 20
+                }
+              ],
+              "setups": 1,
+              "toolChanges": 3,
+              "setupMin": 35,
+              "batchSize": 50,
+              "tolerance": "coarse",
+              "finish": "asMachined",
+              "scrapCredit": true
+            },
+            "fdm": {
+              "materialId": "petg",
+              "machineId": "fdm1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "layerHeight": 0.2,
+              "nozzle": 0.4,
+              "infillPct": 25,
+              "walls": 3,
+              "supportPct": 12,
+              "partsPerPlate": 4,
+              "surfaceArea": 0
+            },
+            "powder": {
+              "materialId": "pa12",
+              "machineId": "mjf1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "partsPerBuild": 0,
+              "packingOverride": 0
+            },
+            "harness": {
+              "wireId": "w22",
+              "lengthMm": 300,
+              "cores": 2,
+              "branches": 1,
+              "connAPins": 2,
+              "connAPrice": 35,
+              "connBPins": 2,
+              "connBPrice": 35,
+              "splices": 0,
+              "sleevingMm": 0,
+              "heatshrink": 2,
+              "labels": 2,
+              "ties": 3,
+              "contactsOverride": 0,
+              "testMin": 0
+            },
+            "composite": {
+              "materialId": "cf200p",
+              "machineId": "oven",
+              "coreId": "",
+              "coreThickness": 0,
+              "areaMm2": 120000,
+              "plies": 4,
+              "debulks": 1,
+              "cureHr": 4,
+              "partsPerCure": 2,
+              "toolCost": 180000,
+              "toolLife": 400,
+              "trimMin": 0,
+              "ndtMin": 0
+            },
+            "foam": {
+              "materialId": "epp60",
+              "machineId": "foamCnc",
+              "method": "cnc",
+              "bx": 300,
+              "by": 120,
+              "bz": 60,
+              "partVolume": 900000,
+              "toolCost": 0,
+              "toolLife": 1000,
+              "cavities": 1,
+              "cycleSec": 0,
+              "skinArea": 0
+            }
+          }
+        },
+        {
+          "id": "pqxftgaq",
+          "name": "VTOL lift motor, 505-class",
+          "partNo": "MOT-505",
+          "qty": 1,
+          "notes": "",
+          "module": "Rotor",
+          "massG": 220,
+          "fieldAssembly": false,
+          "toolFree": false,
+          "domain": "electromech",
+          "itemType": "part",
+          "parent": "",
+          "op": {
+            "sec": 0,
+            "cost": 0,
+            "kind": "other"
+          },
+          "service": {
+            "cls": "field",
+            "removalsPerLife": 4,
+            "accessDepth": 1,
+            "destructive": false,
+            "solderJoints": 0,
+            "reworkMin": 0
+          },
+          "dfa": {
+            "isBase": false,
+            "bCat": "other",
+            "moveRelative": true,
+            "differentMaterial": false,
+            "separateForService": false,
+            "reason": "Rotating machine - the whole point of the arm.",
+            "size": "normal",
+            "sym": "twoWay",
+            "hFlags": {},
+            "dir": "topDown",
+            "fFlags": {
+              "torqueSpec": true,
+              "threadlock": true
+            },
+            "fix": "screw",
+            "fixCount": 4
+          },
+          "cost": {
+            "process": "purchased",
+            "basis": "inherit",
+            "purchasedPrice": 11500,
+            "machining": {
+              "materialId": "al6061",
+              "machineId": "vmc",
+              "stockForm": "block",
+              "L": 60,
+              "W": 40,
+              "H": 20,
+              "D": 0,
+              "partVolume": 28000,
+              "surfaceArea": 0,
+              "holes": [
+                {
+                  "count": 4,
+                  "dia": 5,
+                  "depth": 20
+                }
+              ],
+              "setups": 1,
+              "toolChanges": 3,
+              "setupMin": 35,
+              "batchSize": 50,
+              "tolerance": "coarse",
+              "finish": "asMachined",
+              "scrapCredit": true
+            },
+            "fdm": {
+              "materialId": "petg",
+              "machineId": "fdm1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "layerHeight": 0.2,
+              "nozzle": 0.4,
+              "infillPct": 25,
+              "walls": 3,
+              "supportPct": 12,
+              "partsPerPlate": 4,
+              "surfaceArea": 0
+            },
+            "powder": {
+              "materialId": "pa12",
+              "machineId": "mjf1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "partsPerBuild": 0,
+              "packingOverride": 0
+            },
+            "harness": {
+              "wireId": "w22",
+              "lengthMm": 300,
+              "cores": 2,
+              "branches": 1,
+              "connAPins": 2,
+              "connAPrice": 35,
+              "connBPins": 2,
+              "connBPrice": 35,
+              "splices": 0,
+              "sleevingMm": 0,
+              "heatshrink": 2,
+              "labels": 2,
+              "ties": 3,
+              "contactsOverride": 0,
+              "testMin": 0
+            },
+            "composite": {
+              "materialId": "cf200p",
+              "machineId": "oven",
+              "coreId": "",
+              "coreThickness": 0,
+              "areaMm2": 120000,
+              "plies": 4,
+              "debulks": 1,
+              "cureHr": 4,
+              "partsPerCure": 2,
+              "toolCost": 180000,
+              "toolLife": 400,
+              "trimMin": 0,
+              "ndtMin": 0
+            },
+            "foam": {
+              "materialId": "epp60",
+              "machineId": "foamCnc",
+              "method": "cnc",
+              "bx": 300,
+              "by": 120,
+              "bz": 60,
+              "partVolume": 900000,
+              "toolCost": 0,
+              "toolLife": 1000,
+              "cavities": 1,
+              "cycleSec": 0,
+              "skinArea": 0
+            }
+          }
+        },
+        {
+          "id": "p1ddxtoi",
+          "name": "M3 x 8 cap screw (motor)",
+          "partNo": "STD-M3x8",
+          "qty": 4,
+          "notes": "",
+          "module": "Fasteners",
+          "massG": 1.1,
+          "fieldAssembly": false,
+          "toolFree": false,
+          "domain": "mech",
+          "itemType": "part",
+          "parent": "",
+          "op": {
+            "sec": 0,
+            "cost": 0,
+            "kind": "other"
+          },
+          "service": {
+            "cls": "none",
+            "removalsPerLife": 0,
+            "accessDepth": 0,
+            "destructive": false,
+            "solderJoints": 0,
+            "reworkMin": 0
+          },
+          "dfa": {
+            "isBase": false,
+            "bCat": "fastener",
+            "moveRelative": false,
+            "differentMaterial": false,
+            "separateForService": false,
+            "reason": "Standard fastener holding the motor to the plate.",
+            "size": "small",
+            "sym": "oneWay",
+            "hFlags": {
+              "nests": true
+            },
+            "dir": "underneath",
+            "fFlags": {},
+            "fix": "screw",
+            "fixCount": 1
+          },
+          "cost": {
+            "process": "purchased",
+            "basis": "inherit",
+            "purchasedPrice": 2.2,
+            "machining": {
+              "materialId": "al6061",
+              "machineId": "vmc",
+              "stockForm": "block",
+              "L": 60,
+              "W": 40,
+              "H": 20,
+              "D": 0,
+              "partVolume": 28000,
+              "surfaceArea": 0,
+              "holes": [
+                {
+                  "count": 4,
+                  "dia": 5,
+                  "depth": 20
+                }
+              ],
+              "setups": 1,
+              "toolChanges": 3,
+              "setupMin": 35,
+              "batchSize": 50,
+              "tolerance": "coarse",
+              "finish": "asMachined",
+              "scrapCredit": true
+            },
+            "fdm": {
+              "materialId": "petg",
+              "machineId": "fdm1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "layerHeight": 0.2,
+              "nozzle": 0.4,
+              "infillPct": 25,
+              "walls": 3,
+              "supportPct": 12,
+              "partsPerPlate": 4,
+              "surfaceArea": 0
+            },
+            "powder": {
+              "materialId": "pa12",
+              "machineId": "mjf1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "partsPerBuild": 0,
+              "packingOverride": 0
+            },
+            "harness": {
+              "wireId": "w22",
+              "lengthMm": 300,
+              "cores": 2,
+              "branches": 1,
+              "connAPins": 2,
+              "connAPrice": 35,
+              "connBPins": 2,
+              "connBPrice": 35,
+              "splices": 0,
+              "sleevingMm": 0,
+              "heatshrink": 2,
+              "labels": 2,
+              "ties": 3,
+              "contactsOverride": 0,
+              "testMin": 0
+            },
+            "composite": {
+              "materialId": "cf200p",
+              "machineId": "oven",
+              "coreId": "",
+              "coreThickness": 0,
+              "areaMm2": 120000,
+              "plies": 4,
+              "debulks": 1,
+              "cureHr": 4,
+              "partsPerCure": 2,
+              "toolCost": 180000,
+              "toolLife": 400,
+              "trimMin": 0,
+              "ndtMin": 0
+            },
+            "foam": {
+              "materialId": "epp60",
+              "machineId": "foamCnc",
+              "method": "cnc",
+              "bx": 300,
+              "by": 120,
+              "bz": 60,
+              "partVolume": 900000,
+              "toolCost": 0,
+              "toolLife": 1000,
+              "cavities": 1,
+              "cycleSec": 0,
+              "skinArea": 0
+            }
+          }
+        },
+        {
+          "id": "ppuj96up",
+          "name": "Propeller, 18x6 folding CF",
+          "partNo": "PRP-1806",
+          "qty": 1,
+          "notes": "",
+          "module": "Rotor",
+          "massG": 48,
+          "fieldAssembly": true,
+          "toolFree": false,
+          "domain": "mech",
+          "itemType": "part",
+          "parent": "",
+          "op": {
+            "sec": 0,
+            "cost": 0,
+            "kind": "other"
+          },
+          "service": {
+            "cls": "field",
+            "removalsPerLife": 40,
+            "accessDepth": 0,
+            "destructive": false,
+            "solderJoints": 0,
+            "reworkMin": 0
+          },
+          "dfa": {
+            "isBase": false,
+            "bCat": "other",
+            "moveRelative": true,
+            "differentMaterial": false,
+            "separateForService": false,
+            "reason": "Rotating, and removed for transport.",
+            "size": "large",
+            "sym": "twoWay",
+            "hFlags": {
+              "delicate": true
+            },
+            "dir": "topDown",
+            "fFlags": {
+              "notSelfLocating": true
+            },
+            "fix": "none",
+            "fixCount": 1
+          },
+          "cost": {
+            "process": "purchased",
+            "basis": "inherit",
+            "purchasedPrice": 3200,
+            "machining": {
+              "materialId": "al6061",
+              "machineId": "vmc",
+              "stockForm": "block",
+              "L": 60,
+              "W": 40,
+              "H": 20,
+              "D": 0,
+              "partVolume": 28000,
+              "surfaceArea": 0,
+              "holes": [
+                {
+                  "count": 4,
+                  "dia": 5,
+                  "depth": 20
+                }
+              ],
+              "setups": 1,
+              "toolChanges": 3,
+              "setupMin": 35,
+              "batchSize": 50,
+              "tolerance": "coarse",
+              "finish": "asMachined",
+              "scrapCredit": true
+            },
+            "fdm": {
+              "materialId": "petg",
+              "machineId": "fdm1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "layerHeight": 0.2,
+              "nozzle": 0.4,
+              "infillPct": 25,
+              "walls": 3,
+              "supportPct": 12,
+              "partsPerPlate": 4,
+              "surfaceArea": 0
+            },
+            "powder": {
+              "materialId": "pa12",
+              "machineId": "mjf1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "partsPerBuild": 0,
+              "packingOverride": 0
+            },
+            "harness": {
+              "wireId": "w22",
+              "lengthMm": 300,
+              "cores": 2,
+              "branches": 1,
+              "connAPins": 2,
+              "connAPrice": 35,
+              "connBPins": 2,
+              "connBPrice": 35,
+              "splices": 0,
+              "sleevingMm": 0,
+              "heatshrink": 2,
+              "labels": 2,
+              "ties": 3,
+              "contactsOverride": 0,
+              "testMin": 0
+            },
+            "composite": {
+              "materialId": "cf200p",
+              "machineId": "oven",
+              "coreId": "",
+              "coreThickness": 0,
+              "areaMm2": 120000,
+              "plies": 4,
+              "debulks": 1,
+              "cureHr": 4,
+              "partsPerCure": 2,
+              "toolCost": 180000,
+              "toolLife": 400,
+              "trimMin": 0,
+              "ndtMin": 0
+            },
+            "foam": {
+              "materialId": "epp60",
+              "machineId": "foamCnc",
+              "method": "cnc",
+              "bx": 300,
+              "by": 120,
+              "bz": 60,
+              "partVolume": 900000,
+              "toolCost": 0,
+              "toolLife": 1000,
+              "cavities": 1,
+              "cycleSec": 0,
+              "skinArea": 0
+            }
+          }
+        },
+        {
+          "id": "pooyxnaj",
+          "name": "Prop bolt M5 x 25 + washer",
+          "partNo": "STD-M5x25",
+          "qty": 1,
+          "notes": "",
+          "module": "Fasteners",
+          "massG": 6,
+          "fieldAssembly": true,
+          "toolFree": false,
+          "domain": "mech",
+          "itemType": "part",
+          "parent": "",
+          "op": {
+            "sec": 0,
+            "cost": 0,
+            "kind": "other"
+          },
+          "service": {
+            "cls": "none",
+            "removalsPerLife": 0,
+            "accessDepth": 0,
+            "destructive": false,
+            "solderJoints": 0,
+            "reworkMin": 0
+          },
+          "dfa": {
+            "isBase": false,
+            "bCat": "fastener",
+            "moveRelative": false,
+            "differentMaterial": false,
+            "separateForService": false,
+            "reason": "Standard fastener retaining the propeller.",
+            "size": "small",
+            "sym": "oneWay",
+            "hFlags": {},
+            "dir": "topDown",
+            "fFlags": {
+              "torqueSpec": true
+            },
+            "fix": "screw",
+            "fixCount": 1
+          },
+          "cost": {
+            "process": "purchased",
+            "basis": "inherit",
+            "purchasedPrice": 12,
+            "machining": {
+              "materialId": "al6061",
+              "machineId": "vmc",
+              "stockForm": "block",
+              "L": 60,
+              "W": 40,
+              "H": 20,
+              "D": 0,
+              "partVolume": 28000,
+              "surfaceArea": 0,
+              "holes": [
+                {
+                  "count": 4,
+                  "dia": 5,
+                  "depth": 20
+                }
+              ],
+              "setups": 1,
+              "toolChanges": 3,
+              "setupMin": 35,
+              "batchSize": 50,
+              "tolerance": "coarse",
+              "finish": "asMachined",
+              "scrapCredit": true
+            },
+            "fdm": {
+              "materialId": "petg",
+              "machineId": "fdm1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "layerHeight": 0.2,
+              "nozzle": 0.4,
+              "infillPct": 25,
+              "walls": 3,
+              "supportPct": 12,
+              "partsPerPlate": 4,
+              "surfaceArea": 0
+            },
+            "powder": {
+              "materialId": "pa12",
+              "machineId": "mjf1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "partsPerBuild": 0,
+              "packingOverride": 0
+            },
+            "harness": {
+              "wireId": "w22",
+              "lengthMm": 300,
+              "cores": 2,
+              "branches": 1,
+              "connAPins": 2,
+              "connAPrice": 35,
+              "connBPins": 2,
+              "connBPrice": 35,
+              "splices": 0,
+              "sleevingMm": 0,
+              "heatshrink": 2,
+              "labels": 2,
+              "ties": 3,
+              "contactsOverride": 0,
+              "testMin": 0
+            },
+            "composite": {
+              "materialId": "cf200p",
+              "machineId": "oven",
+              "coreId": "",
+              "coreThickness": 0,
+              "areaMm2": 120000,
+              "plies": 4,
+              "debulks": 1,
+              "cureHr": 4,
+              "partsPerCure": 2,
+              "toolCost": 180000,
+              "toolLife": 400,
+              "trimMin": 0,
+              "ndtMin": 0
+            },
+            "foam": {
+              "materialId": "epp60",
+              "machineId": "foamCnc",
+              "method": "cnc",
+              "bx": 300,
+              "by": 120,
+              "bz": 60,
+              "partVolume": 900000,
+              "toolCost": 0,
+              "toolLife": 1000,
+              "cavities": 1,
+              "cycleSec": 0,
+              "skinArea": 0
+            }
+          }
+        },
+        {
+          "id": "p3l76nmb",
+          "name": "ESC and lead set",
+          "partNo": "ESC-ASY",
+          "qty": 1,
+          "notes": "",
+          "module": "Propulsion elec",
+          "massG": 0,
+          "fieldAssembly": false,
+          "toolFree": false,
+          "domain": "electromech",
+          "itemType": "subassembly",
+          "parent": "",
+          "op": {
+            "sec": 0,
+            "cost": 0,
+            "kind": "other"
+          },
+          "service": {
+            "cls": "none",
+            "removalsPerLife": 0,
+            "accessDepth": 0,
+            "destructive": false,
+            "solderJoints": 0,
+            "reworkMin": 0
+          },
+          "dfa": {
+            "isBase": false,
+            "bCat": "other",
+            "moveRelative": false,
+            "differentMaterial": true,
+            "separateForService": false,
+            "reason": "Built and tested on the bench, fitted to the arm as one unit.",
+            "size": "normal",
+            "sym": "oneWay",
+            "hFlags": {},
+            "dir": "topDown",
+            "fFlags": {
+              "esd": true
+            },
+            "fix": "none",
+            "fixCount": 1
+          },
+          "cost": {
+            "process": "purchased",
+            "basis": "inherit",
+            "purchasedPrice": 0,
+            "machining": {
+              "materialId": "al6061",
+              "machineId": "vmc",
+              "stockForm": "block",
+              "L": 60,
+              "W": 40,
+              "H": 20,
+              "D": 0,
+              "partVolume": 28000,
+              "surfaceArea": 0,
+              "holes": [
+                {
+                  "count": 4,
+                  "dia": 5,
+                  "depth": 20
+                }
+              ],
+              "setups": 1,
+              "toolChanges": 3,
+              "setupMin": 35,
+              "batchSize": 50,
+              "tolerance": "coarse",
+              "finish": "asMachined",
+              "scrapCredit": true
+            },
+            "fdm": {
+              "materialId": "petg",
+              "machineId": "fdm1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "layerHeight": 0.2,
+              "nozzle": 0.4,
+              "infillPct": 25,
+              "walls": 3,
+              "supportPct": 12,
+              "partsPerPlate": 4,
+              "surfaceArea": 0
+            },
+            "powder": {
+              "materialId": "pa12",
+              "machineId": "mjf1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "partsPerBuild": 0,
+              "packingOverride": 0
+            },
+            "harness": {
+              "wireId": "w22",
+              "lengthMm": 300,
+              "cores": 2,
+              "branches": 1,
+              "connAPins": 2,
+              "connAPrice": 35,
+              "connBPins": 2,
+              "connBPrice": 35,
+              "splices": 0,
+              "sleevingMm": 0,
+              "heatshrink": 2,
+              "labels": 2,
+              "ties": 3,
+              "contactsOverride": 0,
+              "testMin": 0
+            },
+            "composite": {
+              "materialId": "cf200p",
+              "machineId": "oven",
+              "coreId": "",
+              "coreThickness": 0,
+              "areaMm2": 120000,
+              "plies": 4,
+              "debulks": 1,
+              "cureHr": 4,
+              "partsPerCure": 2,
+              "toolCost": 180000,
+              "toolLife": 400,
+              "trimMin": 0,
+              "ndtMin": 0
+            },
+            "foam": {
+              "materialId": "epp60",
+              "machineId": "foamCnc",
+              "method": "cnc",
+              "bx": 300,
+              "by": 120,
+              "bz": 60,
+              "partVolume": 900000,
+              "toolCost": 0,
+              "toolLife": 1000,
+              "cavities": 1,
+              "cycleSec": 0,
+              "skinArea": 0
+            }
+          }
+        },
+        {
+          "id": "p59oxzt2",
+          "name": "ESC, 60 A",
+          "partNo": "ESC-060",
+          "qty": 1,
+          "notes": "",
+          "module": "Propulsion elec",
+          "massG": 82,
+          "fieldAssembly": false,
+          "toolFree": false,
+          "domain": "elec",
+          "itemType": "part",
+          "parent": "p3l76nmb",
+          "op": {
+            "sec": 0,
+            "cost": 0,
+            "kind": "other"
+          },
+          "service": {
+            "cls": "depot",
+            "removalsPerLife": 3,
+            "accessDepth": 2,
+            "destructive": false,
+            "solderJoints": 3,
+            "reworkMin": 0
+          },
+          "dfa": {
+            "isBase": false,
+            "bCat": "other",
+            "moveRelative": false,
+            "differentMaterial": true,
+            "separateForService": false,
+            "reason": "Electronic assembly - must be electrically isolated from the structure.",
+            "size": "normal",
+            "sym": "oneWay",
+            "hFlags": {
+              "delicate": true
+            },
+            "dir": "topDown",
+            "fFlags": {
+              "esd": true
+            },
+            "fix": "none",
+            "fixCount": 1
+          },
+          "cost": {
+            "process": "purchased",
+            "basis": "inherit",
+            "purchasedPrice": 8500,
+            "machining": {
+              "materialId": "al6061",
+              "machineId": "vmc",
+              "stockForm": "block",
+              "L": 60,
+              "W": 40,
+              "H": 20,
+              "D": 0,
+              "partVolume": 28000,
+              "surfaceArea": 0,
+              "holes": [
+                {
+                  "count": 4,
+                  "dia": 5,
+                  "depth": 20
+                }
+              ],
+              "setups": 1,
+              "toolChanges": 3,
+              "setupMin": 35,
+              "batchSize": 50,
+              "tolerance": "coarse",
+              "finish": "asMachined",
+              "scrapCredit": true
+            },
+            "fdm": {
+              "materialId": "petg",
+              "machineId": "fdm1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "layerHeight": 0.2,
+              "nozzle": 0.4,
+              "infillPct": 25,
+              "walls": 3,
+              "supportPct": 12,
+              "partsPerPlate": 4,
+              "surfaceArea": 0
+            },
+            "powder": {
+              "materialId": "pa12",
+              "machineId": "mjf1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "partsPerBuild": 0,
+              "packingOverride": 0
+            },
+            "harness": {
+              "wireId": "w22",
+              "lengthMm": 300,
+              "cores": 2,
+              "branches": 1,
+              "connAPins": 2,
+              "connAPrice": 35,
+              "connBPins": 2,
+              "connBPrice": 35,
+              "splices": 0,
+              "sleevingMm": 0,
+              "heatshrink": 2,
+              "labels": 2,
+              "ties": 3,
+              "contactsOverride": 0,
+              "testMin": 0
+            },
+            "composite": {
+              "materialId": "cf200p",
+              "machineId": "oven",
+              "coreId": "",
+              "coreThickness": 0,
+              "areaMm2": 120000,
+              "plies": 4,
+              "debulks": 1,
+              "cureHr": 4,
+              "partsPerCure": 2,
+              "toolCost": 180000,
+              "toolLife": 400,
+              "trimMin": 0,
+              "ndtMin": 0
+            },
+            "foam": {
+              "materialId": "epp60",
+              "machineId": "foamCnc",
+              "method": "cnc",
+              "bx": 300,
+              "by": 120,
+              "bz": 60,
+              "partVolume": 900000,
+              "toolCost": 0,
+              "toolLife": 1000,
+              "cavities": 1,
+              "cycleSec": 0,
+              "skinArea": 0
+            }
+          }
+        },
+        {
+          "id": "p5daydnm",
+          "name": "Motor lead harness, 3 core",
+          "partNo": "HRN-ARM",
+          "qty": 1,
+          "notes": "",
+          "module": "Propulsion elec",
+          "massG": 0,
+          "fieldAssembly": false,
+          "toolFree": false,
+          "domain": "wiring",
+          "itemType": "part",
+          "parent": "p3l76nmb",
+          "op": {
+            "sec": 0,
+            "cost": 0,
+            "kind": "other"
+          },
+          "service": {
+            "cls": "none",
+            "removalsPerLife": 0,
+            "accessDepth": 0,
+            "destructive": false,
+            "solderJoints": 0,
+            "reworkMin": 0
+          },
+          "dfa": {
+            "isBase": false,
+            "bCat": "other",
+            "moveRelative": false,
+            "differentMaterial": true,
+            "separateForService": false,
+            "reason": "Flexible conductor - cannot be integral with either end.",
+            "size": "normal",
+            "sym": "oneWay",
+            "hFlags": {},
+            "dir": "topDown",
+            "fFlags": {
+              "routing": true,
+              "esd": true
+            },
+            "fix": "solder",
+            "fixCount": 3
+          },
+          "cost": {
+            "process": "harness",
+            "basis": "inherit",
+            "purchasedPrice": 0,
+            "machining": {
+              "materialId": "al6061",
+              "machineId": "vmc",
+              "stockForm": "block",
+              "L": 60,
+              "W": 40,
+              "H": 20,
+              "D": 0,
+              "partVolume": 28000,
+              "surfaceArea": 0,
+              "holes": [
+                {
+                  "count": 4,
+                  "dia": 5,
+                  "depth": 20
+                }
+              ],
+              "setups": 1,
+              "toolChanges": 3,
+              "setupMin": 35,
+              "batchSize": 50,
+              "tolerance": "coarse",
+              "finish": "asMachined",
+              "scrapCredit": true
+            },
+            "fdm": {
+              "materialId": "petg",
+              "machineId": "fdm1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "layerHeight": 0.2,
+              "nozzle": 0.4,
+              "infillPct": 25,
+              "walls": 3,
+              "supportPct": 12,
+              "partsPerPlate": 4,
+              "surfaceArea": 0
+            },
+            "powder": {
+              "materialId": "pa12",
+              "machineId": "mjf1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "partsPerBuild": 0,
+              "packingOverride": 0
+            },
+            "harness": {
+              "wireId": "w14",
+              "lengthMm": 180,
+              "cores": 3,
+              "branches": 1,
+              "connAPins": 0,
+              "connAPrice": 0,
+              "connBPins": 0,
+              "connBPrice": 0,
+              "splices": 0,
+              "sleevingMm": 0,
+              "heatshrink": 6,
+              "labels": 1,
+              "ties": 0,
+              "contactsOverride": 0,
+              "testMin": 0
+            },
+            "composite": {
+              "materialId": "cf200p",
+              "machineId": "oven",
+              "coreId": "",
+              "coreThickness": 0,
+              "areaMm2": 120000,
+              "plies": 4,
+              "debulks": 1,
+              "cureHr": 4,
+              "partsPerCure": 2,
+              "toolCost": 180000,
+              "toolLife": 400,
+              "trimMin": 0,
+              "ndtMin": 0
+            },
+            "foam": {
+              "materialId": "epp60",
+              "machineId": "foamCnc",
+              "method": "cnc",
+              "bx": 300,
+              "by": 120,
+              "bz": 60,
+              "partVolume": 900000,
+              "toolCost": 0,
+              "toolLife": 1000,
+              "cavities": 1,
+              "cycleSec": 0,
+              "skinArea": 0
+            }
+          }
+        },
+        {
+          "id": "p89xbbwz",
+          "name": "Cable tie, 150 mm",
+          "partNo": "STD-TIE150",
+          "qty": 2,
+          "notes": "",
+          "module": "Fasteners",
+          "massG": 0.5,
+          "fieldAssembly": false,
+          "toolFree": false,
+          "domain": "mech",
+          "itemType": "part",
+          "parent": "p3l76nmb",
+          "op": {
+            "sec": 0,
+            "cost": 0,
+            "kind": "other"
+          },
+          "service": {
+            "cls": "none",
+            "removalsPerLife": 0,
+            "accessDepth": 0,
+            "destructive": false,
+            "solderJoints": 0,
+            "reworkMin": 0
+          },
+          "dfa": {
+            "isBase": false,
+            "bCat": "fastener",
+            "moveRelative": false,
+            "differentMaterial": false,
+            "separateForService": false,
+            "reason": "Holds the ESC against the boom.",
+            "size": "small",
+            "sym": "oneWay",
+            "hFlags": {
+              "nests": true
+            },
+            "dir": "side",
+            "fFlags": {},
+            "fix": "cableTie",
+            "fixCount": 1
+          },
+          "cost": {
+            "process": "purchased",
+            "basis": "inherit",
+            "purchasedPrice": 1,
+            "machining": {
+              "materialId": "al6061",
+              "machineId": "vmc",
+              "stockForm": "block",
+              "L": 60,
+              "W": 40,
+              "H": 20,
+              "D": 0,
+              "partVolume": 28000,
+              "surfaceArea": 0,
+              "holes": [
+                {
+                  "count": 4,
+                  "dia": 5,
+                  "depth": 20
+                }
+              ],
+              "setups": 1,
+              "toolChanges": 3,
+              "setupMin": 35,
+              "batchSize": 50,
+              "tolerance": "coarse",
+              "finish": "asMachined",
+              "scrapCredit": true
+            },
+            "fdm": {
+              "materialId": "petg",
+              "machineId": "fdm1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "layerHeight": 0.2,
+              "nozzle": 0.4,
+              "infillPct": 25,
+              "walls": 3,
+              "supportPct": 12,
+              "partsPerPlate": 4,
+              "surfaceArea": 0
+            },
+            "powder": {
+              "materialId": "pa12",
+              "machineId": "mjf1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "partsPerBuild": 0,
+              "packingOverride": 0
+            },
+            "harness": {
+              "wireId": "w22",
+              "lengthMm": 300,
+              "cores": 2,
+              "branches": 1,
+              "connAPins": 2,
+              "connAPrice": 35,
+              "connBPins": 2,
+              "connBPrice": 35,
+              "splices": 0,
+              "sleevingMm": 0,
+              "heatshrink": 2,
+              "labels": 2,
+              "ties": 3,
+              "contactsOverride": 0,
+              "testMin": 0
+            },
+            "composite": {
+              "materialId": "cf200p",
+              "machineId": "oven",
+              "coreId": "",
+              "coreThickness": 0,
+              "areaMm2": 120000,
+              "plies": 4,
+              "debulks": 1,
+              "cureHr": 4,
+              "partsPerCure": 2,
+              "toolCost": 180000,
+              "toolLife": 400,
+              "trimMin": 0,
+              "ndtMin": 0
+            },
+            "foam": {
+              "materialId": "epp60",
+              "machineId": "foamCnc",
+              "method": "cnc",
+              "bx": 300,
+              "by": 120,
+              "bz": 60,
+              "partVolume": 900000,
+              "toolCost": 0,
+              "toolLife": 1000,
+              "cavities": 1,
+              "cycleSec": 0,
+              "skinArea": 0
+            }
+          }
+        },
+        {
+          "id": "psbdzmwi",
+          "name": "Apply threadlocker - clamp and motor screws",
+          "partNo": "",
+          "qty": 1,
+          "notes": "",
+          "module": "Arm structure",
+          "massG": 0,
+          "fieldAssembly": false,
+          "toolFree": false,
+          "domain": "mech",
+          "itemType": "operation",
+          "parent": "",
+          "op": {
+            "sec": 35,
+            "cost": 4,
+            "kind": "material"
+          },
+          "service": {
+            "cls": "none",
+            "removalsPerLife": 0,
+            "accessDepth": 0,
+            "destructive": false,
+            "solderJoints": 0,
+            "reworkMin": 0
+          },
+          "dfa": {
+            "isBase": false,
+            "bCat": "other",
+            "moveRelative": false,
+            "differentMaterial": false,
+            "separateForService": false,
+            "reason": "",
+            "size": "normal",
+            "sym": "oneWay",
+            "hFlags": {},
+            "dir": "topDown",
+            "fFlags": {},
+            "fix": "none",
+            "fixCount": 1
+          },
+          "cost": {
+            "process": "machining",
+            "basis": "inherit",
+            "purchasedPrice": 0,
+            "machining": {
+              "materialId": "al6061",
+              "machineId": "vmc",
+              "stockForm": "block",
+              "L": 60,
+              "W": 40,
+              "H": 20,
+              "D": 0,
+              "partVolume": 28000,
+              "surfaceArea": 0,
+              "holes": [
+                {
+                  "count": 4,
+                  "dia": 5,
+                  "depth": 20
+                }
+              ],
+              "setups": 1,
+              "toolChanges": 3,
+              "setupMin": 35,
+              "batchSize": 50,
+              "tolerance": "coarse",
+              "finish": "asMachined",
+              "scrapCredit": true
+            },
+            "fdm": {
+              "materialId": "petg",
+              "machineId": "fdm1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "layerHeight": 0.2,
+              "nozzle": 0.4,
+              "infillPct": 25,
+              "walls": 3,
+              "supportPct": 12,
+              "partsPerPlate": 4,
+              "surfaceArea": 0
+            },
+            "powder": {
+              "materialId": "pa12",
+              "machineId": "mjf1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "partsPerBuild": 0,
+              "packingOverride": 0
+            },
+            "harness": {
+              "wireId": "w22",
+              "lengthMm": 300,
+              "cores": 2,
+              "branches": 1,
+              "connAPins": 2,
+              "connAPrice": 35,
+              "connBPins": 2,
+              "connBPrice": 35,
+              "splices": 0,
+              "sleevingMm": 0,
+              "heatshrink": 2,
+              "labels": 2,
+              "ties": 3,
+              "contactsOverride": 0,
+              "testMin": 0
+            },
+            "composite": {
+              "materialId": "cf200p",
+              "machineId": "oven",
+              "coreId": "",
+              "coreThickness": 0,
+              "areaMm2": 120000,
+              "plies": 4,
+              "debulks": 1,
+              "cureHr": 4,
+              "partsPerCure": 2,
+              "toolCost": 180000,
+              "toolLife": 400,
+              "trimMin": 0,
+              "ndtMin": 0
+            },
+            "foam": {
+              "materialId": "epp60",
+              "machineId": "foamCnc",
+              "method": "cnc",
+              "bx": 300,
+              "by": 120,
+              "bz": 60,
+              "partVolume": 900000,
+              "toolCost": 0,
+              "toolLife": 1000,
+              "cavities": 1,
+              "cycleSec": 0,
+              "skinArea": 0
+            }
+          }
+        },
+        {
+          "id": "p5cpigd6",
+          "name": "Heatshrink and label the lead set",
+          "partNo": "",
+          "qty": 1,
+          "notes": "",
+          "module": "Propulsion elec",
+          "massG": 0,
+          "fieldAssembly": false,
+          "toolFree": false,
+          "domain": "wiring",
+          "itemType": "operation",
+          "parent": "p3l76nmb",
+          "op": {
+            "sec": 95,
+            "cost": 8,
+            "kind": "joining"
+          },
+          "service": {
+            "cls": "none",
+            "removalsPerLife": 0,
+            "accessDepth": 0,
+            "destructive": false,
+            "solderJoints": 0,
+            "reworkMin": 0
+          },
+          "dfa": {
+            "isBase": false,
+            "bCat": "other",
+            "moveRelative": false,
+            "differentMaterial": false,
+            "separateForService": false,
+            "reason": "",
+            "size": "normal",
+            "sym": "oneWay",
+            "hFlags": {},
+            "dir": "topDown",
+            "fFlags": {},
+            "fix": "none",
+            "fixCount": 1
+          },
+          "cost": {
+            "process": "machining",
+            "basis": "inherit",
+            "purchasedPrice": 0,
+            "machining": {
+              "materialId": "al6061",
+              "machineId": "vmc",
+              "stockForm": "block",
+              "L": 60,
+              "W": 40,
+              "H": 20,
+              "D": 0,
+              "partVolume": 28000,
+              "surfaceArea": 0,
+              "holes": [
+                {
+                  "count": 4,
+                  "dia": 5,
+                  "depth": 20
+                }
+              ],
+              "setups": 1,
+              "toolChanges": 3,
+              "setupMin": 35,
+              "batchSize": 50,
+              "tolerance": "coarse",
+              "finish": "asMachined",
+              "scrapCredit": true
+            },
+            "fdm": {
+              "materialId": "petg",
+              "machineId": "fdm1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "layerHeight": 0.2,
+              "nozzle": 0.4,
+              "infillPct": 25,
+              "walls": 3,
+              "supportPct": 12,
+              "partsPerPlate": 4,
+              "surfaceArea": 0
+            },
+            "powder": {
+              "materialId": "pa12",
+              "machineId": "mjf1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "partsPerBuild": 0,
+              "packingOverride": 0
+            },
+            "harness": {
+              "wireId": "w22",
+              "lengthMm": 300,
+              "cores": 2,
+              "branches": 1,
+              "connAPins": 2,
+              "connAPrice": 35,
+              "connBPins": 2,
+              "connBPrice": 35,
+              "splices": 0,
+              "sleevingMm": 0,
+              "heatshrink": 2,
+              "labels": 2,
+              "ties": 3,
+              "contactsOverride": 0,
+              "testMin": 0
+            },
+            "composite": {
+              "materialId": "cf200p",
+              "machineId": "oven",
+              "coreId": "",
+              "coreThickness": 0,
+              "areaMm2": 120000,
+              "plies": 4,
+              "debulks": 1,
+              "cureHr": 4,
+              "partsPerCure": 2,
+              "toolCost": 180000,
+              "toolLife": 400,
+              "trimMin": 0,
+              "ndtMin": 0
+            },
+            "foam": {
+              "materialId": "epp60",
+              "machineId": "foamCnc",
+              "method": "cnc",
+              "bx": 300,
+              "by": 120,
+              "bz": 60,
+              "partVolume": 900000,
+              "toolCost": 0,
+              "toolLife": 1000,
+              "cavities": 1,
+              "cycleSec": 0,
+              "skinArea": 0
+            }
+          }
+        },
+        {
+          "id": "p8wmc0t5",
+          "name": "Motor direction and vibration check",
+          "partNo": "",
+          "qty": 1,
+          "notes": "",
+          "module": "Rotor",
+          "massG": 0,
+          "fieldAssembly": false,
+          "toolFree": false,
+          "domain": "electromech",
+          "itemType": "operation",
+          "parent": "",
+          "op": {
+            "sec": 150,
+            "cost": 0,
+            "kind": "test"
+          },
+          "service": {
+            "cls": "none",
+            "removalsPerLife": 0,
+            "accessDepth": 0,
+            "destructive": false,
+            "solderJoints": 0,
+            "reworkMin": 0
+          },
+          "dfa": {
+            "isBase": false,
+            "bCat": "other",
+            "moveRelative": false,
+            "differentMaterial": false,
+            "separateForService": false,
+            "reason": "",
+            "size": "normal",
+            "sym": "oneWay",
+            "hFlags": {},
+            "dir": "topDown",
+            "fFlags": {},
+            "fix": "none",
+            "fixCount": 1
+          },
+          "cost": {
+            "process": "machining",
+            "basis": "inherit",
+            "purchasedPrice": 0,
+            "machining": {
+              "materialId": "al6061",
+              "machineId": "vmc",
+              "stockForm": "block",
+              "L": 60,
+              "W": 40,
+              "H": 20,
+              "D": 0,
+              "partVolume": 28000,
+              "surfaceArea": 0,
+              "holes": [
+                {
+                  "count": 4,
+                  "dia": 5,
+                  "depth": 20
+                }
+              ],
+              "setups": 1,
+              "toolChanges": 3,
+              "setupMin": 35,
+              "batchSize": 50,
+              "tolerance": "coarse",
+              "finish": "asMachined",
+              "scrapCredit": true
+            },
+            "fdm": {
+              "materialId": "petg",
+              "machineId": "fdm1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "layerHeight": 0.2,
+              "nozzle": 0.4,
+              "infillPct": 25,
+              "walls": 3,
+              "supportPct": 12,
+              "partsPerPlate": 4,
+              "surfaceArea": 0
+            },
+            "powder": {
+              "materialId": "pa12",
+              "machineId": "mjf1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "partsPerBuild": 0,
+              "packingOverride": 0
+            },
+            "harness": {
+              "wireId": "w22",
+              "lengthMm": 300,
+              "cores": 2,
+              "branches": 1,
+              "connAPins": 2,
+              "connAPrice": 35,
+              "connBPins": 2,
+              "connBPrice": 35,
+              "splices": 0,
+              "sleevingMm": 0,
+              "heatshrink": 2,
+              "labels": 2,
+              "ties": 3,
+              "contactsOverride": 0,
+              "testMin": 0
+            },
+            "composite": {
+              "materialId": "cf200p",
+              "machineId": "oven",
+              "coreId": "",
+              "coreThickness": 0,
+              "areaMm2": 120000,
+              "plies": 4,
+              "debulks": 1,
+              "cureHr": 4,
+              "partsPerCure": 2,
+              "toolCost": 180000,
+              "toolLife": 400,
+              "trimMin": 0,
+              "ndtMin": 0
+            },
+            "foam": {
+              "materialId": "epp60",
+              "machineId": "foamCnc",
+              "method": "cnc",
+              "bx": 300,
+              "by": 120,
+              "bz": 60,
+              "partVolume": 900000,
+              "toolCost": 0,
+              "toolLife": 1000,
+              "cavities": 1,
+              "cycleSec": 0,
+              "skinArea": 0
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "vw4ifa",
+      "name": "Option 1 — consolidation",
+      "note": "Lower clamp machined integral with the mount plate; ESC on a printed clip instead of ties.",
+      "parts": [
+        {
+          "id": "ps30za4n",
+          "name": "Motor mount plate with integral clamp",
+          "partNo": "ARM-101",
+          "qty": 1,
+          "notes": "",
+          "module": "Arm structure",
+          "massG": 0,
+          "fieldAssembly": false,
+          "toolFree": false,
+          "domain": "mech",
+          "itemType": "part",
+          "parent": "",
+          "op": {
+            "sec": 0,
+            "cost": 0,
+            "kind": "other"
+          },
+          "service": {
+            "cls": "none",
+            "removalsPerLife": 0,
+            "accessDepth": 0,
+            "destructive": false,
+            "solderJoints": 0,
+            "reworkMin": 0
+          },
+          "dfa": {
+            "isBase": true,
+            "bCat": "other",
+            "moveRelative": false,
+            "differentMaterial": false,
+            "separateForService": false,
+            "reason": "Base part - the boom clamp, motor and ESC all mount to it.",
+            "size": "normal",
+            "sym": "twoWay",
+            "hFlags": {},
+            "dir": "topDown",
+            "fFlags": {},
+            "fix": "later",
+            "fixCount": 1
+          },
+          "cost": {
+            "process": "machining",
+            "basis": "inherit",
+            "purchasedPrice": 0,
+            "machining": {
+              "materialId": "al6061",
+              "machineId": "vmc",
+              "stockForm": "block",
+              "L": 72,
+              "W": 72,
+              "H": 8,
+              "D": 0,
+              "partVolume": 37000,
+              "surfaceArea": 0,
+              "holes": [
+                {
+                  "count": 4,
+                  "dia": 3.3,
+                  "depth": 8
+                },
+                {
+                  "count": 4,
+                  "dia": 4.5,
+                  "depth": 8
+                }
+              ],
+              "setups": 2,
+              "toolChanges": 6,
+              "setupMin": 48,
+              "batchSize": 200,
+              "tolerance": "medium",
+              "finish": "asMachined",
+              "scrapCredit": true,
+              "bz": 20
+            },
+            "fdm": {
+              "materialId": "petg",
+              "machineId": "fdm1",
+              "bx": 72,
+              "by": 72,
+              "bz": 8,
+              "partVolume": 28000,
+              "layerHeight": 0.2,
+              "nozzle": 0.4,
+              "infillPct": 25,
+              "walls": 3,
+              "supportPct": 12,
+              "partsPerPlate": 4,
+              "surfaceArea": 0
+            },
+            "powder": {
+              "materialId": "pa12",
+              "machineId": "mjf1",
+              "bx": 72,
+              "by": 72,
+              "bz": 8,
+              "partVolume": 28000,
+              "partsPerBuild": 0,
+              "packingOverride": 0
+            },
+            "harness": {
+              "wireId": "w22",
+              "lengthMm": 300,
+              "cores": 2,
+              "branches": 1,
+              "connAPins": 2,
+              "connAPrice": 35,
+              "connBPins": 2,
+              "connBPrice": 35,
+              "splices": 0,
+              "sleevingMm": 0,
+              "heatshrink": 2,
+              "labels": 2,
+              "ties": 3,
+              "contactsOverride": 0,
+              "testMin": 0
+            },
+            "composite": {
+              "materialId": "cf200p",
+              "machineId": "oven",
+              "coreId": "",
+              "coreThickness": 0,
+              "areaMm2": 120000,
+              "plies": 4,
+              "debulks": 1,
+              "cureHr": 4,
+              "partsPerCure": 2,
+              "toolCost": 180000,
+              "toolLife": 400,
+              "trimMin": 0,
+              "ndtMin": 0
+            },
+            "foam": {
+              "materialId": "epp60",
+              "machineId": "foamCnc",
+              "method": "cnc",
+              "bx": 72,
+              "by": 72,
+              "bz": 8,
+              "partVolume": 28000,
+              "toolCost": 0,
+              "toolLife": 1000,
+              "cavities": 1,
+              "cycleSec": 0,
+              "skinArea": 0
+            }
+          }
+        },
+        {
+          "id": "px74m5ay",
+          "name": "Boom clamp, upper half",
+          "partNo": "ARM-102",
+          "qty": 1,
+          "notes": "",
+          "module": "Arm structure",
+          "massG": 0,
+          "fieldAssembly": false,
+          "toolFree": false,
+          "domain": "mech",
+          "itemType": "part",
+          "parent": "",
+          "op": {
+            "sec": 0,
+            "cost": 0,
+            "kind": "other"
+          },
+          "service": {
+            "cls": "none",
+            "removalsPerLife": 0,
+            "accessDepth": 0,
+            "destructive": false,
+            "solderJoints": 0,
+            "reworkMin": 0
+          },
+          "dfa": {
+            "isBase": false,
+            "bCat": "other",
+            "moveRelative": false,
+            "differentMaterial": false,
+            "separateForService": true,
+            "reason": "Must be separate so the boom tube can be fitted into the clamp.",
+            "size": "normal",
+            "sym": "twoWay",
+            "hFlags": {},
+            "dir": "topDown",
+            "fFlags": {
+              "notSelfLocating": true,
+              "torqueSpec": true,
+              "threadlock": true
+            },
+            "fix": "screw",
+            "fixCount": 4
+          },
+          "cost": {
+            "process": "machining",
+            "basis": "inherit",
+            "purchasedPrice": 0,
+            "machining": {
+              "materialId": "al6061",
+              "machineId": "vmc",
+              "stockForm": "block",
+              "L": 60,
+              "W": 34,
+              "H": 16,
+              "D": 0,
+              "partVolume": 14000,
+              "surfaceArea": 0,
+              "holes": [
+                {
+                  "count": 4,
+                  "dia": 4.5,
+                  "depth": 16
+                }
+              ],
+              "setups": 2,
+              "toolChanges": 4,
+              "setupMin": 30,
+              "batchSize": 200,
+              "tolerance": "medium",
+              "finish": "asMachined",
+              "scrapCredit": true
+            },
+            "fdm": {
+              "materialId": "petg",
+              "machineId": "fdm1",
+              "bx": 60,
+              "by": 34,
+              "bz": 16,
+              "partVolume": 14000,
+              "layerHeight": 0.2,
+              "nozzle": 0.4,
+              "infillPct": 25,
+              "walls": 3,
+              "supportPct": 12,
+              "partsPerPlate": 4,
+              "surfaceArea": 0
+            },
+            "powder": {
+              "materialId": "pa12",
+              "machineId": "mjf1",
+              "bx": 60,
+              "by": 34,
+              "bz": 16,
+              "partVolume": 14000,
+              "partsPerBuild": 0,
+              "packingOverride": 0
+            },
+            "harness": {
+              "wireId": "w22",
+              "lengthMm": 300,
+              "cores": 2,
+              "branches": 1,
+              "connAPins": 2,
+              "connAPrice": 35,
+              "connBPins": 2,
+              "connBPrice": 35,
+              "splices": 0,
+              "sleevingMm": 0,
+              "heatshrink": 2,
+              "labels": 2,
+              "ties": 3,
+              "contactsOverride": 0,
+              "testMin": 0
+            },
+            "composite": {
+              "materialId": "cf200p",
+              "machineId": "oven",
+              "coreId": "",
+              "coreThickness": 0,
+              "areaMm2": 120000,
+              "plies": 4,
+              "debulks": 1,
+              "cureHr": 4,
+              "partsPerCure": 2,
+              "toolCost": 180000,
+              "toolLife": 400,
+              "trimMin": 0,
+              "ndtMin": 0
+            },
+            "foam": {
+              "materialId": "epp60",
+              "machineId": "foamCnc",
+              "method": "cnc",
+              "bx": 60,
+              "by": 34,
+              "bz": 16,
+              "partVolume": 14000,
+              "toolCost": 0,
+              "toolLife": 1000,
+              "cavities": 1,
+              "cycleSec": 0,
+              "skinArea": 0
+            }
+          }
+        },
+        {
+          "id": "pzwfmf5n",
+          "name": "M4 x 20 cap screw (clamp)",
+          "partNo": "STD-M4x20",
+          "qty": 4,
+          "notes": "",
+          "module": "Fasteners",
+          "massG": 4.1,
+          "fieldAssembly": false,
+          "toolFree": false,
+          "domain": "mech",
+          "itemType": "part",
+          "parent": "",
+          "op": {
+            "sec": 0,
+            "cost": 0,
+            "kind": "other"
+          },
+          "service": {
+            "cls": "none",
+            "removalsPerLife": 0,
+            "accessDepth": 0,
+            "destructive": false,
+            "solderJoints": 0,
+            "reworkMin": 0
+          },
+          "dfa": {
+            "isBase": false,
+            "bCat": "fastener",
+            "moveRelative": false,
+            "differentMaterial": false,
+            "separateForService": false,
+            "reason": "Standard fastener clamping the arm to the boom.",
+            "size": "small",
+            "sym": "oneWay",
+            "hFlags": {
+              "nests": true
+            },
+            "dir": "topDown",
+            "fFlags": {},
+            "fix": "screw",
+            "fixCount": 1
+          },
+          "cost": {
+            "process": "purchased",
+            "basis": "inherit",
+            "purchasedPrice": 4.2,
+            "machining": {
+              "materialId": "al6061",
+              "machineId": "vmc",
+              "stockForm": "block",
+              "L": 60,
+              "W": 40,
+              "H": 20,
+              "D": 0,
+              "partVolume": 28000,
+              "surfaceArea": 0,
+              "holes": [
+                {
+                  "count": 4,
+                  "dia": 5,
+                  "depth": 20
+                }
+              ],
+              "setups": 1,
+              "toolChanges": 3,
+              "setupMin": 35,
+              "batchSize": 50,
+              "tolerance": "coarse",
+              "finish": "asMachined",
+              "scrapCredit": true
+            },
+            "fdm": {
+              "materialId": "petg",
+              "machineId": "fdm1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "layerHeight": 0.2,
+              "nozzle": 0.4,
+              "infillPct": 25,
+              "walls": 3,
+              "supportPct": 12,
+              "partsPerPlate": 4,
+              "surfaceArea": 0
+            },
+            "powder": {
+              "materialId": "pa12",
+              "machineId": "mjf1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "partsPerBuild": 0,
+              "packingOverride": 0
+            },
+            "harness": {
+              "wireId": "w22",
+              "lengthMm": 300,
+              "cores": 2,
+              "branches": 1,
+              "connAPins": 2,
+              "connAPrice": 35,
+              "connBPins": 2,
+              "connBPrice": 35,
+              "splices": 0,
+              "sleevingMm": 0,
+              "heatshrink": 2,
+              "labels": 2,
+              "ties": 3,
+              "contactsOverride": 0,
+              "testMin": 0
+            },
+            "composite": {
+              "materialId": "cf200p",
+              "machineId": "oven",
+              "coreId": "",
+              "coreThickness": 0,
+              "areaMm2": 120000,
+              "plies": 4,
+              "debulks": 1,
+              "cureHr": 4,
+              "partsPerCure": 2,
+              "toolCost": 180000,
+              "toolLife": 400,
+              "trimMin": 0,
+              "ndtMin": 0
+            },
+            "foam": {
+              "materialId": "epp60",
+              "machineId": "foamCnc",
+              "method": "cnc",
+              "bx": 300,
+              "by": 120,
+              "bz": 60,
+              "partVolume": 900000,
+              "toolCost": 0,
+              "toolLife": 1000,
+              "cavities": 1,
+              "cycleSec": 0,
+              "skinArea": 0
+            }
+          }
+        },
+        {
+          "id": "pyj1qmzl",
+          "name": "VTOL lift motor, 505-class",
+          "partNo": "MOT-505",
+          "qty": 1,
+          "notes": "",
+          "module": "Rotor",
+          "massG": 220,
+          "fieldAssembly": false,
+          "toolFree": false,
+          "domain": "electromech",
+          "itemType": "part",
+          "parent": "",
+          "op": {
+            "sec": 0,
+            "cost": 0,
+            "kind": "other"
+          },
+          "service": {
+            "cls": "field",
+            "removalsPerLife": 4,
+            "accessDepth": 1,
+            "destructive": false,
+            "solderJoints": 0,
+            "reworkMin": 0
+          },
+          "dfa": {
+            "isBase": false,
+            "bCat": "other",
+            "moveRelative": true,
+            "differentMaterial": false,
+            "separateForService": false,
+            "reason": "Rotating machine - the whole point of the arm.",
+            "size": "normal",
+            "sym": "twoWay",
+            "hFlags": {},
+            "dir": "topDown",
+            "fFlags": {
+              "torqueSpec": true,
+              "threadlock": true
+            },
+            "fix": "screw",
+            "fixCount": 4
+          },
+          "cost": {
+            "process": "purchased",
+            "basis": "inherit",
+            "purchasedPrice": 11500,
+            "machining": {
+              "materialId": "al6061",
+              "machineId": "vmc",
+              "stockForm": "block",
+              "L": 60,
+              "W": 40,
+              "H": 20,
+              "D": 0,
+              "partVolume": 28000,
+              "surfaceArea": 0,
+              "holes": [
+                {
+                  "count": 4,
+                  "dia": 5,
+                  "depth": 20
+                }
+              ],
+              "setups": 1,
+              "toolChanges": 3,
+              "setupMin": 35,
+              "batchSize": 50,
+              "tolerance": "coarse",
+              "finish": "asMachined",
+              "scrapCredit": true
+            },
+            "fdm": {
+              "materialId": "petg",
+              "machineId": "fdm1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "layerHeight": 0.2,
+              "nozzle": 0.4,
+              "infillPct": 25,
+              "walls": 3,
+              "supportPct": 12,
+              "partsPerPlate": 4,
+              "surfaceArea": 0
+            },
+            "powder": {
+              "materialId": "pa12",
+              "machineId": "mjf1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "partsPerBuild": 0,
+              "packingOverride": 0
+            },
+            "harness": {
+              "wireId": "w22",
+              "lengthMm": 300,
+              "cores": 2,
+              "branches": 1,
+              "connAPins": 2,
+              "connAPrice": 35,
+              "connBPins": 2,
+              "connBPrice": 35,
+              "splices": 0,
+              "sleevingMm": 0,
+              "heatshrink": 2,
+              "labels": 2,
+              "ties": 3,
+              "contactsOverride": 0,
+              "testMin": 0
+            },
+            "composite": {
+              "materialId": "cf200p",
+              "machineId": "oven",
+              "coreId": "",
+              "coreThickness": 0,
+              "areaMm2": 120000,
+              "plies": 4,
+              "debulks": 1,
+              "cureHr": 4,
+              "partsPerCure": 2,
+              "toolCost": 180000,
+              "toolLife": 400,
+              "trimMin": 0,
+              "ndtMin": 0
+            },
+            "foam": {
+              "materialId": "epp60",
+              "machineId": "foamCnc",
+              "method": "cnc",
+              "bx": 300,
+              "by": 120,
+              "bz": 60,
+              "partVolume": 900000,
+              "toolCost": 0,
+              "toolLife": 1000,
+              "cavities": 1,
+              "cycleSec": 0,
+              "skinArea": 0
+            }
+          }
+        },
+        {
+          "id": "pwz2wrjw",
+          "name": "M3 x 8 cap screw (motor)",
+          "partNo": "STD-M3x8",
+          "qty": 4,
+          "notes": "",
+          "module": "Fasteners",
+          "massG": 1.1,
+          "fieldAssembly": false,
+          "toolFree": false,
+          "domain": "mech",
+          "itemType": "part",
+          "parent": "",
+          "op": {
+            "sec": 0,
+            "cost": 0,
+            "kind": "other"
+          },
+          "service": {
+            "cls": "none",
+            "removalsPerLife": 0,
+            "accessDepth": 0,
+            "destructive": false,
+            "solderJoints": 0,
+            "reworkMin": 0
+          },
+          "dfa": {
+            "isBase": false,
+            "bCat": "fastener",
+            "moveRelative": false,
+            "differentMaterial": false,
+            "separateForService": false,
+            "reason": "Standard fastener holding the motor to the plate.",
+            "size": "small",
+            "sym": "oneWay",
+            "hFlags": {
+              "nests": true
+            },
+            "dir": "underneath",
+            "fFlags": {},
+            "fix": "screw",
+            "fixCount": 1
+          },
+          "cost": {
+            "process": "purchased",
+            "basis": "inherit",
+            "purchasedPrice": 2.2,
+            "machining": {
+              "materialId": "al6061",
+              "machineId": "vmc",
+              "stockForm": "block",
+              "L": 60,
+              "W": 40,
+              "H": 20,
+              "D": 0,
+              "partVolume": 28000,
+              "surfaceArea": 0,
+              "holes": [
+                {
+                  "count": 4,
+                  "dia": 5,
+                  "depth": 20
+                }
+              ],
+              "setups": 1,
+              "toolChanges": 3,
+              "setupMin": 35,
+              "batchSize": 50,
+              "tolerance": "coarse",
+              "finish": "asMachined",
+              "scrapCredit": true
+            },
+            "fdm": {
+              "materialId": "petg",
+              "machineId": "fdm1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "layerHeight": 0.2,
+              "nozzle": 0.4,
+              "infillPct": 25,
+              "walls": 3,
+              "supportPct": 12,
+              "partsPerPlate": 4,
+              "surfaceArea": 0
+            },
+            "powder": {
+              "materialId": "pa12",
+              "machineId": "mjf1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "partsPerBuild": 0,
+              "packingOverride": 0
+            },
+            "harness": {
+              "wireId": "w22",
+              "lengthMm": 300,
+              "cores": 2,
+              "branches": 1,
+              "connAPins": 2,
+              "connAPrice": 35,
+              "connBPins": 2,
+              "connBPrice": 35,
+              "splices": 0,
+              "sleevingMm": 0,
+              "heatshrink": 2,
+              "labels": 2,
+              "ties": 3,
+              "contactsOverride": 0,
+              "testMin": 0
+            },
+            "composite": {
+              "materialId": "cf200p",
+              "machineId": "oven",
+              "coreId": "",
+              "coreThickness": 0,
+              "areaMm2": 120000,
+              "plies": 4,
+              "debulks": 1,
+              "cureHr": 4,
+              "partsPerCure": 2,
+              "toolCost": 180000,
+              "toolLife": 400,
+              "trimMin": 0,
+              "ndtMin": 0
+            },
+            "foam": {
+              "materialId": "epp60",
+              "machineId": "foamCnc",
+              "method": "cnc",
+              "bx": 300,
+              "by": 120,
+              "bz": 60,
+              "partVolume": 900000,
+              "toolCost": 0,
+              "toolLife": 1000,
+              "cavities": 1,
+              "cycleSec": 0,
+              "skinArea": 0
+            }
+          }
+        },
+        {
+          "id": "px1heajj",
+          "name": "Propeller, 18x6 folding CF",
+          "partNo": "PRP-1806",
+          "qty": 1,
+          "notes": "",
+          "module": "Rotor",
+          "massG": 48,
+          "fieldAssembly": true,
+          "toolFree": false,
+          "domain": "mech",
+          "itemType": "part",
+          "parent": "",
+          "op": {
+            "sec": 0,
+            "cost": 0,
+            "kind": "other"
+          },
+          "service": {
+            "cls": "field",
+            "removalsPerLife": 40,
+            "accessDepth": 0,
+            "destructive": false,
+            "solderJoints": 0,
+            "reworkMin": 0
+          },
+          "dfa": {
+            "isBase": false,
+            "bCat": "other",
+            "moveRelative": true,
+            "differentMaterial": false,
+            "separateForService": false,
+            "reason": "Rotating, and removed for transport.",
+            "size": "large",
+            "sym": "twoWay",
+            "hFlags": {
+              "delicate": true
+            },
+            "dir": "topDown",
+            "fFlags": {
+              "notSelfLocating": true
+            },
+            "fix": "none",
+            "fixCount": 1
+          },
+          "cost": {
+            "process": "purchased",
+            "basis": "inherit",
+            "purchasedPrice": 3200,
+            "machining": {
+              "materialId": "al6061",
+              "machineId": "vmc",
+              "stockForm": "block",
+              "L": 60,
+              "W": 40,
+              "H": 20,
+              "D": 0,
+              "partVolume": 28000,
+              "surfaceArea": 0,
+              "holes": [
+                {
+                  "count": 4,
+                  "dia": 5,
+                  "depth": 20
+                }
+              ],
+              "setups": 1,
+              "toolChanges": 3,
+              "setupMin": 35,
+              "batchSize": 50,
+              "tolerance": "coarse",
+              "finish": "asMachined",
+              "scrapCredit": true
+            },
+            "fdm": {
+              "materialId": "petg",
+              "machineId": "fdm1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "layerHeight": 0.2,
+              "nozzle": 0.4,
+              "infillPct": 25,
+              "walls": 3,
+              "supportPct": 12,
+              "partsPerPlate": 4,
+              "surfaceArea": 0
+            },
+            "powder": {
+              "materialId": "pa12",
+              "machineId": "mjf1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "partsPerBuild": 0,
+              "packingOverride": 0
+            },
+            "harness": {
+              "wireId": "w22",
+              "lengthMm": 300,
+              "cores": 2,
+              "branches": 1,
+              "connAPins": 2,
+              "connAPrice": 35,
+              "connBPins": 2,
+              "connBPrice": 35,
+              "splices": 0,
+              "sleevingMm": 0,
+              "heatshrink": 2,
+              "labels": 2,
+              "ties": 3,
+              "contactsOverride": 0,
+              "testMin": 0
+            },
+            "composite": {
+              "materialId": "cf200p",
+              "machineId": "oven",
+              "coreId": "",
+              "coreThickness": 0,
+              "areaMm2": 120000,
+              "plies": 4,
+              "debulks": 1,
+              "cureHr": 4,
+              "partsPerCure": 2,
+              "toolCost": 180000,
+              "toolLife": 400,
+              "trimMin": 0,
+              "ndtMin": 0
+            },
+            "foam": {
+              "materialId": "epp60",
+              "machineId": "foamCnc",
+              "method": "cnc",
+              "bx": 300,
+              "by": 120,
+              "bz": 60,
+              "partVolume": 900000,
+              "toolCost": 0,
+              "toolLife": 1000,
+              "cavities": 1,
+              "cycleSec": 0,
+              "skinArea": 0
+            }
+          }
+        },
+        {
+          "id": "pn6lwwdy",
+          "name": "Prop bolt M5 x 25 + washer",
+          "partNo": "STD-M5x25",
+          "qty": 1,
+          "notes": "",
+          "module": "Fasteners",
+          "massG": 6,
+          "fieldAssembly": true,
+          "toolFree": false,
+          "domain": "mech",
+          "itemType": "part",
+          "parent": "",
+          "op": {
+            "sec": 0,
+            "cost": 0,
+            "kind": "other"
+          },
+          "service": {
+            "cls": "none",
+            "removalsPerLife": 0,
+            "accessDepth": 0,
+            "destructive": false,
+            "solderJoints": 0,
+            "reworkMin": 0
+          },
+          "dfa": {
+            "isBase": false,
+            "bCat": "fastener",
+            "moveRelative": false,
+            "differentMaterial": false,
+            "separateForService": false,
+            "reason": "Standard fastener retaining the propeller.",
+            "size": "small",
+            "sym": "oneWay",
+            "hFlags": {},
+            "dir": "topDown",
+            "fFlags": {
+              "torqueSpec": true
+            },
+            "fix": "screw",
+            "fixCount": 1
+          },
+          "cost": {
+            "process": "purchased",
+            "basis": "inherit",
+            "purchasedPrice": 12,
+            "machining": {
+              "materialId": "al6061",
+              "machineId": "vmc",
+              "stockForm": "block",
+              "L": 60,
+              "W": 40,
+              "H": 20,
+              "D": 0,
+              "partVolume": 28000,
+              "surfaceArea": 0,
+              "holes": [
+                {
+                  "count": 4,
+                  "dia": 5,
+                  "depth": 20
+                }
+              ],
+              "setups": 1,
+              "toolChanges": 3,
+              "setupMin": 35,
+              "batchSize": 50,
+              "tolerance": "coarse",
+              "finish": "asMachined",
+              "scrapCredit": true
+            },
+            "fdm": {
+              "materialId": "petg",
+              "machineId": "fdm1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "layerHeight": 0.2,
+              "nozzle": 0.4,
+              "infillPct": 25,
+              "walls": 3,
+              "supportPct": 12,
+              "partsPerPlate": 4,
+              "surfaceArea": 0
+            },
+            "powder": {
+              "materialId": "pa12",
+              "machineId": "mjf1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "partsPerBuild": 0,
+              "packingOverride": 0
+            },
+            "harness": {
+              "wireId": "w22",
+              "lengthMm": 300,
+              "cores": 2,
+              "branches": 1,
+              "connAPins": 2,
+              "connAPrice": 35,
+              "connBPins": 2,
+              "connBPrice": 35,
+              "splices": 0,
+              "sleevingMm": 0,
+              "heatshrink": 2,
+              "labels": 2,
+              "ties": 3,
+              "contactsOverride": 0,
+              "testMin": 0
+            },
+            "composite": {
+              "materialId": "cf200p",
+              "machineId": "oven",
+              "coreId": "",
+              "coreThickness": 0,
+              "areaMm2": 120000,
+              "plies": 4,
+              "debulks": 1,
+              "cureHr": 4,
+              "partsPerCure": 2,
+              "toolCost": 180000,
+              "toolLife": 400,
+              "trimMin": 0,
+              "ndtMin": 0
+            },
+            "foam": {
+              "materialId": "epp60",
+              "machineId": "foamCnc",
+              "method": "cnc",
+              "bx": 300,
+              "by": 120,
+              "bz": 60,
+              "partVolume": 900000,
+              "toolCost": 0,
+              "toolLife": 1000,
+              "cavities": 1,
+              "cycleSec": 0,
+              "skinArea": 0
+            }
+          }
+        },
+        {
+          "id": "pow2e06g",
+          "name": "ESC and lead set",
+          "partNo": "ESC-ASY",
+          "qty": 1,
+          "notes": "",
+          "module": "Propulsion elec",
+          "massG": 0,
+          "fieldAssembly": false,
+          "toolFree": false,
+          "domain": "electromech",
+          "itemType": "subassembly",
+          "parent": "",
+          "op": {
+            "sec": 0,
+            "cost": 0,
+            "kind": "other"
+          },
+          "service": {
+            "cls": "none",
+            "removalsPerLife": 0,
+            "accessDepth": 0,
+            "destructive": false,
+            "solderJoints": 0,
+            "reworkMin": 0
+          },
+          "dfa": {
+            "isBase": false,
+            "bCat": "other",
+            "moveRelative": false,
+            "differentMaterial": true,
+            "separateForService": false,
+            "reason": "Built and tested on the bench, fitted to the arm as one unit.",
+            "size": "normal",
+            "sym": "oneWay",
+            "hFlags": {},
+            "dir": "topDown",
+            "fFlags": {
+              "esd": true
+            },
+            "fix": "none",
+            "fixCount": 1
+          },
+          "cost": {
+            "process": "purchased",
+            "basis": "inherit",
+            "purchasedPrice": 0,
+            "machining": {
+              "materialId": "al6061",
+              "machineId": "vmc",
+              "stockForm": "block",
+              "L": 60,
+              "W": 40,
+              "H": 20,
+              "D": 0,
+              "partVolume": 28000,
+              "surfaceArea": 0,
+              "holes": [
+                {
+                  "count": 4,
+                  "dia": 5,
+                  "depth": 20
+                }
+              ],
+              "setups": 1,
+              "toolChanges": 3,
+              "setupMin": 35,
+              "batchSize": 50,
+              "tolerance": "coarse",
+              "finish": "asMachined",
+              "scrapCredit": true
+            },
+            "fdm": {
+              "materialId": "petg",
+              "machineId": "fdm1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "layerHeight": 0.2,
+              "nozzle": 0.4,
+              "infillPct": 25,
+              "walls": 3,
+              "supportPct": 12,
+              "partsPerPlate": 4,
+              "surfaceArea": 0
+            },
+            "powder": {
+              "materialId": "pa12",
+              "machineId": "mjf1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "partsPerBuild": 0,
+              "packingOverride": 0
+            },
+            "harness": {
+              "wireId": "w22",
+              "lengthMm": 300,
+              "cores": 2,
+              "branches": 1,
+              "connAPins": 2,
+              "connAPrice": 35,
+              "connBPins": 2,
+              "connBPrice": 35,
+              "splices": 0,
+              "sleevingMm": 0,
+              "heatshrink": 2,
+              "labels": 2,
+              "ties": 3,
+              "contactsOverride": 0,
+              "testMin": 0
+            },
+            "composite": {
+              "materialId": "cf200p",
+              "machineId": "oven",
+              "coreId": "",
+              "coreThickness": 0,
+              "areaMm2": 120000,
+              "plies": 4,
+              "debulks": 1,
+              "cureHr": 4,
+              "partsPerCure": 2,
+              "toolCost": 180000,
+              "toolLife": 400,
+              "trimMin": 0,
+              "ndtMin": 0
+            },
+            "foam": {
+              "materialId": "epp60",
+              "machineId": "foamCnc",
+              "method": "cnc",
+              "bx": 300,
+              "by": 120,
+              "bz": 60,
+              "partVolume": 900000,
+              "toolCost": 0,
+              "toolLife": 1000,
+              "cavities": 1,
+              "cycleSec": 0,
+              "skinArea": 0
+            }
+          }
+        },
+        {
+          "id": "p3y2ivir",
+          "name": "ESC, 60 A",
+          "partNo": "ESC-060",
+          "qty": 1,
+          "notes": "",
+          "module": "Propulsion elec",
+          "massG": 82,
+          "fieldAssembly": false,
+          "toolFree": false,
+          "domain": "elec",
+          "itemType": "part",
+          "parent": "pow2e06g",
+          "op": {
+            "sec": 0,
+            "cost": 0,
+            "kind": "other"
+          },
+          "service": {
+            "cls": "depot",
+            "removalsPerLife": 3,
+            "accessDepth": 2,
+            "destructive": false,
+            "solderJoints": 3,
+            "reworkMin": 0
+          },
+          "dfa": {
+            "isBase": false,
+            "bCat": "other",
+            "moveRelative": false,
+            "differentMaterial": true,
+            "separateForService": false,
+            "reason": "Electronic assembly - must be electrically isolated from the structure.",
+            "size": "normal",
+            "sym": "oneWay",
+            "hFlags": {
+              "delicate": true
+            },
+            "dir": "topDown",
+            "fFlags": {
+              "esd": true
+            },
+            "fix": "snap",
+            "fixCount": 1
+          },
+          "cost": {
+            "process": "purchased",
+            "basis": "inherit",
+            "purchasedPrice": 8500,
+            "machining": {
+              "materialId": "al6061",
+              "machineId": "vmc",
+              "stockForm": "block",
+              "L": 60,
+              "W": 40,
+              "H": 20,
+              "D": 0,
+              "partVolume": 28000,
+              "surfaceArea": 0,
+              "holes": [
+                {
+                  "count": 4,
+                  "dia": 5,
+                  "depth": 20
+                }
+              ],
+              "setups": 1,
+              "toolChanges": 3,
+              "setupMin": 35,
+              "batchSize": 50,
+              "tolerance": "coarse",
+              "finish": "asMachined",
+              "scrapCredit": true
+            },
+            "fdm": {
+              "materialId": "petg",
+              "machineId": "fdm1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "layerHeight": 0.2,
+              "nozzle": 0.4,
+              "infillPct": 25,
+              "walls": 3,
+              "supportPct": 12,
+              "partsPerPlate": 4,
+              "surfaceArea": 0
+            },
+            "powder": {
+              "materialId": "pa12",
+              "machineId": "mjf1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "partsPerBuild": 0,
+              "packingOverride": 0
+            },
+            "harness": {
+              "wireId": "w22",
+              "lengthMm": 300,
+              "cores": 2,
+              "branches": 1,
+              "connAPins": 2,
+              "connAPrice": 35,
+              "connBPins": 2,
+              "connBPrice": 35,
+              "splices": 0,
+              "sleevingMm": 0,
+              "heatshrink": 2,
+              "labels": 2,
+              "ties": 3,
+              "contactsOverride": 0,
+              "testMin": 0
+            },
+            "composite": {
+              "materialId": "cf200p",
+              "machineId": "oven",
+              "coreId": "",
+              "coreThickness": 0,
+              "areaMm2": 120000,
+              "plies": 4,
+              "debulks": 1,
+              "cureHr": 4,
+              "partsPerCure": 2,
+              "toolCost": 180000,
+              "toolLife": 400,
+              "trimMin": 0,
+              "ndtMin": 0
+            },
+            "foam": {
+              "materialId": "epp60",
+              "machineId": "foamCnc",
+              "method": "cnc",
+              "bx": 300,
+              "by": 120,
+              "bz": 60,
+              "partVolume": 900000,
+              "toolCost": 0,
+              "toolLife": 1000,
+              "cavities": 1,
+              "cycleSec": 0,
+              "skinArea": 0
+            }
+          }
+        },
+        {
+          "id": "p9eemn8l",
+          "name": "Motor lead harness, 3 core",
+          "partNo": "HRN-ARM",
+          "qty": 1,
+          "notes": "",
+          "module": "Propulsion elec",
+          "massG": 0,
+          "fieldAssembly": false,
+          "toolFree": false,
+          "domain": "wiring",
+          "itemType": "part",
+          "parent": "pow2e06g",
+          "op": {
+            "sec": 0,
+            "cost": 0,
+            "kind": "other"
+          },
+          "service": {
+            "cls": "none",
+            "removalsPerLife": 0,
+            "accessDepth": 0,
+            "destructive": false,
+            "solderJoints": 0,
+            "reworkMin": 0
+          },
+          "dfa": {
+            "isBase": false,
+            "bCat": "other",
+            "moveRelative": false,
+            "differentMaterial": true,
+            "separateForService": false,
+            "reason": "Flexible conductor - cannot be integral with either end.",
+            "size": "normal",
+            "sym": "oneWay",
+            "hFlags": {},
+            "dir": "topDown",
+            "fFlags": {
+              "routing": true,
+              "esd": true
+            },
+            "fix": "solder",
+            "fixCount": 3
+          },
+          "cost": {
+            "process": "harness",
+            "basis": "inherit",
+            "purchasedPrice": 0,
+            "machining": {
+              "materialId": "al6061",
+              "machineId": "vmc",
+              "stockForm": "block",
+              "L": 60,
+              "W": 40,
+              "H": 20,
+              "D": 0,
+              "partVolume": 28000,
+              "surfaceArea": 0,
+              "holes": [
+                {
+                  "count": 4,
+                  "dia": 5,
+                  "depth": 20
+                }
+              ],
+              "setups": 1,
+              "toolChanges": 3,
+              "setupMin": 35,
+              "batchSize": 50,
+              "tolerance": "coarse",
+              "finish": "asMachined",
+              "scrapCredit": true
+            },
+            "fdm": {
+              "materialId": "petg",
+              "machineId": "fdm1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "layerHeight": 0.2,
+              "nozzle": 0.4,
+              "infillPct": 25,
+              "walls": 3,
+              "supportPct": 12,
+              "partsPerPlate": 4,
+              "surfaceArea": 0
+            },
+            "powder": {
+              "materialId": "pa12",
+              "machineId": "mjf1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "partsPerBuild": 0,
+              "packingOverride": 0
+            },
+            "harness": {
+              "wireId": "w14",
+              "lengthMm": 180,
+              "cores": 3,
+              "branches": 1,
+              "connAPins": 0,
+              "connAPrice": 0,
+              "connBPins": 0,
+              "connBPrice": 0,
+              "splices": 0,
+              "sleevingMm": 0,
+              "heatshrink": 6,
+              "labels": 1,
+              "ties": 0,
+              "contactsOverride": 0,
+              "testMin": 0
+            },
+            "composite": {
+              "materialId": "cf200p",
+              "machineId": "oven",
+              "coreId": "",
+              "coreThickness": 0,
+              "areaMm2": 120000,
+              "plies": 4,
+              "debulks": 1,
+              "cureHr": 4,
+              "partsPerCure": 2,
+              "toolCost": 180000,
+              "toolLife": 400,
+              "trimMin": 0,
+              "ndtMin": 0
+            },
+            "foam": {
+              "materialId": "epp60",
+              "machineId": "foamCnc",
+              "method": "cnc",
+              "bx": 300,
+              "by": 120,
+              "bz": 60,
+              "partVolume": 900000,
+              "toolCost": 0,
+              "toolLife": 1000,
+              "cavities": 1,
+              "cycleSec": 0,
+              "skinArea": 0
+            }
+          }
+        },
+        {
+          "id": "ps6pnuav",
+          "name": "Apply threadlocker - clamp and motor screws",
+          "partNo": "",
+          "qty": 1,
+          "notes": "",
+          "module": "Arm structure",
+          "massG": 0,
+          "fieldAssembly": false,
+          "toolFree": false,
+          "domain": "mech",
+          "itemType": "operation",
+          "parent": "",
+          "op": {
+            "sec": 35,
+            "cost": 4,
+            "kind": "material"
+          },
+          "service": {
+            "cls": "none",
+            "removalsPerLife": 0,
+            "accessDepth": 0,
+            "destructive": false,
+            "solderJoints": 0,
+            "reworkMin": 0
+          },
+          "dfa": {
+            "isBase": false,
+            "bCat": "other",
+            "moveRelative": false,
+            "differentMaterial": false,
+            "separateForService": false,
+            "reason": "",
+            "size": "normal",
+            "sym": "oneWay",
+            "hFlags": {},
+            "dir": "topDown",
+            "fFlags": {},
+            "fix": "none",
+            "fixCount": 1
+          },
+          "cost": {
+            "process": "machining",
+            "basis": "inherit",
+            "purchasedPrice": 0,
+            "machining": {
+              "materialId": "al6061",
+              "machineId": "vmc",
+              "stockForm": "block",
+              "L": 60,
+              "W": 40,
+              "H": 20,
+              "D": 0,
+              "partVolume": 28000,
+              "surfaceArea": 0,
+              "holes": [
+                {
+                  "count": 4,
+                  "dia": 5,
+                  "depth": 20
+                }
+              ],
+              "setups": 1,
+              "toolChanges": 3,
+              "setupMin": 35,
+              "batchSize": 50,
+              "tolerance": "coarse",
+              "finish": "asMachined",
+              "scrapCredit": true
+            },
+            "fdm": {
+              "materialId": "petg",
+              "machineId": "fdm1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "layerHeight": 0.2,
+              "nozzle": 0.4,
+              "infillPct": 25,
+              "walls": 3,
+              "supportPct": 12,
+              "partsPerPlate": 4,
+              "surfaceArea": 0
+            },
+            "powder": {
+              "materialId": "pa12",
+              "machineId": "mjf1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "partsPerBuild": 0,
+              "packingOverride": 0
+            },
+            "harness": {
+              "wireId": "w22",
+              "lengthMm": 300,
+              "cores": 2,
+              "branches": 1,
+              "connAPins": 2,
+              "connAPrice": 35,
+              "connBPins": 2,
+              "connBPrice": 35,
+              "splices": 0,
+              "sleevingMm": 0,
+              "heatshrink": 2,
+              "labels": 2,
+              "ties": 3,
+              "contactsOverride": 0,
+              "testMin": 0
+            },
+            "composite": {
+              "materialId": "cf200p",
+              "machineId": "oven",
+              "coreId": "",
+              "coreThickness": 0,
+              "areaMm2": 120000,
+              "plies": 4,
+              "debulks": 1,
+              "cureHr": 4,
+              "partsPerCure": 2,
+              "toolCost": 180000,
+              "toolLife": 400,
+              "trimMin": 0,
+              "ndtMin": 0
+            },
+            "foam": {
+              "materialId": "epp60",
+              "machineId": "foamCnc",
+              "method": "cnc",
+              "bx": 300,
+              "by": 120,
+              "bz": 60,
+              "partVolume": 900000,
+              "toolCost": 0,
+              "toolLife": 1000,
+              "cavities": 1,
+              "cycleSec": 0,
+              "skinArea": 0
+            }
+          }
+        },
+        {
+          "id": "pe5c0y0u",
+          "name": "Heatshrink and label the lead set",
+          "partNo": "",
+          "qty": 1,
+          "notes": "",
+          "module": "Propulsion elec",
+          "massG": 0,
+          "fieldAssembly": false,
+          "toolFree": false,
+          "domain": "wiring",
+          "itemType": "operation",
+          "parent": "pow2e06g",
+          "op": {
+            "sec": 95,
+            "cost": 8,
+            "kind": "joining"
+          },
+          "service": {
+            "cls": "none",
+            "removalsPerLife": 0,
+            "accessDepth": 0,
+            "destructive": false,
+            "solderJoints": 0,
+            "reworkMin": 0
+          },
+          "dfa": {
+            "isBase": false,
+            "bCat": "other",
+            "moveRelative": false,
+            "differentMaterial": false,
+            "separateForService": false,
+            "reason": "",
+            "size": "normal",
+            "sym": "oneWay",
+            "hFlags": {},
+            "dir": "topDown",
+            "fFlags": {},
+            "fix": "none",
+            "fixCount": 1
+          },
+          "cost": {
+            "process": "machining",
+            "basis": "inherit",
+            "purchasedPrice": 0,
+            "machining": {
+              "materialId": "al6061",
+              "machineId": "vmc",
+              "stockForm": "block",
+              "L": 60,
+              "W": 40,
+              "H": 20,
+              "D": 0,
+              "partVolume": 28000,
+              "surfaceArea": 0,
+              "holes": [
+                {
+                  "count": 4,
+                  "dia": 5,
+                  "depth": 20
+                }
+              ],
+              "setups": 1,
+              "toolChanges": 3,
+              "setupMin": 35,
+              "batchSize": 50,
+              "tolerance": "coarse",
+              "finish": "asMachined",
+              "scrapCredit": true
+            },
+            "fdm": {
+              "materialId": "petg",
+              "machineId": "fdm1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "layerHeight": 0.2,
+              "nozzle": 0.4,
+              "infillPct": 25,
+              "walls": 3,
+              "supportPct": 12,
+              "partsPerPlate": 4,
+              "surfaceArea": 0
+            },
+            "powder": {
+              "materialId": "pa12",
+              "machineId": "mjf1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "partsPerBuild": 0,
+              "packingOverride": 0
+            },
+            "harness": {
+              "wireId": "w22",
+              "lengthMm": 300,
+              "cores": 2,
+              "branches": 1,
+              "connAPins": 2,
+              "connAPrice": 35,
+              "connBPins": 2,
+              "connBPrice": 35,
+              "splices": 0,
+              "sleevingMm": 0,
+              "heatshrink": 2,
+              "labels": 2,
+              "ties": 3,
+              "contactsOverride": 0,
+              "testMin": 0
+            },
+            "composite": {
+              "materialId": "cf200p",
+              "machineId": "oven",
+              "coreId": "",
+              "coreThickness": 0,
+              "areaMm2": 120000,
+              "plies": 4,
+              "debulks": 1,
+              "cureHr": 4,
+              "partsPerCure": 2,
+              "toolCost": 180000,
+              "toolLife": 400,
+              "trimMin": 0,
+              "ndtMin": 0
+            },
+            "foam": {
+              "materialId": "epp60",
+              "machineId": "foamCnc",
+              "method": "cnc",
+              "bx": 300,
+              "by": 120,
+              "bz": 60,
+              "partVolume": 900000,
+              "toolCost": 0,
+              "toolLife": 1000,
+              "cavities": 1,
+              "cycleSec": 0,
+              "skinArea": 0
+            }
+          }
+        },
+        {
+          "id": "pezhwjxf",
+          "name": "Motor direction and vibration check",
+          "partNo": "",
+          "qty": 1,
+          "notes": "",
+          "module": "Rotor",
+          "massG": 0,
+          "fieldAssembly": false,
+          "toolFree": false,
+          "domain": "electromech",
+          "itemType": "operation",
+          "parent": "",
+          "op": {
+            "sec": 150,
+            "cost": 0,
+            "kind": "test"
+          },
+          "service": {
+            "cls": "none",
+            "removalsPerLife": 0,
+            "accessDepth": 0,
+            "destructive": false,
+            "solderJoints": 0,
+            "reworkMin": 0
+          },
+          "dfa": {
+            "isBase": false,
+            "bCat": "other",
+            "moveRelative": false,
+            "differentMaterial": false,
+            "separateForService": false,
+            "reason": "",
+            "size": "normal",
+            "sym": "oneWay",
+            "hFlags": {},
+            "dir": "topDown",
+            "fFlags": {},
+            "fix": "none",
+            "fixCount": 1
+          },
+          "cost": {
+            "process": "machining",
+            "basis": "inherit",
+            "purchasedPrice": 0,
+            "machining": {
+              "materialId": "al6061",
+              "machineId": "vmc",
+              "stockForm": "block",
+              "L": 60,
+              "W": 40,
+              "H": 20,
+              "D": 0,
+              "partVolume": 28000,
+              "surfaceArea": 0,
+              "holes": [
+                {
+                  "count": 4,
+                  "dia": 5,
+                  "depth": 20
+                }
+              ],
+              "setups": 1,
+              "toolChanges": 3,
+              "setupMin": 35,
+              "batchSize": 50,
+              "tolerance": "coarse",
+              "finish": "asMachined",
+              "scrapCredit": true
+            },
+            "fdm": {
+              "materialId": "petg",
+              "machineId": "fdm1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "layerHeight": 0.2,
+              "nozzle": 0.4,
+              "infillPct": 25,
+              "walls": 3,
+              "supportPct": 12,
+              "partsPerPlate": 4,
+              "surfaceArea": 0
+            },
+            "powder": {
+              "materialId": "pa12",
+              "machineId": "mjf1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "partsPerBuild": 0,
+              "packingOverride": 0
+            },
+            "harness": {
+              "wireId": "w22",
+              "lengthMm": 300,
+              "cores": 2,
+              "branches": 1,
+              "connAPins": 2,
+              "connAPrice": 35,
+              "connBPins": 2,
+              "connBPrice": 35,
+              "splices": 0,
+              "sleevingMm": 0,
+              "heatshrink": 2,
+              "labels": 2,
+              "ties": 3,
+              "contactsOverride": 0,
+              "testMin": 0
+            },
+            "composite": {
+              "materialId": "cf200p",
+              "machineId": "oven",
+              "coreId": "",
+              "coreThickness": 0,
+              "areaMm2": 120000,
+              "plies": 4,
+              "debulks": 1,
+              "cureHr": 4,
+              "partsPerCure": 2,
+              "toolCost": 180000,
+              "toolLife": 400,
+              "trimMin": 0,
+              "ndtMin": 0
+            },
+            "foam": {
+              "materialId": "epp60",
+              "machineId": "foamCnc",
+              "method": "cnc",
+              "bx": 300,
+              "by": 120,
+              "bz": 60,
+              "partVolume": 900000,
+              "toolCost": 0,
+              "toolLife": 1000,
+              "cavities": 1,
+              "cycleSec": 0,
+              "skinArea": 0
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "v9l21k",
+      "name": "Option 2 — + bullet connectors",
+      "note": "Option 1, plus 4 mm bullets on the motor leads instead of solder.",
+      "parts": [
+        {
+          "id": "posm77mw",
+          "name": "Motor mount plate with integral clamp",
+          "partNo": "ARM-101",
+          "qty": 1,
+          "notes": "",
+          "module": "Arm structure",
+          "massG": 0,
+          "fieldAssembly": false,
+          "toolFree": false,
+          "domain": "mech",
+          "itemType": "part",
+          "parent": "",
+          "op": {
+            "sec": 0,
+            "cost": 0,
+            "kind": "other"
+          },
+          "service": {
+            "cls": "none",
+            "removalsPerLife": 0,
+            "accessDepth": 0,
+            "destructive": false,
+            "solderJoints": 0,
+            "reworkMin": 0
+          },
+          "dfa": {
+            "isBase": true,
+            "bCat": "other",
+            "moveRelative": false,
+            "differentMaterial": false,
+            "separateForService": false,
+            "reason": "Base part - the boom clamp, motor and ESC all mount to it.",
+            "size": "normal",
+            "sym": "twoWay",
+            "hFlags": {},
+            "dir": "topDown",
+            "fFlags": {},
+            "fix": "later",
+            "fixCount": 1
+          },
+          "cost": {
+            "process": "machining",
+            "basis": "inherit",
+            "purchasedPrice": 0,
+            "machining": {
+              "materialId": "al6061",
+              "machineId": "vmc",
+              "stockForm": "block",
+              "L": 72,
+              "W": 72,
+              "H": 8,
+              "D": 0,
+              "partVolume": 37000,
+              "surfaceArea": 0,
+              "holes": [
+                {
+                  "count": 4,
+                  "dia": 3.3,
+                  "depth": 8
+                },
+                {
+                  "count": 4,
+                  "dia": 4.5,
+                  "depth": 8
+                }
+              ],
+              "setups": 2,
+              "toolChanges": 6,
+              "setupMin": 48,
+              "batchSize": 200,
+              "tolerance": "medium",
+              "finish": "asMachined",
+              "scrapCredit": true,
+              "bz": 20
+            },
+            "fdm": {
+              "materialId": "petg",
+              "machineId": "fdm1",
+              "bx": 72,
+              "by": 72,
+              "bz": 8,
+              "partVolume": 28000,
+              "layerHeight": 0.2,
+              "nozzle": 0.4,
+              "infillPct": 25,
+              "walls": 3,
+              "supportPct": 12,
+              "partsPerPlate": 4,
+              "surfaceArea": 0
+            },
+            "powder": {
+              "materialId": "pa12",
+              "machineId": "mjf1",
+              "bx": 72,
+              "by": 72,
+              "bz": 8,
+              "partVolume": 28000,
+              "partsPerBuild": 0,
+              "packingOverride": 0
+            },
+            "harness": {
+              "wireId": "w22",
+              "lengthMm": 300,
+              "cores": 2,
+              "branches": 1,
+              "connAPins": 2,
+              "connAPrice": 35,
+              "connBPins": 2,
+              "connBPrice": 35,
+              "splices": 0,
+              "sleevingMm": 0,
+              "heatshrink": 2,
+              "labels": 2,
+              "ties": 3,
+              "contactsOverride": 0,
+              "testMin": 0
+            },
+            "composite": {
+              "materialId": "cf200p",
+              "machineId": "oven",
+              "coreId": "",
+              "coreThickness": 0,
+              "areaMm2": 120000,
+              "plies": 4,
+              "debulks": 1,
+              "cureHr": 4,
+              "partsPerCure": 2,
+              "toolCost": 180000,
+              "toolLife": 400,
+              "trimMin": 0,
+              "ndtMin": 0
+            },
+            "foam": {
+              "materialId": "epp60",
+              "machineId": "foamCnc",
+              "method": "cnc",
+              "bx": 72,
+              "by": 72,
+              "bz": 8,
+              "partVolume": 28000,
+              "toolCost": 0,
+              "toolLife": 1000,
+              "cavities": 1,
+              "cycleSec": 0,
+              "skinArea": 0
+            }
+          }
+        },
+        {
+          "id": "p5qxwl8w",
+          "name": "Boom clamp, upper half",
+          "partNo": "ARM-102",
+          "qty": 1,
+          "notes": "",
+          "module": "Arm structure",
+          "massG": 0,
+          "fieldAssembly": false,
+          "toolFree": false,
+          "domain": "mech",
+          "itemType": "part",
+          "parent": "",
+          "op": {
+            "sec": 0,
+            "cost": 0,
+            "kind": "other"
+          },
+          "service": {
+            "cls": "none",
+            "removalsPerLife": 0,
+            "accessDepth": 0,
+            "destructive": false,
+            "solderJoints": 0,
+            "reworkMin": 0
+          },
+          "dfa": {
+            "isBase": false,
+            "bCat": "other",
+            "moveRelative": false,
+            "differentMaterial": false,
+            "separateForService": true,
+            "reason": "Must be separate so the boom tube can be fitted into the clamp.",
+            "size": "normal",
+            "sym": "twoWay",
+            "hFlags": {},
+            "dir": "topDown",
+            "fFlags": {
+              "notSelfLocating": true,
+              "torqueSpec": true,
+              "threadlock": true
+            },
+            "fix": "screw",
+            "fixCount": 4
+          },
+          "cost": {
+            "process": "machining",
+            "basis": "inherit",
+            "purchasedPrice": 0,
+            "machining": {
+              "materialId": "al6061",
+              "machineId": "vmc",
+              "stockForm": "block",
+              "L": 60,
+              "W": 34,
+              "H": 16,
+              "D": 0,
+              "partVolume": 14000,
+              "surfaceArea": 0,
+              "holes": [
+                {
+                  "count": 4,
+                  "dia": 4.5,
+                  "depth": 16
+                }
+              ],
+              "setups": 2,
+              "toolChanges": 4,
+              "setupMin": 30,
+              "batchSize": 200,
+              "tolerance": "medium",
+              "finish": "asMachined",
+              "scrapCredit": true
+            },
+            "fdm": {
+              "materialId": "petg",
+              "machineId": "fdm1",
+              "bx": 60,
+              "by": 34,
+              "bz": 16,
+              "partVolume": 14000,
+              "layerHeight": 0.2,
+              "nozzle": 0.4,
+              "infillPct": 25,
+              "walls": 3,
+              "supportPct": 12,
+              "partsPerPlate": 4,
+              "surfaceArea": 0
+            },
+            "powder": {
+              "materialId": "pa12",
+              "machineId": "mjf1",
+              "bx": 60,
+              "by": 34,
+              "bz": 16,
+              "partVolume": 14000,
+              "partsPerBuild": 0,
+              "packingOverride": 0
+            },
+            "harness": {
+              "wireId": "w22",
+              "lengthMm": 300,
+              "cores": 2,
+              "branches": 1,
+              "connAPins": 2,
+              "connAPrice": 35,
+              "connBPins": 2,
+              "connBPrice": 35,
+              "splices": 0,
+              "sleevingMm": 0,
+              "heatshrink": 2,
+              "labels": 2,
+              "ties": 3,
+              "contactsOverride": 0,
+              "testMin": 0
+            },
+            "composite": {
+              "materialId": "cf200p",
+              "machineId": "oven",
+              "coreId": "",
+              "coreThickness": 0,
+              "areaMm2": 120000,
+              "plies": 4,
+              "debulks": 1,
+              "cureHr": 4,
+              "partsPerCure": 2,
+              "toolCost": 180000,
+              "toolLife": 400,
+              "trimMin": 0,
+              "ndtMin": 0
+            },
+            "foam": {
+              "materialId": "epp60",
+              "machineId": "foamCnc",
+              "method": "cnc",
+              "bx": 60,
+              "by": 34,
+              "bz": 16,
+              "partVolume": 14000,
+              "toolCost": 0,
+              "toolLife": 1000,
+              "cavities": 1,
+              "cycleSec": 0,
+              "skinArea": 0
+            }
+          }
+        },
+        {
+          "id": "pyntxodu",
+          "name": "M4 x 20 cap screw (clamp)",
+          "partNo": "STD-M4x20",
+          "qty": 4,
+          "notes": "",
+          "module": "Fasteners",
+          "massG": 4.1,
+          "fieldAssembly": false,
+          "toolFree": false,
+          "domain": "mech",
+          "itemType": "part",
+          "parent": "",
+          "op": {
+            "sec": 0,
+            "cost": 0,
+            "kind": "other"
+          },
+          "service": {
+            "cls": "none",
+            "removalsPerLife": 0,
+            "accessDepth": 0,
+            "destructive": false,
+            "solderJoints": 0,
+            "reworkMin": 0
+          },
+          "dfa": {
+            "isBase": false,
+            "bCat": "fastener",
+            "moveRelative": false,
+            "differentMaterial": false,
+            "separateForService": false,
+            "reason": "Standard fastener clamping the arm to the boom.",
+            "size": "small",
+            "sym": "oneWay",
+            "hFlags": {
+              "nests": true
+            },
+            "dir": "topDown",
+            "fFlags": {},
+            "fix": "screw",
+            "fixCount": 1
+          },
+          "cost": {
+            "process": "purchased",
+            "basis": "inherit",
+            "purchasedPrice": 4.2,
+            "machining": {
+              "materialId": "al6061",
+              "machineId": "vmc",
+              "stockForm": "block",
+              "L": 60,
+              "W": 40,
+              "H": 20,
+              "D": 0,
+              "partVolume": 28000,
+              "surfaceArea": 0,
+              "holes": [
+                {
+                  "count": 4,
+                  "dia": 5,
+                  "depth": 20
+                }
+              ],
+              "setups": 1,
+              "toolChanges": 3,
+              "setupMin": 35,
+              "batchSize": 50,
+              "tolerance": "coarse",
+              "finish": "asMachined",
+              "scrapCredit": true
+            },
+            "fdm": {
+              "materialId": "petg",
+              "machineId": "fdm1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "layerHeight": 0.2,
+              "nozzle": 0.4,
+              "infillPct": 25,
+              "walls": 3,
+              "supportPct": 12,
+              "partsPerPlate": 4,
+              "surfaceArea": 0
+            },
+            "powder": {
+              "materialId": "pa12",
+              "machineId": "mjf1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "partsPerBuild": 0,
+              "packingOverride": 0
+            },
+            "harness": {
+              "wireId": "w22",
+              "lengthMm": 300,
+              "cores": 2,
+              "branches": 1,
+              "connAPins": 2,
+              "connAPrice": 35,
+              "connBPins": 2,
+              "connBPrice": 35,
+              "splices": 0,
+              "sleevingMm": 0,
+              "heatshrink": 2,
+              "labels": 2,
+              "ties": 3,
+              "contactsOverride": 0,
+              "testMin": 0
+            },
+            "composite": {
+              "materialId": "cf200p",
+              "machineId": "oven",
+              "coreId": "",
+              "coreThickness": 0,
+              "areaMm2": 120000,
+              "plies": 4,
+              "debulks": 1,
+              "cureHr": 4,
+              "partsPerCure": 2,
+              "toolCost": 180000,
+              "toolLife": 400,
+              "trimMin": 0,
+              "ndtMin": 0
+            },
+            "foam": {
+              "materialId": "epp60",
+              "machineId": "foamCnc",
+              "method": "cnc",
+              "bx": 300,
+              "by": 120,
+              "bz": 60,
+              "partVolume": 900000,
+              "toolCost": 0,
+              "toolLife": 1000,
+              "cavities": 1,
+              "cycleSec": 0,
+              "skinArea": 0
+            }
+          }
+        },
+        {
+          "id": "ppshuw3t",
+          "name": "VTOL lift motor, 505-class",
+          "partNo": "MOT-505",
+          "qty": 1,
+          "notes": "",
+          "module": "Rotor",
+          "massG": 220,
+          "fieldAssembly": false,
+          "toolFree": false,
+          "domain": "electromech",
+          "itemType": "part",
+          "parent": "",
+          "op": {
+            "sec": 0,
+            "cost": 0,
+            "kind": "other"
+          },
+          "service": {
+            "cls": "field",
+            "removalsPerLife": 4,
+            "accessDepth": 1,
+            "destructive": false,
+            "solderJoints": 0,
+            "reworkMin": 0
+          },
+          "dfa": {
+            "isBase": false,
+            "bCat": "other",
+            "moveRelative": true,
+            "differentMaterial": false,
+            "separateForService": false,
+            "reason": "Rotating machine - the whole point of the arm.",
+            "size": "normal",
+            "sym": "twoWay",
+            "hFlags": {},
+            "dir": "topDown",
+            "fFlags": {
+              "torqueSpec": true,
+              "threadlock": true
+            },
+            "fix": "screw",
+            "fixCount": 4
+          },
+          "cost": {
+            "process": "purchased",
+            "basis": "inherit",
+            "purchasedPrice": 11500,
+            "machining": {
+              "materialId": "al6061",
+              "machineId": "vmc",
+              "stockForm": "block",
+              "L": 60,
+              "W": 40,
+              "H": 20,
+              "D": 0,
+              "partVolume": 28000,
+              "surfaceArea": 0,
+              "holes": [
+                {
+                  "count": 4,
+                  "dia": 5,
+                  "depth": 20
+                }
+              ],
+              "setups": 1,
+              "toolChanges": 3,
+              "setupMin": 35,
+              "batchSize": 50,
+              "tolerance": "coarse",
+              "finish": "asMachined",
+              "scrapCredit": true
+            },
+            "fdm": {
+              "materialId": "petg",
+              "machineId": "fdm1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "layerHeight": 0.2,
+              "nozzle": 0.4,
+              "infillPct": 25,
+              "walls": 3,
+              "supportPct": 12,
+              "partsPerPlate": 4,
+              "surfaceArea": 0
+            },
+            "powder": {
+              "materialId": "pa12",
+              "machineId": "mjf1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "partsPerBuild": 0,
+              "packingOverride": 0
+            },
+            "harness": {
+              "wireId": "w22",
+              "lengthMm": 300,
+              "cores": 2,
+              "branches": 1,
+              "connAPins": 2,
+              "connAPrice": 35,
+              "connBPins": 2,
+              "connBPrice": 35,
+              "splices": 0,
+              "sleevingMm": 0,
+              "heatshrink": 2,
+              "labels": 2,
+              "ties": 3,
+              "contactsOverride": 0,
+              "testMin": 0
+            },
+            "composite": {
+              "materialId": "cf200p",
+              "machineId": "oven",
+              "coreId": "",
+              "coreThickness": 0,
+              "areaMm2": 120000,
+              "plies": 4,
+              "debulks": 1,
+              "cureHr": 4,
+              "partsPerCure": 2,
+              "toolCost": 180000,
+              "toolLife": 400,
+              "trimMin": 0,
+              "ndtMin": 0
+            },
+            "foam": {
+              "materialId": "epp60",
+              "machineId": "foamCnc",
+              "method": "cnc",
+              "bx": 300,
+              "by": 120,
+              "bz": 60,
+              "partVolume": 900000,
+              "toolCost": 0,
+              "toolLife": 1000,
+              "cavities": 1,
+              "cycleSec": 0,
+              "skinArea": 0
+            }
+          }
+        },
+        {
+          "id": "pexg3foc",
+          "name": "M3 x 8 cap screw (motor)",
+          "partNo": "STD-M3x8",
+          "qty": 4,
+          "notes": "",
+          "module": "Fasteners",
+          "massG": 1.1,
+          "fieldAssembly": false,
+          "toolFree": false,
+          "domain": "mech",
+          "itemType": "part",
+          "parent": "",
+          "op": {
+            "sec": 0,
+            "cost": 0,
+            "kind": "other"
+          },
+          "service": {
+            "cls": "none",
+            "removalsPerLife": 0,
+            "accessDepth": 0,
+            "destructive": false,
+            "solderJoints": 0,
+            "reworkMin": 0
+          },
+          "dfa": {
+            "isBase": false,
+            "bCat": "fastener",
+            "moveRelative": false,
+            "differentMaterial": false,
+            "separateForService": false,
+            "reason": "Standard fastener holding the motor to the plate.",
+            "size": "small",
+            "sym": "oneWay",
+            "hFlags": {
+              "nests": true
+            },
+            "dir": "underneath",
+            "fFlags": {},
+            "fix": "screw",
+            "fixCount": 1
+          },
+          "cost": {
+            "process": "purchased",
+            "basis": "inherit",
+            "purchasedPrice": 2.2,
+            "machining": {
+              "materialId": "al6061",
+              "machineId": "vmc",
+              "stockForm": "block",
+              "L": 60,
+              "W": 40,
+              "H": 20,
+              "D": 0,
+              "partVolume": 28000,
+              "surfaceArea": 0,
+              "holes": [
+                {
+                  "count": 4,
+                  "dia": 5,
+                  "depth": 20
+                }
+              ],
+              "setups": 1,
+              "toolChanges": 3,
+              "setupMin": 35,
+              "batchSize": 50,
+              "tolerance": "coarse",
+              "finish": "asMachined",
+              "scrapCredit": true
+            },
+            "fdm": {
+              "materialId": "petg",
+              "machineId": "fdm1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "layerHeight": 0.2,
+              "nozzle": 0.4,
+              "infillPct": 25,
+              "walls": 3,
+              "supportPct": 12,
+              "partsPerPlate": 4,
+              "surfaceArea": 0
+            },
+            "powder": {
+              "materialId": "pa12",
+              "machineId": "mjf1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "partsPerBuild": 0,
+              "packingOverride": 0
+            },
+            "harness": {
+              "wireId": "w22",
+              "lengthMm": 300,
+              "cores": 2,
+              "branches": 1,
+              "connAPins": 2,
+              "connAPrice": 35,
+              "connBPins": 2,
+              "connBPrice": 35,
+              "splices": 0,
+              "sleevingMm": 0,
+              "heatshrink": 2,
+              "labels": 2,
+              "ties": 3,
+              "contactsOverride": 0,
+              "testMin": 0
+            },
+            "composite": {
+              "materialId": "cf200p",
+              "machineId": "oven",
+              "coreId": "",
+              "coreThickness": 0,
+              "areaMm2": 120000,
+              "plies": 4,
+              "debulks": 1,
+              "cureHr": 4,
+              "partsPerCure": 2,
+              "toolCost": 180000,
+              "toolLife": 400,
+              "trimMin": 0,
+              "ndtMin": 0
+            },
+            "foam": {
+              "materialId": "epp60",
+              "machineId": "foamCnc",
+              "method": "cnc",
+              "bx": 300,
+              "by": 120,
+              "bz": 60,
+              "partVolume": 900000,
+              "toolCost": 0,
+              "toolLife": 1000,
+              "cavities": 1,
+              "cycleSec": 0,
+              "skinArea": 0
+            }
+          }
+        },
+        {
+          "id": "pnje4cp4",
+          "name": "Propeller, 18x6 folding CF",
+          "partNo": "PRP-1806",
+          "qty": 1,
+          "notes": "",
+          "module": "Rotor",
+          "massG": 48,
+          "fieldAssembly": true,
+          "toolFree": false,
+          "domain": "mech",
+          "itemType": "part",
+          "parent": "",
+          "op": {
+            "sec": 0,
+            "cost": 0,
+            "kind": "other"
+          },
+          "service": {
+            "cls": "field",
+            "removalsPerLife": 40,
+            "accessDepth": 0,
+            "destructive": false,
+            "solderJoints": 0,
+            "reworkMin": 0
+          },
+          "dfa": {
+            "isBase": false,
+            "bCat": "other",
+            "moveRelative": true,
+            "differentMaterial": false,
+            "separateForService": false,
+            "reason": "Rotating, and removed for transport.",
+            "size": "large",
+            "sym": "twoWay",
+            "hFlags": {
+              "delicate": true
+            },
+            "dir": "topDown",
+            "fFlags": {
+              "notSelfLocating": true
+            },
+            "fix": "none",
+            "fixCount": 1
+          },
+          "cost": {
+            "process": "purchased",
+            "basis": "inherit",
+            "purchasedPrice": 3200,
+            "machining": {
+              "materialId": "al6061",
+              "machineId": "vmc",
+              "stockForm": "block",
+              "L": 60,
+              "W": 40,
+              "H": 20,
+              "D": 0,
+              "partVolume": 28000,
+              "surfaceArea": 0,
+              "holes": [
+                {
+                  "count": 4,
+                  "dia": 5,
+                  "depth": 20
+                }
+              ],
+              "setups": 1,
+              "toolChanges": 3,
+              "setupMin": 35,
+              "batchSize": 50,
+              "tolerance": "coarse",
+              "finish": "asMachined",
+              "scrapCredit": true
+            },
+            "fdm": {
+              "materialId": "petg",
+              "machineId": "fdm1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "layerHeight": 0.2,
+              "nozzle": 0.4,
+              "infillPct": 25,
+              "walls": 3,
+              "supportPct": 12,
+              "partsPerPlate": 4,
+              "surfaceArea": 0
+            },
+            "powder": {
+              "materialId": "pa12",
+              "machineId": "mjf1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "partsPerBuild": 0,
+              "packingOverride": 0
+            },
+            "harness": {
+              "wireId": "w22",
+              "lengthMm": 300,
+              "cores": 2,
+              "branches": 1,
+              "connAPins": 2,
+              "connAPrice": 35,
+              "connBPins": 2,
+              "connBPrice": 35,
+              "splices": 0,
+              "sleevingMm": 0,
+              "heatshrink": 2,
+              "labels": 2,
+              "ties": 3,
+              "contactsOverride": 0,
+              "testMin": 0
+            },
+            "composite": {
+              "materialId": "cf200p",
+              "machineId": "oven",
+              "coreId": "",
+              "coreThickness": 0,
+              "areaMm2": 120000,
+              "plies": 4,
+              "debulks": 1,
+              "cureHr": 4,
+              "partsPerCure": 2,
+              "toolCost": 180000,
+              "toolLife": 400,
+              "trimMin": 0,
+              "ndtMin": 0
+            },
+            "foam": {
+              "materialId": "epp60",
+              "machineId": "foamCnc",
+              "method": "cnc",
+              "bx": 300,
+              "by": 120,
+              "bz": 60,
+              "partVolume": 900000,
+              "toolCost": 0,
+              "toolLife": 1000,
+              "cavities": 1,
+              "cycleSec": 0,
+              "skinArea": 0
+            }
+          }
+        },
+        {
+          "id": "pi7eb2m3",
+          "name": "Prop bolt M5 x 25 + washer",
+          "partNo": "STD-M5x25",
+          "qty": 1,
+          "notes": "",
+          "module": "Fasteners",
+          "massG": 6,
+          "fieldAssembly": true,
+          "toolFree": false,
+          "domain": "mech",
+          "itemType": "part",
+          "parent": "",
+          "op": {
+            "sec": 0,
+            "cost": 0,
+            "kind": "other"
+          },
+          "service": {
+            "cls": "none",
+            "removalsPerLife": 0,
+            "accessDepth": 0,
+            "destructive": false,
+            "solderJoints": 0,
+            "reworkMin": 0
+          },
+          "dfa": {
+            "isBase": false,
+            "bCat": "fastener",
+            "moveRelative": false,
+            "differentMaterial": false,
+            "separateForService": false,
+            "reason": "Standard fastener retaining the propeller.",
+            "size": "small",
+            "sym": "oneWay",
+            "hFlags": {},
+            "dir": "topDown",
+            "fFlags": {
+              "torqueSpec": true
+            },
+            "fix": "screw",
+            "fixCount": 1
+          },
+          "cost": {
+            "process": "purchased",
+            "basis": "inherit",
+            "purchasedPrice": 12,
+            "machining": {
+              "materialId": "al6061",
+              "machineId": "vmc",
+              "stockForm": "block",
+              "L": 60,
+              "W": 40,
+              "H": 20,
+              "D": 0,
+              "partVolume": 28000,
+              "surfaceArea": 0,
+              "holes": [
+                {
+                  "count": 4,
+                  "dia": 5,
+                  "depth": 20
+                }
+              ],
+              "setups": 1,
+              "toolChanges": 3,
+              "setupMin": 35,
+              "batchSize": 50,
+              "tolerance": "coarse",
+              "finish": "asMachined",
+              "scrapCredit": true
+            },
+            "fdm": {
+              "materialId": "petg",
+              "machineId": "fdm1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "layerHeight": 0.2,
+              "nozzle": 0.4,
+              "infillPct": 25,
+              "walls": 3,
+              "supportPct": 12,
+              "partsPerPlate": 4,
+              "surfaceArea": 0
+            },
+            "powder": {
+              "materialId": "pa12",
+              "machineId": "mjf1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "partsPerBuild": 0,
+              "packingOverride": 0
+            },
+            "harness": {
+              "wireId": "w22",
+              "lengthMm": 300,
+              "cores": 2,
+              "branches": 1,
+              "connAPins": 2,
+              "connAPrice": 35,
+              "connBPins": 2,
+              "connBPrice": 35,
+              "splices": 0,
+              "sleevingMm": 0,
+              "heatshrink": 2,
+              "labels": 2,
+              "ties": 3,
+              "contactsOverride": 0,
+              "testMin": 0
+            },
+            "composite": {
+              "materialId": "cf200p",
+              "machineId": "oven",
+              "coreId": "",
+              "coreThickness": 0,
+              "areaMm2": 120000,
+              "plies": 4,
+              "debulks": 1,
+              "cureHr": 4,
+              "partsPerCure": 2,
+              "toolCost": 180000,
+              "toolLife": 400,
+              "trimMin": 0,
+              "ndtMin": 0
+            },
+            "foam": {
+              "materialId": "epp60",
+              "machineId": "foamCnc",
+              "method": "cnc",
+              "bx": 300,
+              "by": 120,
+              "bz": 60,
+              "partVolume": 900000,
+              "toolCost": 0,
+              "toolLife": 1000,
+              "cavities": 1,
+              "cycleSec": 0,
+              "skinArea": 0
+            }
+          }
+        },
+        {
+          "id": "pbsodnkq",
+          "name": "ESC and lead set",
+          "partNo": "ESC-ASY",
+          "qty": 1,
+          "notes": "",
+          "module": "Propulsion elec",
+          "massG": 0,
+          "fieldAssembly": false,
+          "toolFree": false,
+          "domain": "electromech",
+          "itemType": "subassembly",
+          "parent": "",
+          "op": {
+            "sec": 0,
+            "cost": 0,
+            "kind": "other"
+          },
+          "service": {
+            "cls": "none",
+            "removalsPerLife": 0,
+            "accessDepth": 0,
+            "destructive": false,
+            "solderJoints": 0,
+            "reworkMin": 0
+          },
+          "dfa": {
+            "isBase": false,
+            "bCat": "other",
+            "moveRelative": false,
+            "differentMaterial": true,
+            "separateForService": false,
+            "reason": "Built and tested on the bench, fitted to the arm as one unit.",
+            "size": "normal",
+            "sym": "oneWay",
+            "hFlags": {},
+            "dir": "topDown",
+            "fFlags": {
+              "esd": true
+            },
+            "fix": "none",
+            "fixCount": 1
+          },
+          "cost": {
+            "process": "purchased",
+            "basis": "inherit",
+            "purchasedPrice": 0,
+            "machining": {
+              "materialId": "al6061",
+              "machineId": "vmc",
+              "stockForm": "block",
+              "L": 60,
+              "W": 40,
+              "H": 20,
+              "D": 0,
+              "partVolume": 28000,
+              "surfaceArea": 0,
+              "holes": [
+                {
+                  "count": 4,
+                  "dia": 5,
+                  "depth": 20
+                }
+              ],
+              "setups": 1,
+              "toolChanges": 3,
+              "setupMin": 35,
+              "batchSize": 50,
+              "tolerance": "coarse",
+              "finish": "asMachined",
+              "scrapCredit": true
+            },
+            "fdm": {
+              "materialId": "petg",
+              "machineId": "fdm1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "layerHeight": 0.2,
+              "nozzle": 0.4,
+              "infillPct": 25,
+              "walls": 3,
+              "supportPct": 12,
+              "partsPerPlate": 4,
+              "surfaceArea": 0
+            },
+            "powder": {
+              "materialId": "pa12",
+              "machineId": "mjf1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "partsPerBuild": 0,
+              "packingOverride": 0
+            },
+            "harness": {
+              "wireId": "w22",
+              "lengthMm": 300,
+              "cores": 2,
+              "branches": 1,
+              "connAPins": 2,
+              "connAPrice": 35,
+              "connBPins": 2,
+              "connBPrice": 35,
+              "splices": 0,
+              "sleevingMm": 0,
+              "heatshrink": 2,
+              "labels": 2,
+              "ties": 3,
+              "contactsOverride": 0,
+              "testMin": 0
+            },
+            "composite": {
+              "materialId": "cf200p",
+              "machineId": "oven",
+              "coreId": "",
+              "coreThickness": 0,
+              "areaMm2": 120000,
+              "plies": 4,
+              "debulks": 1,
+              "cureHr": 4,
+              "partsPerCure": 2,
+              "toolCost": 180000,
+              "toolLife": 400,
+              "trimMin": 0,
+              "ndtMin": 0
+            },
+            "foam": {
+              "materialId": "epp60",
+              "machineId": "foamCnc",
+              "method": "cnc",
+              "bx": 300,
+              "by": 120,
+              "bz": 60,
+              "partVolume": 900000,
+              "toolCost": 0,
+              "toolLife": 1000,
+              "cavities": 1,
+              "cycleSec": 0,
+              "skinArea": 0
+            }
+          }
+        },
+        {
+          "id": "pzo2v7ng",
+          "name": "ESC, 60 A",
+          "partNo": "ESC-060",
+          "qty": 1,
+          "notes": "",
+          "module": "Propulsion elec",
+          "massG": 82,
+          "fieldAssembly": false,
+          "toolFree": false,
+          "domain": "elec",
+          "itemType": "part",
+          "parent": "pbsodnkq",
+          "op": {
+            "sec": 0,
+            "cost": 0,
+            "kind": "other"
+          },
+          "service": {
+            "cls": "depot",
+            "removalsPerLife": 3,
+            "accessDepth": 2,
+            "destructive": false,
+            "solderJoints": 0,
+            "reworkMin": 0
+          },
+          "dfa": {
+            "isBase": false,
+            "bCat": "other",
+            "moveRelative": false,
+            "differentMaterial": true,
+            "separateForService": false,
+            "reason": "Electronic assembly - must be electrically isolated from the structure.",
+            "size": "normal",
+            "sym": "oneWay",
+            "hFlags": {
+              "delicate": true
+            },
+            "dir": "topDown",
+            "fFlags": {
+              "esd": true
+            },
+            "fix": "snap",
+            "fixCount": 1
+          },
+          "cost": {
+            "process": "purchased",
+            "basis": "inherit",
+            "purchasedPrice": 8500,
+            "machining": {
+              "materialId": "al6061",
+              "machineId": "vmc",
+              "stockForm": "block",
+              "L": 60,
+              "W": 40,
+              "H": 20,
+              "D": 0,
+              "partVolume": 28000,
+              "surfaceArea": 0,
+              "holes": [
+                {
+                  "count": 4,
+                  "dia": 5,
+                  "depth": 20
+                }
+              ],
+              "setups": 1,
+              "toolChanges": 3,
+              "setupMin": 35,
+              "batchSize": 50,
+              "tolerance": "coarse",
+              "finish": "asMachined",
+              "scrapCredit": true
+            },
+            "fdm": {
+              "materialId": "petg",
+              "machineId": "fdm1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "layerHeight": 0.2,
+              "nozzle": 0.4,
+              "infillPct": 25,
+              "walls": 3,
+              "supportPct": 12,
+              "partsPerPlate": 4,
+              "surfaceArea": 0
+            },
+            "powder": {
+              "materialId": "pa12",
+              "machineId": "mjf1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "partsPerBuild": 0,
+              "packingOverride": 0
+            },
+            "harness": {
+              "wireId": "w22",
+              "lengthMm": 300,
+              "cores": 2,
+              "branches": 1,
+              "connAPins": 2,
+              "connAPrice": 35,
+              "connBPins": 2,
+              "connBPrice": 35,
+              "splices": 0,
+              "sleevingMm": 0,
+              "heatshrink": 2,
+              "labels": 2,
+              "ties": 3,
+              "contactsOverride": 0,
+              "testMin": 0
+            },
+            "composite": {
+              "materialId": "cf200p",
+              "machineId": "oven",
+              "coreId": "",
+              "coreThickness": 0,
+              "areaMm2": 120000,
+              "plies": 4,
+              "debulks": 1,
+              "cureHr": 4,
+              "partsPerCure": 2,
+              "toolCost": 180000,
+              "toolLife": 400,
+              "trimMin": 0,
+              "ndtMin": 0
+            },
+            "foam": {
+              "materialId": "epp60",
+              "machineId": "foamCnc",
+              "method": "cnc",
+              "bx": 300,
+              "by": 120,
+              "bz": 60,
+              "partVolume": 900000,
+              "toolCost": 0,
+              "toolLife": 1000,
+              "cavities": 1,
+              "cycleSec": 0,
+              "skinArea": 0
+            }
+          }
+        },
+        {
+          "id": "pafnu3ee",
+          "name": "Motor lead harness, 3 core",
+          "partNo": "HRN-ARM",
+          "qty": 1,
+          "notes": "",
+          "module": "Propulsion elec",
+          "massG": 0,
+          "fieldAssembly": false,
+          "toolFree": false,
+          "domain": "wiring",
+          "itemType": "part",
+          "parent": "pbsodnkq",
+          "op": {
+            "sec": 0,
+            "cost": 0,
+            "kind": "other"
+          },
+          "service": {
+            "cls": "none",
+            "removalsPerLife": 0,
+            "accessDepth": 0,
+            "destructive": false,
+            "solderJoints": 0,
+            "reworkMin": 0
+          },
+          "dfa": {
+            "isBase": false,
+            "bCat": "other",
+            "moveRelative": false,
+            "differentMaterial": true,
+            "separateForService": false,
+            "reason": "Flexible conductor - cannot be integral with either end.",
+            "size": "normal",
+            "sym": "oneWay",
+            "hFlags": {},
+            "dir": "topDown",
+            "fFlags": {
+              "routing": true,
+              "esd": true,
+              "connectorMate": true
+            },
+            "fix": "none",
+            "fixCount": 1
+          },
+          "cost": {
+            "process": "harness",
+            "basis": "inherit",
+            "purchasedPrice": 0,
+            "machining": {
+              "materialId": "al6061",
+              "machineId": "vmc",
+              "stockForm": "block",
+              "L": 60,
+              "W": 40,
+              "H": 20,
+              "D": 0,
+              "partVolume": 28000,
+              "surfaceArea": 0,
+              "holes": [
+                {
+                  "count": 4,
+                  "dia": 5,
+                  "depth": 20
+                }
+              ],
+              "setups": 1,
+              "toolChanges": 3,
+              "setupMin": 35,
+              "batchSize": 50,
+              "tolerance": "coarse",
+              "finish": "asMachined",
+              "scrapCredit": true
+            },
+            "fdm": {
+              "materialId": "petg",
+              "machineId": "fdm1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "layerHeight": 0.2,
+              "nozzle": 0.4,
+              "infillPct": 25,
+              "walls": 3,
+              "supportPct": 12,
+              "partsPerPlate": 4,
+              "surfaceArea": 0
+            },
+            "powder": {
+              "materialId": "pa12",
+              "machineId": "mjf1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "partsPerBuild": 0,
+              "packingOverride": 0
+            },
+            "harness": {
+              "wireId": "w14",
+              "lengthMm": 180,
+              "cores": 3,
+              "branches": 1,
+              "connAPins": 3,
+              "connAPrice": 95,
+              "connBPins": 3,
+              "connBPrice": 95,
+              "splices": 0,
+              "sleevingMm": 0,
+              "heatshrink": 6,
+              "labels": 1,
+              "ties": 0,
+              "contactsOverride": 0,
+              "testMin": 0
+            },
+            "composite": {
+              "materialId": "cf200p",
+              "machineId": "oven",
+              "coreId": "",
+              "coreThickness": 0,
+              "areaMm2": 120000,
+              "plies": 4,
+              "debulks": 1,
+              "cureHr": 4,
+              "partsPerCure": 2,
+              "toolCost": 180000,
+              "toolLife": 400,
+              "trimMin": 0,
+              "ndtMin": 0
+            },
+            "foam": {
+              "materialId": "epp60",
+              "machineId": "foamCnc",
+              "method": "cnc",
+              "bx": 300,
+              "by": 120,
+              "bz": 60,
+              "partVolume": 900000,
+              "toolCost": 0,
+              "toolLife": 1000,
+              "cavities": 1,
+              "cycleSec": 0,
+              "skinArea": 0
+            }
+          }
+        },
+        {
+          "id": "pkxyc3pz",
+          "name": "Apply threadlocker - clamp and motor screws",
+          "partNo": "",
+          "qty": 1,
+          "notes": "",
+          "module": "Arm structure",
+          "massG": 0,
+          "fieldAssembly": false,
+          "toolFree": false,
+          "domain": "mech",
+          "itemType": "operation",
+          "parent": "",
+          "op": {
+            "sec": 35,
+            "cost": 4,
+            "kind": "material"
+          },
+          "service": {
+            "cls": "none",
+            "removalsPerLife": 0,
+            "accessDepth": 0,
+            "destructive": false,
+            "solderJoints": 0,
+            "reworkMin": 0
+          },
+          "dfa": {
+            "isBase": false,
+            "bCat": "other",
+            "moveRelative": false,
+            "differentMaterial": false,
+            "separateForService": false,
+            "reason": "",
+            "size": "normal",
+            "sym": "oneWay",
+            "hFlags": {},
+            "dir": "topDown",
+            "fFlags": {},
+            "fix": "none",
+            "fixCount": 1
+          },
+          "cost": {
+            "process": "machining",
+            "basis": "inherit",
+            "purchasedPrice": 0,
+            "machining": {
+              "materialId": "al6061",
+              "machineId": "vmc",
+              "stockForm": "block",
+              "L": 60,
+              "W": 40,
+              "H": 20,
+              "D": 0,
+              "partVolume": 28000,
+              "surfaceArea": 0,
+              "holes": [
+                {
+                  "count": 4,
+                  "dia": 5,
+                  "depth": 20
+                }
+              ],
+              "setups": 1,
+              "toolChanges": 3,
+              "setupMin": 35,
+              "batchSize": 50,
+              "tolerance": "coarse",
+              "finish": "asMachined",
+              "scrapCredit": true
+            },
+            "fdm": {
+              "materialId": "petg",
+              "machineId": "fdm1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "layerHeight": 0.2,
+              "nozzle": 0.4,
+              "infillPct": 25,
+              "walls": 3,
+              "supportPct": 12,
+              "partsPerPlate": 4,
+              "surfaceArea": 0
+            },
+            "powder": {
+              "materialId": "pa12",
+              "machineId": "mjf1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "partsPerBuild": 0,
+              "packingOverride": 0
+            },
+            "harness": {
+              "wireId": "w22",
+              "lengthMm": 300,
+              "cores": 2,
+              "branches": 1,
+              "connAPins": 2,
+              "connAPrice": 35,
+              "connBPins": 2,
+              "connBPrice": 35,
+              "splices": 0,
+              "sleevingMm": 0,
+              "heatshrink": 2,
+              "labels": 2,
+              "ties": 3,
+              "contactsOverride": 0,
+              "testMin": 0
+            },
+            "composite": {
+              "materialId": "cf200p",
+              "machineId": "oven",
+              "coreId": "",
+              "coreThickness": 0,
+              "areaMm2": 120000,
+              "plies": 4,
+              "debulks": 1,
+              "cureHr": 4,
+              "partsPerCure": 2,
+              "toolCost": 180000,
+              "toolLife": 400,
+              "trimMin": 0,
+              "ndtMin": 0
+            },
+            "foam": {
+              "materialId": "epp60",
+              "machineId": "foamCnc",
+              "method": "cnc",
+              "bx": 300,
+              "by": 120,
+              "bz": 60,
+              "partVolume": 900000,
+              "toolCost": 0,
+              "toolLife": 1000,
+              "cavities": 1,
+              "cycleSec": 0,
+              "skinArea": 0
+            }
+          }
+        },
+        {
+          "id": "ppbcs8jc",
+          "name": "Heatshrink and label the lead set",
+          "partNo": "",
+          "qty": 1,
+          "notes": "",
+          "module": "Propulsion elec",
+          "massG": 0,
+          "fieldAssembly": false,
+          "toolFree": false,
+          "domain": "wiring",
+          "itemType": "operation",
+          "parent": "pbsodnkq",
+          "op": {
+            "sec": 95,
+            "cost": 8,
+            "kind": "joining"
+          },
+          "service": {
+            "cls": "none",
+            "removalsPerLife": 0,
+            "accessDepth": 0,
+            "destructive": false,
+            "solderJoints": 0,
+            "reworkMin": 0
+          },
+          "dfa": {
+            "isBase": false,
+            "bCat": "other",
+            "moveRelative": false,
+            "differentMaterial": false,
+            "separateForService": false,
+            "reason": "",
+            "size": "normal",
+            "sym": "oneWay",
+            "hFlags": {},
+            "dir": "topDown",
+            "fFlags": {},
+            "fix": "none",
+            "fixCount": 1
+          },
+          "cost": {
+            "process": "machining",
+            "basis": "inherit",
+            "purchasedPrice": 0,
+            "machining": {
+              "materialId": "al6061",
+              "machineId": "vmc",
+              "stockForm": "block",
+              "L": 60,
+              "W": 40,
+              "H": 20,
+              "D": 0,
+              "partVolume": 28000,
+              "surfaceArea": 0,
+              "holes": [
+                {
+                  "count": 4,
+                  "dia": 5,
+                  "depth": 20
+                }
+              ],
+              "setups": 1,
+              "toolChanges": 3,
+              "setupMin": 35,
+              "batchSize": 50,
+              "tolerance": "coarse",
+              "finish": "asMachined",
+              "scrapCredit": true
+            },
+            "fdm": {
+              "materialId": "petg",
+              "machineId": "fdm1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "layerHeight": 0.2,
+              "nozzle": 0.4,
+              "infillPct": 25,
+              "walls": 3,
+              "supportPct": 12,
+              "partsPerPlate": 4,
+              "surfaceArea": 0
+            },
+            "powder": {
+              "materialId": "pa12",
+              "machineId": "mjf1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "partsPerBuild": 0,
+              "packingOverride": 0
+            },
+            "harness": {
+              "wireId": "w22",
+              "lengthMm": 300,
+              "cores": 2,
+              "branches": 1,
+              "connAPins": 2,
+              "connAPrice": 35,
+              "connBPins": 2,
+              "connBPrice": 35,
+              "splices": 0,
+              "sleevingMm": 0,
+              "heatshrink": 2,
+              "labels": 2,
+              "ties": 3,
+              "contactsOverride": 0,
+              "testMin": 0
+            },
+            "composite": {
+              "materialId": "cf200p",
+              "machineId": "oven",
+              "coreId": "",
+              "coreThickness": 0,
+              "areaMm2": 120000,
+              "plies": 4,
+              "debulks": 1,
+              "cureHr": 4,
+              "partsPerCure": 2,
+              "toolCost": 180000,
+              "toolLife": 400,
+              "trimMin": 0,
+              "ndtMin": 0
+            },
+            "foam": {
+              "materialId": "epp60",
+              "machineId": "foamCnc",
+              "method": "cnc",
+              "bx": 300,
+              "by": 120,
+              "bz": 60,
+              "partVolume": 900000,
+              "toolCost": 0,
+              "toolLife": 1000,
+              "cavities": 1,
+              "cycleSec": 0,
+              "skinArea": 0
+            }
+          }
+        },
+        {
+          "id": "p0qp596z",
+          "name": "Motor direction and vibration check",
+          "partNo": "",
+          "qty": 1,
+          "notes": "",
+          "module": "Rotor",
+          "massG": 0,
+          "fieldAssembly": false,
+          "toolFree": false,
+          "domain": "electromech",
+          "itemType": "operation",
+          "parent": "",
+          "op": {
+            "sec": 150,
+            "cost": 0,
+            "kind": "test"
+          },
+          "service": {
+            "cls": "none",
+            "removalsPerLife": 0,
+            "accessDepth": 0,
+            "destructive": false,
+            "solderJoints": 0,
+            "reworkMin": 0
+          },
+          "dfa": {
+            "isBase": false,
+            "bCat": "other",
+            "moveRelative": false,
+            "differentMaterial": false,
+            "separateForService": false,
+            "reason": "",
+            "size": "normal",
+            "sym": "oneWay",
+            "hFlags": {},
+            "dir": "topDown",
+            "fFlags": {},
+            "fix": "none",
+            "fixCount": 1
+          },
+          "cost": {
+            "process": "machining",
+            "basis": "inherit",
+            "purchasedPrice": 0,
+            "machining": {
+              "materialId": "al6061",
+              "machineId": "vmc",
+              "stockForm": "block",
+              "L": 60,
+              "W": 40,
+              "H": 20,
+              "D": 0,
+              "partVolume": 28000,
+              "surfaceArea": 0,
+              "holes": [
+                {
+                  "count": 4,
+                  "dia": 5,
+                  "depth": 20
+                }
+              ],
+              "setups": 1,
+              "toolChanges": 3,
+              "setupMin": 35,
+              "batchSize": 50,
+              "tolerance": "coarse",
+              "finish": "asMachined",
+              "scrapCredit": true
+            },
+            "fdm": {
+              "materialId": "petg",
+              "machineId": "fdm1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "layerHeight": 0.2,
+              "nozzle": 0.4,
+              "infillPct": 25,
+              "walls": 3,
+              "supportPct": 12,
+              "partsPerPlate": 4,
+              "surfaceArea": 0
+            },
+            "powder": {
+              "materialId": "pa12",
+              "machineId": "mjf1",
+              "bx": 60,
+              "by": 40,
+              "bz": 20,
+              "partVolume": 28000,
+              "partsPerBuild": 0,
+              "packingOverride": 0
+            },
+            "harness": {
+              "wireId": "w22",
+              "lengthMm": 300,
+              "cores": 2,
+              "branches": 1,
+              "connAPins": 2,
+              "connAPrice": 35,
+              "connBPins": 2,
+              "connBPrice": 35,
+              "splices": 0,
+              "sleevingMm": 0,
+              "heatshrink": 2,
+              "labels": 2,
+              "ties": 3,
+              "contactsOverride": 0,
+              "testMin": 0
+            },
+            "composite": {
+              "materialId": "cf200p",
+              "machineId": "oven",
+              "coreId": "",
+              "coreThickness": 0,
+              "areaMm2": 120000,
+              "plies": 4,
+              "debulks": 1,
+              "cureHr": 4,
+              "partsPerCure": 2,
+              "toolCost": 180000,
+              "toolLife": 400,
+              "trimMin": 0,
+              "ndtMin": 0
+            },
+            "foam": {
+              "materialId": "epp60",
+              "machineId": "foamCnc",
+              "method": "cnc",
+              "bx": 300,
+              "by": 120,
+              "bz": 60,
+              "partVolume": 900000,
+              "toolCost": 0,
+              "toolLife": 1000,
+              "cavities": 1,
+              "cycleSec": 0,
+              "skinArea": 0
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "active": "v1",
+  "meta": {
+    "name": "VTOL lift-arm assembly",
+    "rev": "A",
+    "analyst": "DFMA study",
+    "date": "2026-09-16",
+    "annualVolume": 400,
+    "massTargetG": 420,
+    "fieldDeployTargetSec": 60,
+    "notes": "One of four lift arms. Multiply by 4 for a per-aircraft figure."
+  },
+  "settings": {
+    "basis": "vendor"
+  },
+  "lib": {
+    "rates": {
+      "labourPerHour": 250,
+      "engineerPerHour": 900,
+      "assemblyLabourPerHour": 220,
+      "overheadPct": 18,
+      "scrapPct": 3,
+      "marginPct": 12,
+      "packFreightPct": 2,
+      "idealAssemblySec": 3
+    },
+    "materials": [
+      {
+        "id": "al6061",
+        "name": "Aluminium 6061-T6",
+        "density": 2.7,
+        "pricePerKg": 420,
+        "scrapPerKg": 130,
+        "mrr": 22000,
+        "vc": 250,
+        "fpr": 0.15,
+        "group": "machining"
+      },
+      {
+        "id": "ms1018",
+        "name": "Mild steel 1018",
+        "density": 7.87,
+        "pricePerKg": 75,
+        "scrapPerKg": 28,
+        "mrr": 9000,
+        "vc": 90,
+        "fpr": 0.12,
+        "group": "machining"
+      },
+      {
+        "id": "ss304",
+        "name": "Stainless 304",
+        "density": 8,
+        "pricePerKg": 280,
+        "scrapPerKg": 95,
+        "mrr": 4500,
+        "vc": 60,
+        "fpr": 0.09,
+        "group": "machining"
+      },
+      {
+        "id": "brass",
+        "name": "Brass C36000",
+        "density": 8.5,
+        "pricePerKg": 620,
+        "scrapPerKg": 330,
+        "mrr": 26000,
+        "vc": 200,
+        "fpr": 0.15,
+        "group": "machining"
+      },
+      {
+        "id": "delrin",
+        "name": "Acetal / Delrin",
+        "density": 1.41,
+        "pricePerKg": 520,
+        "scrapPerKg": 0,
+        "mrr": 35000,
+        "vc": 300,
+        "fpr": 0.2,
+        "group": "machining"
+      },
+      {
+        "id": "pla",
+        "name": "PLA filament",
+        "density": 1.24,
+        "pricePerKg": 1100,
+        "group": "fdm"
+      },
+      {
+        "id": "petg",
+        "name": "PETG filament",
+        "density": 1.27,
+        "pricePerKg": 1400,
+        "group": "fdm"
+      },
+      {
+        "id": "abs",
+        "name": "ABS filament",
+        "density": 1.04,
+        "pricePerKg": 1300,
+        "group": "fdm"
+      },
+      {
+        "id": "pa12cf",
+        "name": "PA12-CF filament",
+        "density": 1.1,
+        "pricePerKg": 5200,
+        "group": "fdm"
+      },
+      {
+        "id": "pa12",
+        "name": "PA12 powder (SLS)",
+        "density": 1.01,
+        "bulkDensity": 0.45,
+        "pricePerKg": 3800,
+        "group": "powder"
+      },
+      {
+        "id": "pa11",
+        "name": "PA11 powder",
+        "density": 1.03,
+        "bulkDensity": 0.46,
+        "pricePerKg": 5600,
+        "group": "powder"
+      },
+      {
+        "id": "pa12gb",
+        "name": "PA12-GB powder",
+        "density": 1.3,
+        "bulkDensity": 0.6,
+        "pricePerKg": 4200,
+        "group": "powder"
+      },
+      {
+        "id": "w24",
+        "name": "24 AWG PTFE, silver plated",
+        "pricePerM": 22,
+        "gramsPerM": 2.4,
+        "group": "wire"
+      },
+      {
+        "id": "w22",
+        "name": "22 AWG PTFE, silver plated",
+        "pricePerM": 28,
+        "gramsPerM": 3.6,
+        "group": "wire"
+      },
+      {
+        "id": "w20",
+        "name": "20 AWG silicone",
+        "pricePerM": 34,
+        "gramsPerM": 5.2,
+        "group": "wire"
+      },
+      {
+        "id": "w18",
+        "name": "18 AWG silicone",
+        "pricePerM": 46,
+        "gramsPerM": 8.1,
+        "group": "wire"
+      },
+      {
+        "id": "w14",
+        "name": "14 AWG silicone (power)",
+        "pricePerM": 95,
+        "gramsPerM": 19,
+        "group": "wire"
+      },
+      {
+        "id": "w12",
+        "name": "12 AWG silicone (power)",
+        "pricePerM": 140,
+        "gramsPerM": 29,
+        "group": "wire"
+      },
+      {
+        "id": "wstp",
+        "name": "Shielded twisted pair 26AWG",
+        "pricePerM": 130,
+        "gramsPerM": 11,
+        "group": "wire"
+      },
+      {
+        "id": "wcoax",
+        "name": "RF coax RG178",
+        "pricePerM": 120,
+        "gramsPerM": 6,
+        "group": "wire"
+      },
+      {
+        "id": "cf200p",
+        "name": "CF prepreg 200 gsm 2x2 twill",
+        "gsm": 200,
+        "pricePerKg": 4800,
+        "density": 1.55,
+        "prepreg": true,
+        "group": "composite"
+      },
+      {
+        "id": "cf200d",
+        "name": "CF dry fabric 200 gsm",
+        "gsm": 200,
+        "pricePerKg": 2200,
+        "density": 1.55,
+        "prepreg": false,
+        "group": "composite"
+      },
+      {
+        "id": "cf600d",
+        "name": "CF dry fabric 600 gsm biax",
+        "gsm": 600,
+        "pricePerKg": 2000,
+        "density": 1.55,
+        "prepreg": false,
+        "group": "composite"
+      },
+      {
+        "id": "gf200d",
+        "name": "Glass fabric 200 gsm",
+        "gsm": 200,
+        "pricePerKg": 420,
+        "density": 1.9,
+        "prepreg": false,
+        "group": "composite"
+      },
+      {
+        "id": "kev170",
+        "name": "Aramid fabric 170 gsm",
+        "gsm": 170,
+        "pricePerKg": 3200,
+        "density": 1.44,
+        "prepreg": false,
+        "group": "composite"
+      },
+      {
+        "id": "epp60",
+        "name": "EPP bead 60 kg/m3",
+        "density": 60,
+        "pricePerKg": 450,
+        "group": "foam"
+      },
+      {
+        "id": "epo45",
+        "name": "EPO bead 45 kg/m3",
+        "density": 45,
+        "pricePerKg": 520,
+        "group": "foam"
+      },
+      {
+        "id": "xps35",
+        "name": "XPS block 35 kg/m3",
+        "density": 35,
+        "pricePerKg": 380,
+        "group": "foam"
+      },
+      {
+        "id": "pu80",
+        "name": "PU foam 80 kg/m3",
+        "density": 80,
+        "pricePerKg": 600,
+        "group": "foam"
+      },
+      {
+        "id": "nomex3",
+        "name": "Nomex honeycomb 3 mm core",
+        "density": 48,
+        "pricePerKg": 9500,
+        "group": "foam"
+      }
+    ],
+    "machines": [
+      {
+        "id": "vmc",
+        "name": "3-axis VMC (small)",
+        "group": "machining",
+        "ratePerHour": 900,
+        "maxRpm": 8000,
+        "toolChangeSec": 8,
+        "rapidSec": 2
+      },
+      {
+        "id": "drill",
+        "name": "Drill press / tapper",
+        "group": "machining",
+        "ratePerHour": 350,
+        "maxRpm": 3000,
+        "toolChangeSec": 25,
+        "rapidSec": 3
+      },
+      {
+        "id": "lathe",
+        "name": "CNC lathe (small)",
+        "group": "machining",
+        "ratePerHour": 750,
+        "maxRpm": 4000,
+        "toolChangeSec": 5,
+        "rapidSec": 2
+      },
+      {
+        "id": "fdm1",
+        "name": "FDM 300×300×300",
+        "group": "fdm",
+        "ratePerHour": 120,
+        "printSpeed": 60,
+        "flowEff": 0.85,
+        "layerOverheadSec": 1.2,
+        "warmupMin": 6,
+        "plateSetupMin": 8
+      },
+      {
+        "id": "fdmInd",
+        "name": "FDM industrial (heated chamber)",
+        "group": "fdm",
+        "ratePerHour": 420,
+        "printSpeed": 80,
+        "flowEff": 0.9,
+        "layerOverheadSec": 1,
+        "warmupMin": 20,
+        "plateSetupMin": 12
+      },
+      {
+        "id": "sls1",
+        "name": "SLS 340×340×600",
+        "group": "powder",
+        "ratePerHour": 950,
+        "buildX": 340,
+        "buildY": 340,
+        "buildZ": 600,
+        "layerHeight": 0.1,
+        "layerTimeSec": 38,
+        "warmupMin": 120,
+        "cooldownMin": 600
+      },
+      {
+        "id": "mjf1",
+        "name": "MJF 380×284×380",
+        "group": "powder",
+        "ratePerHour": 1150,
+        "buildX": 380,
+        "buildY": 284,
+        "buildZ": 380,
+        "layerHeight": 0.08,
+        "layerTimeSec": 9,
+        "warmupMin": 45,
+        "cooldownMin": 180
+      },
+      {
+        "id": "rtcure",
+        "name": "Room-temperature cure (no equipment)",
+        "group": "cure",
+        "ratePerHour": 0
+      },
+      {
+        "id": "oven",
+        "name": "Composite cure oven",
+        "group": "cure",
+        "ratePerHour": 600
+      },
+      {
+        "id": "autoclave",
+        "name": "Autoclave",
+        "group": "cure",
+        "ratePerHour": 3500
+      },
+      {
+        "id": "foamMould",
+        "name": "EPP/EPO bead moulding machine",
+        "group": "foam",
+        "ratePerHour": 1400,
+        "cycleSec": 180
+      },
+      {
+        "id": "foamCnc",
+        "name": "CNC foam router / hot wire",
+        "group": "foam",
+        "ratePerHour": 450,
+        "mrr": 900000
+      },
+      {
+        "id": "bench",
+        "name": "Harness bench (crimp + test)",
+        "group": "harness",
+        "ratePerHour": 150
+      }
+    ],
+    "dfa": {
+      "hSize": {
+        "normal": {
+          "label": "Normal, one hand, easy to grasp (6–250 mm)",
+          "idx": 1,
+          "sec": 1.5
+        },
+        "small": {
+          "label": "Small (2–6 mm), fiddly but no tool",
+          "idx": 1.5,
+          "sec": 2.5
+        },
+        "verySmall": {
+          "label": "Very small (<2 mm), tweezers or magnifier",
+          "idx": 1.8,
+          "sec": 4
+        },
+        "large": {
+          "label": "Large / awkward, two hands",
+          "idx": 1.5,
+          "sec": 3
+        },
+        "heavy": {
+          "label": "Heavy (>5 kg) or needs mechanical aid",
+          "idx": 2.5,
+          "sec": 9
+        }
+      },
+      "hSym": {
+        "symmetric": {
+          "label": "Fully symmetric – no orienting needed",
+          "idx": 0,
+          "sec": 0
+        },
+        "oneWay": {
+          "label": "Symmetric about one axis only",
+          "idx": 0.2,
+          "sec": 0.6
+        },
+        "twoWay": {
+          "label": "Must be oriented end-to-end and rotationally",
+          "idx": 0.4,
+          "sec": 1.2
+        },
+        "nonObvious": {
+          "label": "Orientation feature hard to see",
+          "idx": 0.6,
+          "sec": 2
+        }
+      },
+      "hFlags": {
+        "nests": {
+          "label": "Nests or tangles in bulk",
+          "idx": 0.7,
+          "sec": 2
+        },
+        "flexible": {
+          "label": "Flexible / floppy",
+          "idx": 0.6,
+          "sec": 1.5
+        },
+        "delicate": {
+          "label": "Delicate, damages easily",
+          "idx": 0.4,
+          "sec": 1
+        },
+        "sticky": {
+          "label": "Sticky, oily or magnetic",
+          "idx": 0.5,
+          "sec": 1
+        },
+        "sharp": {
+          "label": "Sharp edges / needs gloves",
+          "idx": 0.3,
+          "sec": 0.6
+        },
+        "slippery": {
+          "label": "Slippery",
+          "idx": 0.3,
+          "sec": 0.6
+        },
+        "twoHands": {
+          "label": "Needs two hands to hold",
+          "idx": 0.4,
+          "sec": 1.5
+        },
+        "toolNeeded": {
+          "label": "Grasping tool required",
+          "idx": 0.5,
+          "sec": 2.5
+        },
+        "magnification": {
+          "label": "Optical magnification required",
+          "idx": 0.6,
+          "sec": 3
+        }
+      },
+      "fBase": {
+        "label": "Base: part placed, self-locating, from above",
+        "idx": 1,
+        "sec": 1.5
+      },
+      "fDir": {
+        "topDown": {
+          "label": "Inserted from above",
+          "idx": 0,
+          "sec": 0
+        },
+        "side": {
+          "label": "Inserted from the side",
+          "idx": 0.3,
+          "sec": 1
+        },
+        "underneath": {
+          "label": "Inserted from below",
+          "idx": 0.7,
+          "sec": 2.5
+        }
+      },
+      "fFlags": {
+        "notSelfLocating": {
+          "label": "No self-location – needs alignment",
+          "idx": 0.4,
+          "sec": 1.5
+        },
+        "holdDown": {
+          "label": "Must be held down while fixed",
+          "idx": 0.3,
+          "sec": 2
+        },
+        "resistance": {
+          "label": "Resistance to insertion",
+          "idx": 0.3,
+          "sec": 1.5
+        },
+        "obstructed": {
+          "label": "Obstructed access",
+          "idx": 0.5,
+          "sec": 2.5
+        },
+        "restrictedVision": {
+          "label": "Restricted vision",
+          "idx": 0.4,
+          "sec": 2
+        },
+        "reorient": {
+          "label": "Assembly must be re-oriented first",
+          "idx": 0.4,
+          "sec": 4
+        },
+        "adjust": {
+          "label": "Adjustment / alignment step",
+          "idx": 0.5,
+          "sec": 8
+        },
+        "testStep": {
+          "label": "In-process test or measurement",
+          "idx": 0.4,
+          "sec": 12
+        },
+        "connectorMate": {
+          "label": "Connector to mate, seat and latch",
+          "idx": 0.3,
+          "sec": 6
+        },
+        "routing": {
+          "label": "Cable routing, dressing and securing",
+          "idx": 0.6,
+          "sec": 35
+        },
+        "torqueSpec": {
+          "label": "Torque-controlled fastening + witness mark",
+          "idx": 0.4,
+          "sec": 14
+        },
+        "threadlock": {
+          "label": "Threadlocker or structural adhesive",
+          "idx": 0.3,
+          "sec": 9
+        },
+        "esd": {
+          "label": "ESD-sensitive – strap, mat, handling care",
+          "idx": 0.3,
+          "sec": 8
+        },
+        "calibrate": {
+          "label": "Calibration or alignment routine",
+          "idx": 0.6,
+          "sec": 45
+        },
+        "traceability": {
+          "label": "Serial recorded / build record entry",
+          "idx": 0.2,
+          "sec": 20
+        }
+      },
+      "fFix": {
+        "none": {
+          "label": "None – held by earlier part",
+          "idx": 0,
+          "sec": 0
+        },
+        "snap": {
+          "label": "Snap fit / integral feature",
+          "idx": 0.1,
+          "sec": 1
+        },
+        "clip": {
+          "label": "Separate clip or circlip",
+          "idx": 0.4,
+          "sec": 3
+        },
+        "screw": {
+          "label": "Screw / bolt (power tool)",
+          "idx": 0.6,
+          "sec": 6
+        },
+        "screwHand": {
+          "label": "Screw, hand-driven",
+          "idx": 0.7,
+          "sec": 9
+        },
+        "rivet": {
+          "label": "Rivet",
+          "idx": 0.5,
+          "sec": 5
+        },
+        "weld": {
+          "label": "Weld / braze",
+          "idx": 0.8,
+          "sec": 14
+        },
+        "adhesive": {
+          "label": "Adhesive",
+          "idx": 0.7,
+          "sec": 8
+        },
+        "solder": {
+          "label": "Solder",
+          "idx": 0.8,
+          "sec": 11
+        },
+        "press": {
+          "label": "Press fit",
+          "idx": 0.5,
+          "sec": 4
+        },
+        "cableTie": {
+          "label": "Cable tie / lacing",
+          "idx": 0.3,
+          "sec": 12
+        },
+        "velcro": {
+          "label": "Hook-and-loop strap",
+          "idx": 0.2,
+          "sec": 5
+        },
+        "quickRel": {
+          "label": "Quick-release / captive latch",
+          "idx": 0.1,
+          "sec": 2.5
+        },
+        "lockwire": {
+          "label": "Lockwired fastener",
+          "idx": 0.9,
+          "sec": 70
+        },
+        "thread": {
+          "label": "Screwed on (own thread, e.g. a cap)",
+          "idx": 0.3,
+          "sec": 4
+        },
+        "later": {
+          "label": "Secured later, by a part fitted after it",
+          "idx": 0.1,
+          "sec": 0.8
+        }
+      },
+      "targets": {
+        "handling": 1.5,
+        "fitting": 1.5,
+        "designEff": 60
+      }
+    },
+    "operations": [
+      {
+        "id": "grease",
+        "name": "Apply grease / lubricant",
+        "kind": "material",
+        "sec": 25,
+        "cost": 4
+      },
+      {
+        "id": "adhesive",
+        "name": "Apply adhesive or sealant",
+        "kind": "material",
+        "sec": 45,
+        "cost": 12
+      },
+      {
+        "id": "threadlk",
+        "name": "Apply threadlocker",
+        "kind": "material",
+        "sec": 15,
+        "cost": 3
+      },
+      {
+        "id": "solder",
+        "name": "Solder joint",
+        "kind": "joining",
+        "sec": 55,
+        "cost": 2
+      },
+      {
+        "id": "weld",
+        "name": "Weld / braze joint",
+        "kind": "joining",
+        "sec": 90,
+        "cost": 18
+      },
+      {
+        "id": "crimp",
+        "name": "Crimp termination",
+        "kind": "joining",
+        "sec": 22,
+        "cost": 6
+      },
+      {
+        "id": "reorient",
+        "name": "Re-orient the assembly",
+        "kind": "handling",
+        "sec": 12,
+        "cost": 0
+      },
+      {
+        "id": "adjust",
+        "name": "Adjust / align",
+        "kind": "adjust",
+        "sec": 60,
+        "cost": 0
+      },
+      {
+        "id": "test",
+        "name": "In-process test",
+        "kind": "test",
+        "sec": 120,
+        "cost": 0
+      },
+      {
+        "id": "label",
+        "name": "Apply label / marking",
+        "kind": "other",
+        "sec": 20,
+        "cost": 4
+      },
+      {
+        "id": "clean",
+        "name": "Clean / degrease",
+        "kind": "other",
+        "sec": 40,
+        "cost": 2
+      }
+    ],
+    "fasteners": [
+      {
+        "id": "m3x8",
+        "name": "M3×8 socket cap screw",
+        "price": 2.2,
+        "massG": 1.1,
+        "fix": "screw",
+        "size": "small",
+        "dir": "topDown"
+      },
+      {
+        "id": "m3x12",
+        "name": "M3×12 socket cap screw",
+        "price": 2.6,
+        "massG": 1.5,
+        "fix": "screw",
+        "size": "small",
+        "dir": "topDown"
+      },
+      {
+        "id": "m4x10",
+        "name": "M4×10 socket cap screw",
+        "price": 3.1,
+        "massG": 2.4,
+        "fix": "screw",
+        "size": "small",
+        "dir": "topDown"
+      },
+      {
+        "id": "m4x16",
+        "name": "M4×16 socket cap screw",
+        "price": 3.8,
+        "massG": 3.2,
+        "fix": "screw",
+        "size": "small",
+        "dir": "topDown"
+      },
+      {
+        "id": "m5x16",
+        "name": "M5×16 socket cap screw",
+        "price": 5,
+        "massG": 5.4,
+        "fix": "screw",
+        "size": "normal",
+        "dir": "topDown"
+      },
+      {
+        "id": "m3nut",
+        "name": "M3 nyloc nut",
+        "price": 1.8,
+        "massG": 0.8,
+        "fix": "screwHand",
+        "size": "small",
+        "dir": "underneath"
+      },
+      {
+        "id": "m4nut",
+        "name": "M4 nyloc nut",
+        "price": 2.2,
+        "massG": 1.4,
+        "fix": "screwHand",
+        "size": "small",
+        "dir": "underneath"
+      },
+      {
+        "id": "m3wash",
+        "name": "M3 plain washer",
+        "price": 0.5,
+        "massG": 0.2,
+        "fix": "none",
+        "size": "verySmall",
+        "dir": "topDown"
+      },
+      {
+        "id": "m4wash",
+        "name": "M4 plain washer",
+        "price": 0.6,
+        "massG": 0.4,
+        "fix": "none",
+        "size": "verySmall",
+        "dir": "topDown"
+      },
+      {
+        "id": "riv32",
+        "name": "3.2 mm blind rivet",
+        "price": 1.4,
+        "massG": 0.5,
+        "fix": "rivet",
+        "size": "small",
+        "dir": "topDown"
+      },
+      {
+        "id": "circ8",
+        "name": "8 mm circlip",
+        "price": 2,
+        "massG": 0.3,
+        "fix": "clip",
+        "size": "verySmall",
+        "dir": "side"
+      },
+      {
+        "id": "tie100",
+        "name": "100 mm cable tie",
+        "price": 0.8,
+        "massG": 0.3,
+        "fix": "cableTie",
+        "size": "small",
+        "dir": "side"
+      }
+    ],
+    "harness": {
+      "cutStripSecPerEnd": 18,
+      "crimpSecPerContact": 22,
+      "connectorAssySec": 90,
+      "sleevingSecPerM": 60,
+      "heatshrinkSecEach": 25,
+      "labelSecEach": 20,
+      "tieSecEach": 12,
+      "continuityTestMin": 4,
+      "wireWastePct": 8,
+      "sleevingPricePerM": 45,
+      "heatshrinkPriceEach": 6,
+      "labelPriceEach": 4,
+      "tiePriceEach": 1.5,
+      "contactPriceEach": 6,
+      "connectorGramsEach": 6
+    },
+    "composite": {
+      "layupMinPerPlyPerM2": 14,
+      "prepMin": 20,
+      "debulkMinEach": 12,
+      "baggingMinPerM2": 18,
+      "consumablePricePerM2": 320,
+      "resinRatio": 0.45,
+      "resinPricePerKg": 1400,
+      "trimFinishMin": 25,
+      "ndtMin": 8,
+      "scrapPct": 8,
+      "fabricWastePct": 15
+    },
+    "foamProc": {
+      "blockMarginMm": 10,
+      "trimMin": 4,
+      "wastePct": 10
+    },
+    "service": {
+      "removeFactor": 0.7,
+      "refitFactor": 1,
+      "accessPartSec": 25,
+      "desolderSecPerJoint": 75,
+      "diagnosisMin": 10,
+      "testAfterMin": 8,
+      "connectorCostPerJoint": 180,
+      "connectorGramsPerJoint": 9,
+      "connectorMateSec": 8,
+      "solderDamageRiskPct": 4
+    },
+    "cost": {
+      "tolerance": {
+        "coarse": {
+          "label": "General tolerance (±0.2 mm)",
+          "mult": 1
+        },
+        "medium": {
+          "label": "±0.05 mm",
+          "mult": 1.2
+        },
+        "fine": {
+          "label": "±0.02 mm",
+          "mult": 1.45
+        },
+        "precision": {
+          "label": "±0.01 mm or tighter",
+          "mult": 1.8
+        }
+      },
+      "finish": {
+        "asMachined": {
+          "label": "As machined (Ra 3.2)",
+          "mult": 1
+        },
+        "good": {
+          "label": "Ra 1.6",
+          "mult": 1.15
+        },
+        "fine": {
+          "label": "Ra 0.8",
+          "mult": 1.35
+        },
+        "ground": {
+          "label": "Ra 0.4 or better",
+          "mult": 1.7
+        }
+      },
+      "machining": {
+        "approachMm": 2,
+        "peckFactor": 1.15,
+        "loadUnloadSec": 25,
+        "inspectionSec": 20,
+        "finishRateMm2PerMin": 9000,
+        "operatorAttendPct": 60
+      },
+      "fdm": {
+        "extrusionWidthFactor": 1.125,
+        "wastePct": 4,
+        "failurePct": 6,
+        "postProcessMin": 6
+      },
+      "powder": {
+        "packingDensityPct": 9,
+        "recyclePct": 70,
+        "depowderMinPerPart": 2.5,
+        "postProcessMinPerPart": 3
+      }
+    }
+  }
+}

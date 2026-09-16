@@ -3275,7 +3275,26 @@ function importCsv(text){
   if(rows.length<2){ toast("Nothing to import"); return; }
   const head = rows[0].map(x=>x.trim().toLowerCase());
   const col = n=>head.indexOf(String(n).toLowerCase());
+
+  /* A file whose first line is not a header row — the wrong sheet, a title
+     row above the headers, a spreadsheet run through a converter — would
+     otherwise import as a pile of identically-named parts on pure defaults.
+     Recognising nothing is the signal; say so and change nothing. */
+  const KNOWN = ["name","partno","qty","module","domain","itemtype","parent","isbase","moves",
+                 "material_diff","service","bcat","reason","size","sym","dir","fix","fixcount",
+                 "massg","process","price","material","volume","bx","by","bz","opsec","wireid"];
+  const matched = KNOWN.filter(k=>head.indexOf(k)>=0);
+  if(!matched.length){
+    alert("That does not look like a parts file.\n\nThe first line has to be the column names. "+
+          "None were recognised — the first line read:\n\n"+
+          rows[0].slice(0,6).map(x=>"  "+(x||"(blank)")).join("\n")+
+          (rows[0].length>6 ? "\n  … and "+(rows[0].length-6)+" more" : "")+
+          "\n\nNothing was imported. If this came from the input workbook, export the Parts sheet "+
+          "with the column names on the first line.");
+    return;
+  }
   const warn = [];
+  if(head.indexOf("name")<0) warn.push("No “name” column — every row will be called “Imported part”.");
   let added=0;
 
   rows.slice(1).forEach((r,ri)=>{
