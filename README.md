@@ -175,7 +175,14 @@ anything you want to keep or share. Import restores it anywhere.
 
 ## Importing a BOM
 
-**`input-template.xlsx`** is the input specification: a Parts sheet with all 113
+**`dfma-input-workbook.xlsx`** is the one to start from. 83 columns — everything
+the machining, printing, foam, harness and purchased models read, and nothing
+else. It carries a *Start here* sheet, a *Field guide* for every column, a
+*What matters most* sheet with the measured sensitivity results, and a worked
+*Example* (the VTOL lift arm) that reproduces `examples-vtol-arm-assembly.csv`
+exactly. Fill in the **Parts** sheet, save it as CSV, import it.
+
+**`input-template.xlsx`** is the exhaustive specification: a Parts sheet with all 113
 columns and dropdowns on every one that takes a fixed value, a field guide
 saying what each column means and where the answer comes from, the accepted
 values, and a sheet listing the inputs that live in the tool's Library rather
@@ -190,8 +197,9 @@ finish the analysis in the tool. Values that are not recognised are listed back
 to you on import rather than silently dropped. The Data tab documents every
 column too, and *Download blank template* gives you the header row alone.
 
-113 columns cover every process. Most analyses need 25–35 — delete the column
-groups for processes you do not use.
+113 columns cover every process, composite layup included. Most analyses need
+25–35 — delete the column groups for processes you do not use. The 83-column
+`dfma-input-workbook.xlsx` has already done that pruning for you.
 
 The structure is carried by two columns: `itemType` (`part`, `subassembly` or
 `operation`) and `parent`, which names the sub-assembly a row belongs to. Names
