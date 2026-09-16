@@ -703,7 +703,7 @@ function sampleProject(){
                note:"As it is built today. Every option is measured against this.",
                parts}],
     active:"v1",
-    meta:{name:"Sample – VTOL airframe", rev:"A", analyst:"",
+    meta:{name:"Sample – VTOL airframe", rev:"A", analyst:"", sample:true,
           date:new Date().toISOString().slice(0,10),
           annualVolume:500, massTargetG:10000, fieldDeployTargetSec:300,
           notes:"Illustrative only – quantities, geometry and prices are invented. "+
@@ -810,6 +810,7 @@ function withVariant(v, fn){
    it; if a part inside one is selected it joins that sub-assembly, which is
    what you nearly always mean. */
 function addItem(pt){
+  S.meta.sample = false;
   const sel = S.parts.find(x=>x.id===ui.selPart);
   if(sel) pt.parent = sel.itemType==="subassembly" ? sel.id : sel.parent;
   S.parts.push(pt);
@@ -3328,6 +3329,45 @@ function importCsv(text){
   }
   const warn = [];
   if(head.indexOf("name")<0) warn.push("No \u201Cname\u201D column \u2014 every row will be called \u201CImported part\u201D.");
+  /* A BOM import ADDS rows; it does not replace them. Building one part list
+     from several files needs that. Importing the same file twice does not —
+     and the doubled result still looks plausible, which is how a sample
+     project plus six imports becomes a 145-part analysis nobody meant to run.
+
+     So only interrupt when the file looks like one already imported: judge it
+     by how many of its names are already here, not by whether anything is. */
+  const hadRows = S.parts.length;
+
+  /* The sample project is loaded by default, so the commonest way to get a
+     nonsense analysis is to import a real BOM straight on top of it and end up
+     measuring both. Nobody chose those parts, so say so plainly. */
+  if(hadRows > 0 && S.meta.sample){
+    const keep = confirm(
+      "This is still the built-in sample project \u2014 "+hadRows+" items nobody chose.\n\n"+
+      "OK \u2014 clear it and analyse just the file you are importing.\n"+
+      "Cancel \u2014 add your parts to the sample, and measure both together.");
+    if(keep){ setParts([]); S.meta.sample = false; S.meta.name = ""; }
+  }
+  if(S.parts.length > 0){
+    const nameCol = col("name");
+    const here = new Set(S.parts.map(x=>String(x.name||"").trim().toLowerCase()));
+    const incoming = rows.slice(1).filter(r=>r && r.join("").trim());
+    const dupes = nameCol < 0 ? [] : incoming.filter(r=>{
+      const n = String(r[nameCol]==null?"":r[nameCol]).trim().toLowerCase();
+      return n && here.has(n);
+    });
+    if(dupes.length && dupes.length >= incoming.length/2){
+      const replace = confirm(
+        dupes.length+" of the "+incoming.length+" item"+(incoming.length===1?"":"s")+
+        " in this file " + (dupes.length===1?"is":"are") + " already in \u201C"+(variant().name||"this option")+
+        "\u201D, which holds "+hadRows+".\n\nThis looks like the same file imported again.\n\n"+
+        "OK \u2014 replace what is here with this file.\n"+
+        "Cancel \u2014 add them anyway, leaving "+(hadRows+incoming.length)+" items.");
+      if(replace) setParts([]);
+    }
+  }
+  S.meta.sample = false;
+
   let added=0;
 
   rows.slice(1).forEach((r,ri)=>{
@@ -3549,7 +3589,9 @@ function importCsv(text){
   });
 
   save(); render();
-  toast(added+" part"+(added===1?"":"s")+" imported"+(warn.length?" · "+warn.length+" warning"+(warn.length===1?"":"s"):""));
+  toast(added+" item"+(added===1?"":"s")+" imported \u2014 \u201C"+(variant().name||"this option")+
+        "\u201D now holds "+S.parts.length+
+        (warn.length?" \u00b7 "+warn.length+" warning"+(warn.length===1?"":"s"):""));
   if(warn.length) alert("Imported "+added+" part"+(added===1?"":"s")+", but some values were not recognised and the defaults were kept:\n\n"+
     warn.slice(0,25).join("\n")+(warn.length>25?"\n… and "+(warn.length-25)+" more":""));
 }
@@ -3806,7 +3848,7 @@ function loadProject(o){
       "Cancel first and use Export if you want to keep the current project.");
     if(!ok){ toast("Import cancelled \u2014 nothing changed"); return; }
   }
-  S = migrate(o); ui.selPart=null; save(); render();
+  S = migrate(o); S.meta.sample = false; ui.selPart=null; save(); render();
   toast("Loaded \u201C"+(S.meta.name||"project")+"\u201D \u2014 "+S.parts.length+" items, "+S.variants.length+" option(s)");
 }
 
