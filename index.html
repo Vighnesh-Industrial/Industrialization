@@ -172,6 +172,22 @@ ul.flags li b{color:var(--ink);font-weight:600}
 details.calc{margin-top:10px;border-top:1px dashed var(--rule-strong);padding-top:10px}
 details.calc summary{cursor:pointer;font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
 details.calc table{margin-top:10px;font-size:12px}
+/* ---- in-page dialogs ----
+   An embedded page cannot use window.confirm or window.alert: a sandbox
+   without allow-modals makes confirm() return false and alert() a no-op,
+   silently, so every guarded action does nothing and every warning is
+   invisible. These replace them and work anywhere. */
+.modal-back{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.45);
+  display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{background:var(--surface);color:var(--ink);border:1px solid var(--rule-strong);
+  box-shadow:0 20px 60px -20px rgba(0,0,0,.6);max-width:520px;width:100%;
+  max-height:80vh;display:flex;flex-direction:column}
+.modal h2{font-size:15px;padding:16px 20px 0}
+.modal-body{padding:10px 20px 4px;overflow-y:auto;font-size:13.5px;line-height:1.55;color:var(--ink-2)}
+.modal-body p{margin:0 0 .7em}
+.modal-body b{color:var(--ink)}
+.modal-act{padding:12px 20px 16px;justify-content:flex-end;border-top:1px solid var(--rule);margin-top:6px}
+@media(max-width:480px){ .modal-act{flex-direction:column-reverse} .modal-act .btn{width:100%} }
 .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--ink);color:var(--ground);
   font-family:var(--f-mono);font-size:12px;padding:9px 16px;border-radius:2px;z-index:100;box-shadow:var(--shadow)}
 
@@ -246,7 +262,7 @@ details.calc table{margin-top:10px;font-size:12px}
    ============================================================ */
 
 const CUR = "₹"; // INR
-const BUILD = "build 2026-09-16-7";  // shown in the header so a stale page is obvious
+const BUILD = "build 2026-09-16-8";  // shown in the header so a stale page is obvious
 
 const DEFAULT_LIB = {
   rates: {
@@ -1717,6 +1733,52 @@ function toast(msg){
   const t=document.createElement("div"); t.className="toast"; t.textContent=msg;
   document.body.appendChild(t); setTimeout(()=>t.remove(),2200);
 }
+
+/* Native confirm() and alert() are unavailable in an embedded page, and fail
+   silently when they are — confirm() just returns false, so every guarded
+   action quietly does nothing. Everything here goes through these instead. */
+function modalHtml(msg){
+  return String(msg).split(/\n\n+/).map(para=>
+    "<p>"+para.split("\n").map(h).join("<br>")+"</p>").join("");
+}
+function modal(opts){
+  return new Promise(resolve=>{
+    const prev = document.activeElement;
+    const back = document.createElement("div");
+    back.className = "modal-back";
+    back.innerHTML =
+      '<div class="modal" role="dialog" aria-modal="true" aria-label="'+h(opts.title||"Confirm")+'">'+
+        (opts.title ? '<h2>'+h(opts.title)+'</h2>' : '')+
+        '<div class="modal-body">'+modalHtml(opts.message)+'</div>'+
+        '<div class="rowact modal-act">'+
+          (opts.cancel === false ? '' : '<button type="button" class="btn" data-mno>'+h(opts.cancel||"Cancel")+'</button>')+
+          '<button type="button" class="btn '+(opts.danger?"danger":"primary")+'" data-myes>'+h(opts.ok||"OK")+'</button>'+
+        '</div>'+
+      '</div>';
+    const done = v => {
+      document.removeEventListener("keydown", onKey, true);
+      back.remove();
+      if(prev && prev.focus) try{ prev.focus(); }catch(e){}
+      resolve(v);
+    };
+    const onKey = e => {
+      if(e.key === "Escape"){ e.preventDefault(); e.stopPropagation(); done(false); }
+      else if(e.key === "Enter" && e.target.tagName !== "BUTTON"){ e.preventDefault(); done(true); }
+    };
+    back.addEventListener("click", e=>{
+      if(e.target.closest("[data-myes]")) return done(true);
+      if(e.target.closest("[data-mno]")) return done(false);
+      if(e.target === back) return done(false);          // clicking the backdrop cancels
+    });
+    document.addEventListener("keydown", onKey, true);
+    document.body.appendChild(back);
+    const first = back.querySelector("[data-myes]");
+    if(first) first.focus();
+  });
+}
+/* Replacements for confirm() and alert(). Both are awaited. */
+function ask(message, opts){ return modal(Object.assign({message}, opts||{})); }
+function say(message, opts){ return modal(Object.assign({message, cancel:false, ok:"Close"}, opts||{})); }
 
 /* ============================================================
    8. VIEWS
@@ -3317,10 +3379,10 @@ const CSV_FITTING_FLAGS  = ["notSelfLocating","holdDown","resistance","obstructe
                             "reorient","adjust","testStep","connectorMate","routing","torqueSpec",
                             "threadlock","esd","calibrate","traceability"];
 
-function importCsv(text){
+async function importCsv(text){
   const rows = parseCsv(text);
   if(!rows.length || !rows[0].length || !rows[0].join("").trim()){
-    alert("There is nothing to read in that \u2014 no rows at all."); return;
+    await say("There is nothing to read in that \u2014 no rows at all.", {title:"Nothing to import"}); return;
   }
   const head = rows[0].map(x=>x.trim().toLowerCase());
   const col = n=>head.indexOf(String(n).toLowerCase());
@@ -3334,17 +3396,17 @@ function importCsv(text){
                  "massg","process","price","material","volume","bx","by","bz","opsec","wireid"];
   const matched = KNOWN.filter(k=>head.indexOf(k)>=0);
   if(!matched.length){
-    alert("That does not look like a parts file.\n\nThe first line has to be the column names. "+
+    await say("That does not look like a parts file.\n\nThe first line has to be the column names. "+
           "None were recognised — the first line read:\n\n"+
           rows[0].slice(0,6).map(x=>"  "+(x||"(blank)")).join("\n")+
           (rows[0].length>6 ? "\n  … and "+(rows[0].length-6)+" more" : "")+
           "\n\nNothing was imported. If this came from the input workbook, export the Parts sheet "+
-          "with the column names on the first line.");
+          "with the column names on the first line.", {title:"Unrecognised file"});
     return;
   }
   if(rows.length < 2){
-    alert("The column names are there, but there are no part rows beneath them.\n\n"+
-          "Recognised on the first line: "+matched.join(", ")+"\n\nNothing was imported.");
+    await say("The column names are there, but there are no part rows beneath them.\n\n"+
+          "Recognised on the first line: "+matched.join(", ")+"\n\nNothing was imported.", {title:"No rows"});
     return;
   }
   const warn = [];
@@ -3373,11 +3435,10 @@ function importCsv(text){
       ? "\u201C"+(variant().name||"This option")+"\u201D still holds the built-in sample project \u2014 "+
         hadRows+" items nobody chose."
       : "\u201C"+(variant().name||"This option")+"\u201D already holds "+hadRows+" item"+(hadRows===1?"":"s")+".";
-    const ok = confirm(
+    const ok = await ask(
       what+"\n\nReplace "+(hadRows===1?"it":"them")+" with the "+incoming+" in this file?\n\n"+
-      "OK \u2014 replace, and analyse only this file.\n"+
-      "Cancel \u2014 do nothing.\n\n"+
-      "To keep both instead, tick \u201CAdd to the parts already here\u201D on the Data tab first.");
+      "To keep both instead, tick \u201CAdd to the parts already here\u201D on the Data tab first, then import again.",
+      {title:"Replace what is here?", ok:"Replace", cancel:"Do nothing", danger:true});
     if(!ok){ toast("Import cancelled \u2014 nothing changed"); return; }
     setParts([]);
   }
@@ -3607,8 +3668,8 @@ function importCsv(text){
   toast(added+" item"+(added===1?"":"s")+" imported \u2014 \u201C"+(variant().name||"this option")+
         "\u201D now holds "+S.parts.length+
         (warn.length?" \u00b7 "+warn.length+" warning"+(warn.length===1?"":"s"):""));
-  if(warn.length) alert("Imported "+added+" part"+(added===1?"":"s")+", but some values were not recognised and the defaults were kept:\n\n"+
-    warn.slice(0,25).join("\n")+(warn.length>25?"\n… and "+(warn.length-25)+" more":""));
+  if(warn.length) await say("Imported "+added+" part"+(added===1?"":"s")+", but some values were not recognised and the defaults were kept:\n\n"+
+    warn.slice(0,25).join("\n")+(warn.length>25?"\n… and "+(warn.length-25)+" more":""), {title:"Imported with warnings"});
 }
 
 function csvOut(){
@@ -3675,7 +3736,7 @@ function download(name, text, mime){
 /* ============================================================
    10. EVENTS
    ============================================================ */
-document.addEventListener("click", e=>{
+document.addEventListener("click", async e=>{
   // selecting a part from the list: the marker sits on the row, not a button
   const row = e.target.closest("[data-sel]");
   if(row && !e.target.closest("button")){ ui.selPart = row.dataset.sel; render(); return; }
@@ -3721,7 +3782,7 @@ document.addEventListener("click", e=>{
     const msg = kids.length
       ? "Delete “"+src.name+"”? Its "+kids.length+" item(s) move up to sit alongside it rather than being deleted."
       : "Delete “"+src.name+"”?";
-    if(confirm(msg)){
+    if(await ask(msg, {title:"Delete this item?", ok:"Delete", danger:true})){
       kids.forEach(k=>{ k.parent = src.parent; });
       S.parts.splice(S.parts.indexOf(src),1);
       ui.selPart = S.parts.length? S.parts[0].id : null; save(); render();
@@ -3739,7 +3800,7 @@ document.addEventListener("click", e=>{
   if(d.delvar){
     const v = S.variants.find(x=>x.id===d.delvar);
     if(S.variants.length<2) return;
-    if(confirm("Delete the option “"+v.name+"” and its part list?")){
+    if(await ask("Delete the option “"+v.name+"” and its part list?", {title:"Delete this option?", ok:"Delete", danger:true})){
       S.variants.splice(S.variants.indexOf(v),1);
       if(S.active===v.id) useVariant(S.variants[0].id);
       save(); render();
@@ -3751,7 +3812,7 @@ document.addEventListener("click", e=>{
     useVariant(v.id); save(); render(); toast("Cloned — you are now editing "+v.name); return;
   }
   if(t.id==="btnStdOptions"){
-    if(!confirm("Add three options cloned from the one you are editing — materials, processes and assembly?")) return;
+    if(!await ask("Add three options cloned from the one you are editing — materials, processes and assembly?", {title:"Add the standard options?", ok:"Add them"})) return;
     addVariant(S.active, "Option 1 — materials", "Same design, different materials.");
     addVariant(S.active, "Option 2 — processes", "Same design and materials, different manufacturing processes.");
     addVariant(S.active, "Option 3 — assembly",  "Parts consolidated and joints changed to cut assembly time.");
@@ -3807,12 +3868,27 @@ document.addEventListener("click", e=>{
     const box = document.getElementById("pasteBox");
     const txt = box ? box.value.trim() : "";
     if(!txt){ toast("Nothing pasted yet"); if(box) box.focus(); return; }
-    try{ loadAnyText(txt); }
-    catch(err){ alert("Could not read that: "+err.message); }
+    try{ await loadAnyText(txt); }
+    catch(err){ await say("Could not read that.", {title:"Could not read it"}); }
     return;
   }
-  if(t.id==="btnReset"){ if(confirm("Discard everything and reload the sample project?")){ S=sampleProject(); ui.selPart=null; save(); render(); } return; }
-  if(t.id==="btnClear"){ if(confirm("Delete all parts? The library and rates are kept.")){ setParts([]); ui.selPart=null; save(); render(); } return; }
+  if(t.id==="btnReset"){
+    if(await ask("Discard everything and reload the sample project? Every part and every design option goes, and the Library is reset too.",
+       {title:"Reset to the sample?", ok:"Reset", danger:true})){
+      S=sampleProject(); ui.selPart=null; save(); render(); toast("Reset to the sample project");
+    }
+    return;
+  }
+  if(t.id==="btnClear"){
+    const n = S.parts.length;
+    if(!n){ toast("There are no parts to clear"); return; }
+    if(await ask("Delete all "+n+" item"+(n===1?"":"s")+" in this design option? The Library, the rates and your other design options are kept.",
+       {title:"Clear this option?", ok:"Delete them", danger:true})){
+      setParts([]); ui.selPart=null; S.meta.sample=false; save(); render();
+      toast("Cleared - the option is now empty");
+    }
+    return;
+  }
 });
 
 document.addEventListener("input", e=>{
@@ -3851,16 +3927,17 @@ function refreshLive(){
 /* Replace the whole analysis with a saved one. Loading a project discards
    parts, every design option and the whole Library. Reset and Clear both ask
    first; this loses the most, so it asks too. */
-function loadProject(o){
+async function loadProject(o){
   const items = S.variants.reduce((a,v)=>a+v.parts.length,0);
   if(items > 0){
     const incoming = (o.meta && o.meta.name) || "the imported project";
-    const ok = confirm(
+    const ok = await ask(
       "Replace \u201C"+(S.meta.name||"this project")+"\u201D with \u201C"+incoming+"\u201D?\n\n"+
       "You would lose "+items+" item"+(items===1?"":"s")+" across "+S.variants.length+
       " design option"+(S.variants.length===1?"":"s")+", and every rate and coefficient in the Library. "+
       "This cannot be undone.\n\n"+
-      "Cancel first and use Export if you want to keep the current project.");
+      "Cancel and use Export first if you want to keep the current project.",
+      {title:"Replace this project?", ok:"Replace", cancel:"Cancel", danger:true});
     if(!ok){ toast("Import cancelled \u2014 nothing changed"); return; }
   }
   S = migrate(o); S.meta.sample = false; ui.selPart=null; save(); render();
@@ -3874,11 +3951,11 @@ function readPickedFile(e){
   e.target.value = "";
   if(!f) return;
   const rd = new FileReader();
-  rd.onerror = ()=>alert("Could not read \u201C"+f.name+"\u201D. If the file picker is not working here, "+
-                         "the Data tab has a box you can paste into instead.");
-  rd.onload = ()=>{
-    try{ loadAnyText(rd.result); }
-    catch(err){ alert("Could not read \u201C"+f.name+"\u201D: "+err.message); }
+  rd.onerror = ()=>say("Could not read \u201C"+f.name+"\u201D. If the file picker is not working here, "+
+                       "the Data tab has a box you can paste into instead.", {title:"Could not read the file"});
+  rd.onload = async ()=>{
+    try{ await loadAnyText(rd.result); }
+    catch(err){ await say("Could not read \u201C"+f.name+"\u201D.\n\n"+err.message, {title:"Could not read the file"}); }
   };
   rd.readAsText(f);
 }
@@ -3887,16 +3964,16 @@ document.getElementById("fileCsv").addEventListener("change", readPickedFile);
 
 /* One entry point for every way text gets in — a picked file or a paste. A
    project JSON replaces the whole analysis; anything else is a BOM. */
-function loadAnyText(text){
+async function loadAnyText(text){
   const t = String(text).replace(/^\uFEFF/, "").trim();
   if(t.charAt(0) === "{"){
     let o;
     try{ o = JSON.parse(t); }catch(e){ throw new Error("that looks like JSON but will not parse — "+e.message); }
-    if(o && (o.parts || o.variants)) return loadProject(o);
+    if(o && (o.parts || o.variants)) return await loadProject(o);
     throw new Error("that JSON is not a saved project and not a list of parts. A project has a “variants” key; "+
                     "a BOM is a list, starting with “[”.");
   }
-  importCsv(toRowText(t));
+  await importCsv(toRowText(t));
 }
 
 /* People convert the Parts sheet to JSON as often as to CSV, and an array of
