@@ -79,13 +79,20 @@ main{max-width:1400px;margin:0 auto;padding:22px 20px 80px}
 @media(max-width:900px){.g3,.g4{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:620px){.g2,.g3,.g4{grid-template-columns:1fr}}
 
-button.btn{
+.btn{
   font-family:var(--f-ui);font-size:13px;font-weight:500;padding:7px 13px;border-radius:2px;cursor:pointer;
-  background:var(--surface);color:var(--ink);border:1px solid var(--rule-strong)}
-button.btn:hover{background:var(--surface-2)}
-button.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
-button.btn.danger{color:var(--risk);border-color:var(--rule-strong)}
-button.btn.sm{font-size:12px;padding:4px 9px}
+  background:var(--surface);color:var(--ink);border:1px solid var(--rule-strong);
+  display:inline-block;line-height:1.55;text-align:center;white-space:nowrap}
+.btn:hover{background:var(--surface-2)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.danger{color:var(--risk);border-color:var(--rule-strong)}
+.btn.sm{font-size:12px;padding:4px 9px}
+/* A file input reached through its own <label> opens the picker natively. The
+   scripted .click() it used to rely on is the first thing an embedding sandbox
+   blocks, so the input is only visually hidden, never display:none. */
+.filebtn input[type=file]{position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.filebtn:focus-within{outline:2px solid var(--accent);outline-offset:2px}
 
 label.f{display:block}
 label.f > span.lab{display:block;font-family:var(--f-mono);font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--steel);margin-bottom:4px}
@@ -222,9 +229,8 @@ details.calc table{margin-top:10px;font-size:12px}
     <nav class="tabs" id="tabs"></nav>
     <div class="topact">
       <button class="btn sm" id="btnExport">Export</button>
-      <button class="btn sm" id="btnImport">Import</button>
-      <input type="file" id="fileImport" accept=".json" hidden>
-      <input type="file" id="fileCsv" accept=".csv,.txt,.json" hidden>
+      <label class="btn sm filebtn" title="Load a saved analysis (project JSON)">Import<input type="file" id="fileImport" accept=".json,application/json"></label>
+      <label class="btn sm filebtn" title="Add parts from a BOM (CSV or JSON)">BOM<input type="file" id="fileCsv" accept=".csv,.txt,.json,text/csv,application/json"></label>
     </div>
   </div>
 </div>
@@ -1961,7 +1967,7 @@ function viewParts(){
   const left = '<div class="panel"><header><h2>Structure</h2>'+
       '<button class="btn sm primary" id="btnAddPart">Part</button>'+
       '<button class="btn sm" id="btnAddSub">Sub-assembly</button>'+
-      '<button class="btn sm" id="btnImportCsv">BOM</button></header>'+
+      '<label class="btn sm filebtn" for="fileCsv">BOM</label></header>'+
     '<div style="padding:10px 14px;border-bottom:1px solid var(--rule);display:grid;gap:8px">'+
       '<div class="rowact"><select id="selFastener" style="flex:1 1 160px">'+fastOpts+'</select>'+
         '<button class="btn sm" id="btnAddFastener">Add fastener</button></div>'+
@@ -3138,10 +3144,21 @@ function viewData(){
   return '<div class="card"><h2>Save and share</h2>'+
     '<p class="sub">Your work lives in this browser’s local storage. Export a JSON file to keep it in the repo, move it between machines, or hand it to a colleague.</p>'+
     '<div class="rowact"><button class="btn primary" id="btnExport2">Export project JSON</button>'+
-    '<button class="btn" id="btnImport2">Import project JSON</button>'+
+    '<label class="btn filebtn" for="fileImport">Import project JSON</label>'+
     '<button class="btn" id="btnCsvOut2">Export results CSV</button>'+
     '<button class="btn danger" id="btnReset">Reset to sample</button>'+
     '<button class="btn danger" id="btnClear">Clear all parts</button></div></div>'+
+
+    '<div class="card"><h2>Paste it instead</h2>'+
+    '<p class="sub">If the file picker does nothing — some embedded and locked-down browsers block it — open your file in '+
+    'a text editor, copy everything, and paste it here. This route always works.</p>'+
+    '<label class="f"><span class="lab">CSV, a JSON list of parts, or a whole project JSON</span>'+
+    '<textarea id="pasteBox" rows="6" placeholder="name,qty,process,price&#10;Bracket,1,purchased,250" '+
+    'style="font-family:var(--f-mono);font-size:12px"></textarea></label>'+
+    '<div class="rowact" style="margin-top:10px"><button class="btn primary" id="btnPasteLoad">Load what I pasted</button>'+
+    '<button class="btn" id="btnPasteClear">Clear the box</button></div>'+
+    '<p class="note" style="margin-top:10px">The format is worked out from what you paste: a project JSON replaces '+
+    'everything, anything else adds parts to the option you are editing.</p></div>'+
 
     '<div class="card"><h2>Import a BOM</h2>'+
     '<p class="sub">CSV with the column names on the first line, in any order — or the same table as JSON, an array of '+
@@ -3152,7 +3169,7 @@ function viewData(){
     '<div class="tablewrap"><table><thead><tr><th>Group</th><th>Column</th><th>Meaning</th><th>Accepted values</th></tr></thead><tbody>'+
     CSV_COLUMNS.map(r=>'<tr><td class="note">'+h(r[0])+'</td><td class="mono">'+h(r[1])+'</td><td>'+h(r[2])+'</td><td class="note">'+h(r[3])+'</td></tr>').join("")+
     '</tbody></table></div>'+
-    '<div class="rowact" style="margin-top:12px"><button class="btn primary" id="btnImportCsv2">Choose a CSV or JSON file</button>'+
+    '<div class="rowact" style="margin-top:12px"><label class="btn primary filebtn" for="fileCsv">Choose a CSV or JSON file</label>'+
     '<button class="btn" id="btnCsvTemplate">Download blank template</button></div></div>'+
 
     '<div class="card"><h2>Storage</h2><p class="note">Key: <span class="mono">'+LSKEY+'</span>. '+
@@ -3281,7 +3298,9 @@ const CSV_FITTING_FLAGS  = ["notSelfLocating","holdDown","resistance","obstructe
 
 function importCsv(text){
   const rows = parseCsv(text);
-  if(rows.length<2){ toast("Nothing to import"); return; }
+  if(!rows.length || !rows[0].length || !rows[0].join("").trim()){
+    alert("There is nothing to read in that \u2014 no rows at all."); return;
+  }
   const head = rows[0].map(x=>x.trim().toLowerCase());
   const col = n=>head.indexOf(String(n).toLowerCase());
 
@@ -3302,8 +3321,13 @@ function importCsv(text){
           "with the column names on the first line.");
     return;
   }
+  if(rows.length < 2){
+    alert("The column names are there, but there are no part rows beneath them.\n\n"+
+          "Recognised on the first line: "+matched.join(", ")+"\n\nNothing was imported.");
+    return;
+  }
   const warn = [];
-  if(head.indexOf("name")<0) warn.push("No “name” column — every row will be called “Imported part”.");
+  if(head.indexOf("name")<0) warn.push("No \u201Cname\u201D column \u2014 every row will be called \u201CImported part\u201D.");
   let added=0;
 
   rows.slice(1).forEach((r,ri)=>{
@@ -3715,12 +3739,19 @@ document.addEventListener("click", e=>{
     download((S.meta.name||"analysis").replace(/[^\w-]+/g,"_")+".json", projectJson(2));
     toast("Exported"); return;
   }
-  if(t.id==="btnImport"||t.id==="btnImport2"){ document.getElementById("fileImport").click(); return; }
-  if(t.id==="btnImportCsv"||t.id==="btnImportCsv2"){ document.getElementById("fileCsv").click(); return; }
   if(t.id==="btnCsvOut"||t.id==="btnCsvOut2"||t.id==="btnCsvOut2r"){ csvOut(); return; }
   if(t.id==="btnCsvTemplate"){
     const headers = CSV_COLUMNS.filter(c=>c[1].indexOf(" / ")<0).map(c=>c[1]);
     download("bom-template.csv", headers.join(",")+"\n", "text/csv");
+    return;
+  }
+  if(t.id==="btnPasteClear"){ const b=document.getElementById("pasteBox"); if(b){ b.value=""; b.focus(); } return; }
+  if(t.id==="btnPasteLoad"){
+    const box = document.getElementById("pasteBox");
+    const txt = box ? box.value.trim() : "";
+    if(!txt){ toast("Nothing pasted yet"); if(box) box.focus(); return; }
+    try{ loadAnyText(txt); }
+    catch(err){ alert("Could not read that: "+err.message); }
     return;
   }
   if(t.id==="btnReset"){ if(confirm("Discard everything and reload the sample project?")){ S=sampleProject(); ui.selPart=null; save(); render(); } return; }
@@ -3760,42 +3791,56 @@ function refreshLive(){
   }
 }
 
-document.getElementById("fileImport").addEventListener("change", e=>{
-  const f = e.target.files[0]; if(!f) return;
+/* Replace the whole analysis with a saved one. Loading a project discards
+   parts, every design option and the whole Library. Reset and Clear both ask
+   first; this loses the most, so it asks too. */
+function loadProject(o){
+  const items = S.variants.reduce((a,v)=>a+v.parts.length,0);
+  if(items > 0){
+    const incoming = (o.meta && o.meta.name) || "the imported project";
+    const ok = confirm(
+      "Replace \u201C"+(S.meta.name||"this project")+"\u201D with \u201C"+incoming+"\u201D?\n\n"+
+      "You would lose "+items+" item"+(items===1?"":"s")+" across "+S.variants.length+
+      " design option"+(S.variants.length===1?"":"s")+", and every rate and coefficient in the Library. "+
+      "This cannot be undone.\n\n"+
+      "Cancel first and use Export if you want to keep the current project.");
+    if(!ok){ toast("Import cancelled \u2014 nothing changed"); return; }
+  }
+  S = migrate(o); ui.selPart=null; save(); render();
+  toast("Loaded \u201C"+(S.meta.name||"project")+"\u201D \u2014 "+S.parts.length+" items, "+S.variants.length+" option(s)");
+}
+
+/* Both pickers hand their text to the same reader, so a project dropped on the
+   BOM control still loads and a BOM dropped on Import still imports. */
+function readPickedFile(e){
+  const f = e.target.files[0];
+  e.target.value = "";
+  if(!f) return;
   const rd = new FileReader();
+  rd.onerror = ()=>alert("Could not read \u201C"+f.name+"\u201D. If the file picker is not working here, "+
+                         "the Data tab has a box you can paste into instead.");
   rd.onload = ()=>{
-    try{
-      const o = JSON.parse(rd.result);
-      if(!o.parts && !o.variants) throw new Error("not a project file");
-      /* Loading a project replaces everything — parts, every design option, and
-         the whole Library. Reset and Clear both ask first; this is the one that
-         can lose the most, so it asks too. */
-      const items = S.variants.reduce((a,v)=>a+v.parts.length,0);
-      if(items > 0){
-        const incoming = (o.meta && o.meta.name) || "the imported project";
-        const ok = confirm(
-          "Replace “"+(S.meta.name||"this project")+"” with “"+incoming+"”?\n\n"+
-          "You would lose "+items+" item"+(items===1?"":"s")+" across "+S.variants.length+
-          " design option"+(S.variants.length===1?"":"s")+", and every rate and coefficient in the Library. "+
-          "This cannot be undone.\n\n"+
-          "Cancel first and use Export if you want to keep the current project.");
-        if(!ok){ toast("Import cancelled — nothing changed"); return; }
-      }
-      S = migrate(o); ui.selPart=null; save(); render();
-      toast("Loaded “"+(S.meta.name||"project")+"” — "+S.parts.length+" items, "+S.variants.length+" option(s)");
-    }catch(err){ alert("Could not read that file: "+err.message); }
+    try{ loadAnyText(rd.result); }
+    catch(err){ alert("Could not read \u201C"+f.name+"\u201D: "+err.message); }
   };
-  rd.readAsText(f); e.target.value="";
-});
-document.getElementById("fileCsv").addEventListener("change", e=>{
-  const f = e.target.files[0]; if(!f) return;
-  const rd = new FileReader();
-  rd.onload = ()=>{
-    try{ importCsv(toRowText(rd.result)); }
-    catch(err){ alert("Could not read that file: "+err.message); }
-  };
-  rd.readAsText(f); e.target.value="";
-});
+  rd.readAsText(f);
+}
+document.getElementById("fileImport").addEventListener("change", readPickedFile);
+document.getElementById("fileCsv").addEventListener("change", readPickedFile);
+
+/* One entry point for every way text gets in — a picked file or a paste. A
+   project JSON replaces the whole analysis; anything else is a BOM. */
+function loadAnyText(text){
+  const t = String(text).replace(/^\uFEFF/, "").trim();
+  if(t.charAt(0) === "{"){
+    let o;
+    try{ o = JSON.parse(t); }catch(e){ throw new Error("that looks like JSON but will not parse — "+e.message); }
+    if(o && (o.parts || o.variants)) return loadProject(o);
+    throw new Error("that JSON is not a saved project and not a list of parts. A project has a “variants” key; "+
+                    "a BOM is a list, starting with “[”.");
+  }
+  importCsv(toRowText(t));
+}
 
 /* People convert the Parts sheet to JSON as often as to CSV, and an array of
    row objects carries exactly the same information. Flatten it to CSV rather
