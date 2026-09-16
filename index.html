@@ -1453,6 +1453,34 @@ function moduleRollup(rows){
 /* ============================================================
    6. IMPROVEMENT FINDER
    ============================================================ */
+/* ---- Input completeness ------------------------------------------------
+   A cost model will always return a number. These checks say when that number
+   came from the template rather than from the part, because a confident figure
+   built on defaults is worse than no figure at all. */
+const GEOM_KEYS = {
+  machining:["L","W","H","partVolume"], fdm:["bx","by","bz","partVolume"],
+  powder:["bx","by","bz","partVolume"], foam:["bx","by","bz","partVolume"],
+  composite:["areaMm2","plies"], harness:["lengthMm","cores"]
+};
+let _geomDefaults = null;
+function geomDefaults(){ return _geomDefaults || (_geomDefaults = samplePart().cost); }
+
+function geometryCheck(pt){
+  const proc = pt.cost.process, keys = GEOM_KEYS[proc];
+  if(!keys || !pt.cost[proc]) return {untouched:false, clamped:false};
+  const c = pt.cost[proc], def = geomDefaults()[proc];
+  /* Every geometry field still exactly on the shipped default is, in practice,
+     a part nobody has measured. It is a heuristic, and it is stated as one. */
+  const untouched = keys.every(k=>num(c[k]) === num(def[k]));
+  let clamped = false, stockVol = 0;
+  if(proc==="machining"){
+    stockVol = c.stockForm==="bar" ? Math.PI/4*Math.pow(num(c.D),2)*num(c.L)
+                                   : num(c.L)*num(c.W)*num(c.H);
+    clamped = stockVol > 0 && num(c.partVolume) > stockVol;
+  }
+  return {untouched, clamped, stockVol, partVol:num(c.partVolume), keys};
+}
+
 function findings(){
   const d = dfaProduct(), cp = costProduct(), out = [];
   const T = S.lib.dfa.targets;
@@ -1507,6 +1535,34 @@ function findings(){
         why:"Permanent or torque-dependent fixings do not belong on a joint the operator makes and breaks in the field.",
         gain:"A quick-release or captive latch would cut "+r2(r.fittingSec)+" s and remove a torque-control step from deployment."});
     }
+    /* Did this cost come from the part, or from the template it was created
+       with? The model cannot tell you that from the number alone. */
+    if(!r.isOp){
+      const g = geometryCheck(pt);
+      if(g.untouched){
+        out.unshift({sev:"risk", part:pt.name, title:"Geometry never entered — this cost is the template default",
+          why:"Every geometry field on this part ("+g.keys.join(", ")+") is still exactly as it was created. "+
+              "The estimator has returned "+CUR+fmt(c.unit)+" for a part it knows nothing about.",
+          gain:"Enter the real volume and bounding box from the CAD mass properties. Until you do, exclude this part "+
+               "from anything you quote or compare."});
+      }
+      if(g.clamped){
+        out.unshift({sev:"risk", part:pt.name, title:"Part volume is larger than the stock it is cut from",
+          why:"The finished volume is "+fmt0(g.partVol)+" mm³ but the stock block is only "+fmt0(g.stockVol)+
+              " mm³. The model has capped the part at the stock size and costed zero material removal, so this part "+
+              "shows no machining time at all.",
+          gain:"One of the two numbers is wrong — usually a unit slip between mm³ and cm³. Fix it before reading any cost from this part."});
+      }
+      /* A sub-assembly is priced by what is inside it, so a zero of its own is
+         correct, not missing. */
+      if(pt.cost.process==="purchased" && num(pt.cost.purchasedPrice)<=0 &&
+         !(pt.itemType==="subassembly" && S.parts.some(q=>q.parent===pt.id))){
+        out.push({sev:"warn", part:pt.name, title:"Purchased part with no price",
+          why:"It is counted in the part count and the assembly time, but contributes nothing to cost, so the product total is understated.",
+          gain:"Enter the quoted price, or the last price you paid."});
+      }
+    }
+
     /* Quantity on a sub-assembly multiplies only its own fitting time, not the
        items inside it — so "4 of these arms" cannot be said this way, and the
        part count it produces looks plausible while being wrong. Say so. */
