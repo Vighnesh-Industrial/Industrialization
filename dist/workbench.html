@@ -217,7 +217,7 @@ details.calc table{margin-top:10px;font-size:12px}
   <div class="topbar-in">
     <div class="brand">
       <h1>Assembly &amp; Cost Workbench</h1>
-      <span class="ver">DFA + should-cost · v1.0</span>
+      <span class="ver">DFA + should-cost · <span id="buildTag"></span></span>
     </div>
     <nav class="tabs" id="tabs"></nav>
     <div class="topact">
@@ -239,6 +239,7 @@ details.calc table{margin-top:10px;font-size:12px}
    ============================================================ */
 
 const CUR = "₹"; // INR
+const BUILD = "build 2026-09-16-7";  // shown in the header so a stale page is obvious
 
 const DEFAULT_LIB = {
   rates: {
@@ -701,7 +702,7 @@ function sampleProject(){
           annualVolume:500, massTargetG:10000, fieldDeployTargetSec:300,
           notes:"Illustrative only – quantities, geometry and prices are invented. "+
                 "Replace with your own BOM (Data tab → Reset clears this)."},
-    settings:{basis:"vendor"},
+    settings:{basis:"vendor", importMode:"replace"},
     lib: JSON.parse(JSON.stringify(DEFAULT_LIB)),
     parts
   };
@@ -738,6 +739,7 @@ function migrate(o){
   // fill in any library keys added after the file was saved
   o.lib = deepDefault(o.lib||{}, DEFAULT_LIB);
   o.settings = o.settings||{basis:"vendor"};
+  if(!o.settings.importMode) o.settings.importMode = "replace";
 
   /* Files written before design options existed hold a single flat part list.
      Wrap it as the first variant; from here on the variant owns the array and
@@ -3134,6 +3136,22 @@ function dfaTable(title,path,tbl){
 }
 
 /* ---- Data ---- */
+/* Importing a BOM replaces the current parts. Keeping both is a real need when
+   a BOM arrives in pieces, so it is offered here as a standing choice rather
+   than a question asked at the moment of import, where "add" is far too easy
+   to pick by accident. */
+function importModeBox(){
+  const adding = S.settings.importMode === "add";
+  return '<div style="margin-top:12px;padding:10px 12px;background:var(--surface-2);border:1px solid var(--rule)">'+
+    '<label class="ck"><input type="checkbox" data-p="settings.importMode" data-rerender="1" '+
+      'data-on="add" data-off="replace"'+(adding?" checked":"")+'>'+
+      '<span>Add to the parts already here, instead of replacing them</span></label>'+
+    '<p class="note" style="margin:6px 0 0">'+
+      (adding ? 'Every import will be <b>added</b> to what is already in this option, so importing the same file twice counts everything twice.'
+              : 'Every import <b>replaces</b> what is in this option. This is what you want for "here is my BOM, analyse it".')+
+    '</p></div>';
+}
+
 function viewData(){
   return '<div class="card"><h2>Save and share</h2>'+
     '<p class="sub">Your work lives in this browser’s local storage. Export a JSON file to keep it in the repo, move it between machines, or hand it to a colleague.</p>'+
@@ -3151,8 +3169,9 @@ function viewData(){
     'style="font-family:var(--f-mono);font-size:12px"></textarea></label>'+
     '<div class="rowact" style="margin-top:10px"><button class="btn primary" id="btnPasteLoad">Load what I pasted</button>'+
     '<button class="btn" id="btnPasteClear">Clear the box</button></div>'+
+    importModeBox()+
     '<p class="note" style="margin-top:10px">The format is worked out from what you paste: a project JSON replaces '+
-    'everything, anything else adds parts to the option you are editing.</p></div>'+
+    'the whole analysis, anything else is treated as a BOM.</p></div>'+
 
     '<div class="card"><h2>Import a BOM</h2>'+
     '<p class="sub">CSV with the column names on the first line, in any order — or the same table as JSON, an array of '+
@@ -3164,7 +3183,8 @@ function viewData(){
     CSV_COLUMNS.map(r=>'<tr><td class="note">'+h(r[0])+'</td><td class="mono">'+h(r[1])+'</td><td>'+h(r[2])+'</td><td class="note">'+h(r[3])+'</td></tr>').join("")+
     '</tbody></table></div>'+
     '<div class="rowact" style="margin-top:12px"><label class="btn primary filebtn" for="fileCsv">Choose a CSV or JSON file</label>'+
-    '<button class="btn" id="btnCsvTemplate">Download blank template</button></div></div>'+
+    '<button class="btn" id="btnCsvTemplate">Download blank template</button></div>'+
+    importModeBox()+'</div>'+
 
     '<div class="card"><h2>Storage</h2><p class="note">Key: <span class="mono">'+LSKEY+'</span>. '+
     'Local storage is per-browser and per-folder — opening the file from a different path, browser or profile starts empty. '+
@@ -3329,35 +3349,30 @@ function importCsv(text){
 
      So only interrupt when the file looks like one already imported: judge it
      by how many of its names are already here, not by whether anything is. */
-  const hadRows = S.parts.length;
+  /* Replacing is what people mean by "import my BOM", so that is the default
+     and the only thing a prompt ever offers. Building one part list from
+     several files is real but rarer, so it is an explicit checkbox next to the
+     import controls rather than a choice buried in a modal.
 
-  /* The sample project is loaded by default, so the commonest way to get a
-     nonsense analysis is to import a real BOM straight on top of it and end up
-     measuring both. Nobody chose those parts, so say so plainly. */
-  if(hadRows > 0 && S.meta.sample){
-    const keep = confirm(
-      "This is still the built-in sample project \u2014 "+hadRows+" items nobody chose.\n\n"+
-      "OK \u2014 clear it and analyse just the file you are importing.\n"+
-      "Cancel \u2014 add your parts to the sample, and measure both together.");
-    if(keep){ setParts([]); S.meta.sample = false; S.meta.name = ""; }
-  }
-  if(S.parts.length > 0){
-    const nameCol = col("name");
-    const here = new Set(S.parts.map(x=>String(x.name||"").trim().toLowerCase()));
-    const incoming = rows.slice(1).filter(r=>r && r.join("").trim());
-    const dupes = nameCol < 0 ? [] : incoming.filter(r=>{
-      const n = String(r[nameCol]==null?"":r[nameCol]).trim().toLowerCase();
-      return n && here.has(n);
-    });
-    if(dupes.length && dupes.length >= incoming.length/2){
-      const replace = confirm(
-        dupes.length+" of the "+incoming.length+" item"+(incoming.length===1?"":"s")+
-        " in this file " + (dupes.length===1?"is":"are") + " already in \u201C"+(variant().name||"this option")+
-        "\u201D, which holds "+hadRows+".\n\nThis looks like the same file imported again.\n\n"+
-        "OK \u2014 replace what is here with this file.\n"+
-        "Cancel \u2014 add them anyway, leaving "+(hadRows+incoming.length)+" items.");
-      if(replace) setParts([]);
-    }
+     Cancel always means nothing happens. An earlier version put "add them
+     anyway" on Cancel, which turned a cancelled import into another stacked
+     copy — the exact failure it was meant to prevent. */
+  const hadRows = S.parts.length;
+  const adding = S.settings.importMode === "add";
+
+  if(hadRows > 0 && !adding){
+    const incoming = rows.slice(1).filter(r=>r && r.join("").trim()).length;
+    const what = S.meta.sample
+      ? "\u201C"+(variant().name||"This option")+"\u201D still holds the built-in sample project \u2014 "+
+        hadRows+" items nobody chose."
+      : "\u201C"+(variant().name||"This option")+"\u201D already holds "+hadRows+" item"+(hadRows===1?"":"s")+".";
+    const ok = confirm(
+      what+"\n\nReplace "+(hadRows===1?"it":"them")+" with the "+incoming+" in this file?\n\n"+
+      "OK \u2014 replace, and analyse only this file.\n"+
+      "Cancel \u2014 do nothing.\n\n"+
+      "To keep both instead, tick \u201CAdd to the parts already here\u201D on the Data tab first.");
+    if(!ok){ toast("Import cancelled \u2014 nothing changed"); return; }
+    setParts([]);
   }
   S.meta.sample = false;
 
@@ -3832,7 +3847,7 @@ document.addEventListener("input", e=>{
   const el = e.target; const p = el.dataset.p;
   if(!p) return;
   let v;
-  if(el.type==="checkbox") v = el.checked;
+  if(el.type==="checkbox") v = el.dataset.on ? (el.checked ? el.dataset.on : el.dataset.off) : el.checked;
   else if(el.type==="number") v = el.value===""?0:parseFloat(el.value);
   else v = el.value;
   setPath(p, v);
@@ -3940,4 +3955,5 @@ function toRowText(text){
 /* ---- boot ---- */
 S = load();
 render();
+document.getElementById("buildTag").textContent = BUILD;
 </script>
